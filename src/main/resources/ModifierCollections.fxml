@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.shape.SVGPath?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.2"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="Controllers.Collections.ModifierCollections"
+           prefWidth="800" prefHeight="700"
+           styleClass="window"
+           stylesheets="@style.css,@ajoutercollections.css,@artworkcard.css">
+           
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+            <Button fx:id="backButton" text="← Back" styleClass="back-button" onAction="#onBackClick" />
+            <Label text="✨ Edit Collection" styleClass="title" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </top>
+           
+    <center>
+        <ScrollPane fitToWidth="true" pannable="true" styleClass="main-scroll-pane" 
+                  vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
+            <content>
+                <VBox alignment="CENTER" spacing="20" styleClass="form-container" fx:id="rootVBox">
+                    <Label text="🎨 Edit Your Collection" styleClass="section-title" style="-fx-font-size: 22px; -fx-text-fill: #020741;"/>
+                    <Label text="Update the details below to modify your collection" styleClass="description" style="-fx-text-fill: #020741; -fx-opacity: 0.6;"/>
+                    
+                    <!-- Title Field -->
+                    <VBox styleClass="field-group">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="📝" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
+                            <Label text="Collection Title" styleClass="field-label"/>
+                        </HBox>
+                        <TextField fx:id="titleField" promptText="Enter a title for your collection" styleClass="text-input"/>
+                    </VBox>
+                    
+                    <!-- Description Field -->
+                    <VBox styleClass="field-group">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="📄" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
+                            <Label text="Description" styleClass="field-label"/>
+                        </HBox>
+                        <TextArea fx:id="descriptionArea" promptText="Describe what this collection is about" 
+                                 prefRowCount="4" wrapText="true" styleClass="text-input"/>
+                    </VBox>
+                    
+                    <!-- Goal Field -->
+                    <VBox styleClass="field-group">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="🎯" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
+                            <Label text="Funding Goal" styleClass="field-label"/>
+                        </HBox>
+                        <TextField fx:id="goalField" promptText="Enter amount in TND" styleClass="text-input"/>
+                    </VBox>
+
+                    <!-- Image Upload -->
+                    <VBox styleClass="field-group">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="🖼️" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
+                            <Label text="Collection Image" styleClass="field-label"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Button text="Choose an image" onAction="#chooseImage" styleClass="secondary-button"/>
+                            <Button text="Remove image" onAction="#removeImage" styleClass="secondary-button" style="-fx-border-color: #FF6B6B;"/>
+                            <Label fx:id="imagePathLabel" text="No image chosen" styleClass="body-text"/>
+                        </HBox>
+                    </VBox>
+                    
+                    <!-- Artwork Selection -->
+                    <VBox styleClass="field-group">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="🖌️" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
+                            <Label text="Manage Artworks" styleClass="field-label"/>
+                        </HBox>
+                        
+                        <!-- Available Artworks Section -->
+                        <Label text="Available Artworks" styleClass="subtitle" style="-fx-text-fill: #020741; -fx-font-weight: bold; -fx-padding: 10 0 5 0;"/>
+                        <Label text="Choose artworks to add to this collection" 
+                              styleClass="description" style="-fx-text-fill: #020741; -fx-opacity: 0.6;"/>
+                        
+                        <FlowPane fx:id="availableArtworksContainer" hgap="15" vgap="15" 
+                                 prefWidth="600" prefHeight="250" minHeight="250" 
+                                 styleClass="artwork-container">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                        </FlowPane>
+                        
+                        <Button text="✓ Add Selected to Collection" onAction="#addArtworksToCollection" 
+                               styleClass="secondary-button" style="-fx-alignment: CENTER_RIGHT;"/>
+                        
+                        <!-- Collection Artworks Section -->
+                        <Label text="Artworks in this Collection" styleClass="subtitle" style="-fx-text-fill: #020741; -fx-font-weight: bold; -fx-padding: 15 0 5 0;"/>
+                        <Label text="Current artworks in your collection" 
+                              styleClass="description" style="-fx-text-fill: #020741; -fx-opacity: 0.6;"/>
+                        
+                        <FlowPane fx:id="collectionArtworksContainer" hgap="15" vgap="15" 
+                                 prefWidth="600" prefHeight="250" minHeight="250" 
+                                 styleClass="artwork-container">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                        </FlowPane>
+                        
+                        <Button text="⛔ Remove Selected from Collection" onAction="#removeArtworksFromCollection" 
+                               styleClass="secondary-button" style="-fx-border-color: #FF6B6B; -fx-alignment: CENTER_RIGHT;"/>
+                    </VBox>
+                    
+                    <!-- Submit Button -->
+                    <HBox alignment="CENTER" spacing="20">
+                        <Button text="← Back" onAction="#onBackClick" 
+                               styleClass="secondary-button" style="-fx-border-color: #4D81F7;" />
+                        <Button text="✓ Update Collection" onAction="#modifierCollection" 
+                               styleClass="primary-button" style="-fx-background-color: #4D81F7;" />
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
