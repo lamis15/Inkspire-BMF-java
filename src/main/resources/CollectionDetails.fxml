@@ -40,11 +40,34 @@
                         <Label fx:id="titleLabel" styleClass="title"/>
                         <Label fx:id="descriptionLabel" wrapText="true" styleClass="description"/>
                         <Label fx:id="goalLabel" styleClass="subtitle"/>
+                        
+                        <!-- Progress bar for current amount vs goal -->
+                        <VBox spacing="5">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label fx:id="progressLabel" styleClass="subtitle" style="-fx-font-size: 12;"/>
+                            </HBox>
+                            <HBox fx:id="progressBarContainer" prefHeight="20" style="-fx-background-color: #f0f0f0; -fx-background-radius: 10;">
+                                <HBox fx:id="progressBarFill" prefHeight="20" style="-fx-background-color: #4D81F7; -fx-background-radius: 10 0 0 10;"/>
+                            </HBox>
+                        </VBox>
+                        
                         <Label fx:id="statusLabel" styleClass="subtitle"/>
+                        
+                        <!-- Owner information -->
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <ImageView fx:id="userIconView" fitWidth="24" fitHeight="24" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 0, 0, 0, 0); -fx-opacity: 0.8;">
+                                <image>
+                                    <javafx.scene.image.Image url="@/assets/icons/user.png"/>
+                                </image>
+                            </ImageView>
+                            <Label fx:id="ownerNameLabel" styleClass="subtitle" style="-fx-font-size: 14; -fx-text-fill: #555555;"/>
+                        </HBox>
                         
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <Button fx:id="modifyButton" text="Modify" styleClass="action-button"/>
                             <Button fx:id="deleteButton" text="Delete" styleClass="delete-button"/>
+                            <Button fx:id="donateButton" text="💰 Donate" styleClass="action-button" 
+                                    style="-fx-background-color: #4D81F7;" visible="false"/>
                         </HBox>
                     </VBox>
                 </HBox>

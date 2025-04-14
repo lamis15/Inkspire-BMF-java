@@ -41,7 +41,12 @@
                             <Label text="📝" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
                             <Label text="Collection Title" styleClass="field-label"/>
                         </HBox>
-                        <TextField fx:id="titleField" promptText="Enter a title for your collection" styleClass="text-input"/>
+                        <VBox spacing="5">
+                            <TextField fx:id="titleField" promptText="Enter a title for your collection" 
+                                      styleClass="text-input" onKeyReleased="#validateTitle"/>
+                            <Label fx:id="titleErrorLabel" styleClass="error-label" 
+                                  style="-fx-text-fill: #e74c3c; -fx-font-size: 12px;" visible="false"/>
+                        </VBox>
                     </VBox>
                     
                     <!-- Description Field -->
@@ -60,7 +65,12 @@
                             <Label text="🎯" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
                             <Label text="Funding Goal" styleClass="field-label"/>
                         </HBox>
-                        <TextField fx:id="goalField" promptText="Enter amount in TND" styleClass="text-input"/>
+                        <VBox spacing="5">
+                            <TextField fx:id="goalField" promptText="Enter amount in TND" 
+                                      styleClass="text-input" onKeyReleased="#validateGoal"/>
+                            <Label fx:id="goalErrorLabel" styleClass="error-label" 
+                                  style="-fx-text-fill: #e74c3c; -fx-font-size: 12px;" visible="false"/>
+                        </VBox>
                     </VBox>
 
                     <!-- Image Upload -->

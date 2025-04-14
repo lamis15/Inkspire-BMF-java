@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
@@ -57,6 +58,12 @@ public class AjouterCollections implements Initializable {
 
     @FXML
     private Button backButton;
+    
+    @FXML
+    private Label titleErrorLabel;
+    
+    @FXML
+    private Label goalErrorLabel;
 
     private File selectedImageFile;
 
@@ -179,17 +186,99 @@ public class AjouterCollections implements Initializable {
         alert.showAndWait();
     }
     
+    /**
+     * Validate the collection title in real-time
+     */
+    @FXML
+    void validateTitle(KeyEvent event) {
+        String title = titleField.getText().trim();
+        boolean isValid = true;
+        String errorMessage = "";
+        
+        // Check if title is empty
+        if (title.isEmpty()) {
+            isValid = false;
+            errorMessage = "Collection name cannot be empty";
+        }
+        
+        // Show/hide error message
+        titleErrorLabel.setText(errorMessage);
+        titleErrorLabel.setVisible(!isValid);
+        
+        // Change text field style based on validation
+        if (isValid) {
+            titleField.setStyle("-fx-border-color: #4D81F7;");
+        } else {
+            titleField.setStyle("-fx-border-color: #e74c3c;");
+        }
+    }
+    
+    /**
+     * Validate the funding goal in real-time
+     */
+    @FXML
+    void validateGoal(KeyEvent event) {
+        String goalText = goalField.getText().trim();
+        boolean isValid = true;
+        String errorMessage = "";
+        
+        // Goal is optional, so empty is valid
+        if (!goalText.isEmpty()) {
+            try {
+                double goal = Double.parseDouble(goalText);
+                
+                // Check if goal is positive
+                if (goal <= 0) {
+                    isValid = false;
+                    errorMessage = "Goal amount must be greater than zero";
+                }
+            } catch (NumberFormatException e) {
+                isValid = false;
+                errorMessage = "Please enter a valid number";
+            }
+        }
+        
+        // Show/hide error message
+        goalErrorLabel.setText(errorMessage);
+        goalErrorLabel.setVisible(!isValid);
+        
+        // Change text field style based on validation
+        if (isValid) {
+            goalField.setStyle("-fx-border-color: #4D81F7;");
+        } else {
+            goalField.setStyle("-fx-border-color: #e74c3c;");
+        }
+    }
+    
     @FXML
     void ajouterCollection(ActionEvent event) {
         try {
             // Validate that the collection name is not empty
             if (titleField.getText() == null || titleField.getText().trim().isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Input");
-                alert.setHeaderText(null);
-                alert.setContentText("Collection name cannot be empty. Please enter a name for your collection.");
-                alert.showAndWait();
+                // Use the error label instead of alert
+                titleErrorLabel.setText("Collection name cannot be empty");
+                titleErrorLabel.setVisible(true);
+                titleField.setStyle("-fx-border-color: #e74c3c;");
                 return;
+            }
+            
+            // Validate goal if entered
+            String goalText = goalField.getText().trim();
+            if (!goalText.isEmpty()) {
+                try {
+                    double goal = Double.parseDouble(goalText);
+                    if (goal <= 0) {
+                        goalErrorLabel.setText("Goal amount must be greater than zero");
+                        goalErrorLabel.setVisible(true);
+                        goalField.setStyle("-fx-border-color: #e74c3c;");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    goalErrorLabel.setText("Please enter a valid number");
+                    goalErrorLabel.setVisible(true);
+                    goalField.setStyle("-fx-border-color: #e74c3c;");
+                    return;
+                }
             }
             
             // Artworks are now optional - no need to validate if selectedArtworks is empty
@@ -199,10 +288,10 @@ public class AjouterCollections implements Initializable {
 
             collection.setTitle(titleField.getText());
             collection.setDescription(descriptionArea.getText());
-            String goalText = goalField.getText().trim();
-            if (!goalText.isEmpty()) {
+            // Get goal value - reuse the validation we already did
+            if (!goalField.getText().trim().isEmpty()) {
                 try {
-                    double goal = Double.parseDouble(goalText);
+                    double goal = Double.parseDouble(goalField.getText().trim());
                     collection.setGoal(goal);
                     // Automatically set status to active when a goal is entered
                     collection.setStatus("active");
@@ -228,7 +317,7 @@ public class AjouterCollections implements Initializable {
 
             // Simulate logged-in user
             User currentUser = new User();
-            currentUser.setId(1); // Replace with actual user session
+            currentUser.setId(2); // Replace with actual user session
             collection.setUser(currentUser);
 
             // Add the collection to the database

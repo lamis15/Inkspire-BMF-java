@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
@@ -61,6 +62,12 @@ public class ModifierCollections implements Initializable {
     
     @FXML
     private FlowPane collectionArtworksContainer;
+    
+    @FXML
+    private Label titleErrorLabel;
+    
+    @FXML
+    private Label goalErrorLabel;
     
 
     private File selectedImageFile;
@@ -333,6 +340,70 @@ public class ModifierCollections implements Initializable {
         }
     }
     
+    /**
+     * Validate the collection title in real-time
+     */
+    @FXML
+    void validateTitle(KeyEvent event) {
+        String title = titleField.getText().trim();
+        boolean isValid = true;
+        String errorMessage = "";
+        
+        // Check if title is empty
+        if (title.isEmpty()) {
+            isValid = false;
+            errorMessage = "Collection name cannot be empty";
+        }
+        
+        // Show/hide error message
+        titleErrorLabel.setText(errorMessage);
+        titleErrorLabel.setVisible(!isValid);
+        
+        // Change text field style based on validation
+        if (isValid) {
+            titleField.setStyle("-fx-border-color: #4D81F7;");
+        } else {
+            titleField.setStyle("-fx-border-color: #e74c3c;");
+        }
+    }
+    
+    /**
+     * Validate the funding goal in real-time
+     */
+    @FXML
+    void validateGoal(KeyEvent event) {
+        String goalText = goalField.getText().trim();
+        boolean isValid = true;
+        String errorMessage = "";
+        
+        // Goal is optional, so empty is valid
+        if (!goalText.isEmpty()) {
+            try {
+                double goal = Double.parseDouble(goalText);
+                
+                // Check if goal is positive
+                if (goal <= 0) {
+                    isValid = false;
+                    errorMessage = "Goal amount must be greater than zero";
+                }
+            } catch (NumberFormatException e) {
+                isValid = false;
+                errorMessage = "Please enter a valid number";
+            }
+        }
+        
+        // Show/hide error message
+        goalErrorLabel.setText(errorMessage);
+        goalErrorLabel.setVisible(!isValid);
+        
+        // Change text field style based on validation
+        if (isValid) {
+            goalField.setStyle("-fx-border-color: #4D81F7;");
+        } else {
+            goalField.setStyle("-fx-border-color: #e74c3c;");
+        }
+    }
+    
     @FXML
     void modifierCollection(ActionEvent event) {
         try {
@@ -342,12 +413,30 @@ public class ModifierCollections implements Initializable {
             
             // Validate that the collection name is not empty
             if (titleField.getText() == null || titleField.getText().trim().isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Input");
-                alert.setHeaderText(null);
-                alert.setContentText("Collection name cannot be empty. Please enter a name for your collection.");
-                alert.showAndWait();
+                // Use the error label instead of alert
+                titleErrorLabel.setText("Collection name cannot be empty");
+                titleErrorLabel.setVisible(true);
+                titleField.setStyle("-fx-border-color: #e74c3c;");
                 return;
+            }
+            
+            // Validate goal if entered
+            String goalFieldValue = goalField.getText().trim();
+            if (!goalFieldValue.isEmpty()) {
+                try {
+                    double goal = Double.parseDouble(goalFieldValue);
+                    if (goal <= 0) {
+                        goalErrorLabel.setText("Goal amount must be greater than zero");
+                        goalErrorLabel.setVisible(true);
+                        goalField.setStyle("-fx-border-color: #e74c3c;");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    goalErrorLabel.setText("Please enter a valid number");
+                    goalErrorLabel.setVisible(true);
+                    goalField.setStyle("-fx-border-color: #e74c3c;");
+                    return;
+                }
             }
             
             // Update collection with form data
@@ -355,15 +444,15 @@ public class ModifierCollections implements Initializable {
             currentCollection.setDescription(descriptionArea.getText());
             
             // Handle goal field and set status accordingly
-            String goalText = goalField.getText().trim();
-            if (!goalText.isEmpty()) {
+            // We already validated the goal field, so we can just use it directly
+            if (!goalFieldValue.isEmpty()) {
                 try {
-                    double goal = Double.parseDouble(goalText);
+                    double goal = Double.parseDouble(goalFieldValue);
                     currentCollection.setGoal(goal);
                     // Automatically set status to active when a goal is entered
                     currentCollection.setStatus("active");
                 } catch (NumberFormatException e) {
-                    // If the goal is not a valid number, set it to null
+                    // This shouldn't happen since we already validated it above
                     currentCollection.setGoal(null);
                     currentCollection.setStatus(null);
                 }

@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -49,10 +50,25 @@ public class CollectionDetails implements javafx.fxml.Initializable {
     private Button modifyButton;
     
     @FXML
+    private Button donateButton;
+    
+    @FXML
     private Button backButton;
     
     @FXML
     private FlowPane artworkContainer;
+    
+    @FXML
+    private Label ownerNameLabel;
+    
+    @FXML
+    private Label progressLabel;
+    
+    @FXML
+    private HBox progressBarContainer;
+    
+    @FXML
+    private HBox progressBarFill;
 
     private final CollectionsService collectionsService = new CollectionsService();
     private final ArtworkService artworkService = new ArtworkService();
@@ -99,6 +115,48 @@ public class CollectionDetails implements javafx.fxml.Initializable {
                 System.out.println("Error loading image: " + e.getMessage());
             }
         }
+        
+        // Set owner name if available
+        if (collection.getUser() != null) {
+            String ownerName = collection.getUser().getFirstName() + " " + collection.getUser().getLastName();
+            ownerNameLabel.setText("Created by: " + ownerName);
+        } else {
+            ownerNameLabel.setText("Created by: Unknown");
+        }
+        
+        // Set up progress bar for current amount vs goal
+        if (collection.getGoal() != null && collection.getGoal() > 0) {
+            double currentAmount = collection.getCurrentAmount();
+            double goalAmount = collection.getGoal();
+            double progressPercentage = Math.min((currentAmount / goalAmount) * 100, 100);
+            
+            // Update progress label
+            progressLabel.setText(String.format("%.2f TND of %.2f TND (%.1f%%)", 
+                    currentAmount, goalAmount, progressPercentage));
+            
+            // Update progress bar width based on percentage
+            progressBarFill.prefWidthProperty().bind(
+                progressBarContainer.widthProperty().multiply(progressPercentage / 100));
+            
+            // Change color based on progress
+            if (progressPercentage < 30) {
+                progressBarFill.setStyle("-fx-background-color: #e74c3c; -fx-background-radius: 10 0 0 10;");
+            } else if (progressPercentage < 70) {
+                progressBarFill.setStyle("-fx-background-color: #f39c12; -fx-background-radius: 10 0 0 10;");
+            } else {
+                progressBarFill.setStyle("-fx-background-color: #2ecc71; -fx-background-radius: 10 0 0 10;");
+            }
+            
+            // Show the progress bar components
+            progressBarContainer.setVisible(true);
+            progressBarFill.setVisible(true);
+            progressLabel.setVisible(true);
+        } else {
+            // Hide progress bar if no goal is set
+            progressBarContainer.setVisible(false);
+            progressBarFill.setVisible(false);
+            progressLabel.setVisible(false);
+        }
 
         // Load artworks that belong to this collection
         loadCollectionArtworks();
@@ -143,6 +201,25 @@ public class CollectionDetails implements javafx.fxml.Initializable {
                 ex.printStackTrace();
             }
         });
+        
+        // Set up donate button action
+        donateButton.setOnAction(e -> onDonateClick());
+        
+        // Show/hide buttons based on ownership
+        // Simulate current user - replace with actual user session in production
+        int currentUserId = 2; // Current user ID
+        
+        if (collection.getUser() != null && collection.getUser().getId() == currentUserId) {
+            // Collection belongs to current user - show modify/delete buttons, hide donate button
+            modifyButton.setVisible(true);
+            deleteButton.setVisible(true);
+            donateButton.setVisible(false);
+        } else {
+            // Collection belongs to another user - hide modify/delete buttons, show donate button
+            modifyButton.setVisible(false);
+            deleteButton.setVisible(false);
+            donateButton.setVisible(true);
+        }
     }
     
     /**
@@ -241,6 +318,44 @@ public class CollectionDetails implements javafx.fxml.Initializable {
             System.out.println("Successfully navigated back to collections view");
         } else {
             System.out.println("Could not find mainRouter for navigation");
+        }
+    }
+    
+    /**
+     * Handle donate button click to navigate to the donation form
+     */
+    @FXML
+    private void onDonateClick() {
+        try {
+            // Load the donation form
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterDonation.fxml"));
+            Parent root = loader.load();
+            
+            // Find the mainRouter and load the donation view
+            Node mainRouter = donateButton.getScene().getRoot().lookup("#mainRouter");
+            if (mainRouter instanceof Pane) {
+                ((Pane) mainRouter).getChildren().clear();
+                ((Pane) mainRouter).getChildren().add(root);
+                
+                // Get the controller and pre-select the current collection
+                try {
+                    Controllers.Donations.AjouterDonation controller = loader.getController();
+                    if (controller != null && collection != null) {
+                        // Pass the collection to the donation controller
+                        controller.preSelectCollection(collection);
+                        System.out.println("Pre-selected collection: " + collection.getTitle());
+                    }
+                } catch (Exception ex) {
+                    // Just log the error but continue with navigation
+                    System.out.println("Could not pre-select collection: " + ex.getMessage());
+                }
+                
+                System.out.println("Successfully loaded donation view");
+            } else {
+                System.out.println("Could not find mainRouter for navigation to donation view");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 }

@@ -76,7 +76,7 @@ public class CollectionsService implements IService<Collections> {
 
     @Override
     public List<Collections> recuperer() throws SQLException {
-        String sql = "SELECT * FROM collections";
+        String sql = "SELECT c.*, u.first_name, u.last_name FROM collections c JOIN user u ON c.user_id = u.id";
         Statement statement = connection.createStatement();
 
         ResultSet rs = statement.executeQuery(sql);
@@ -100,8 +100,11 @@ public class CollectionsService implements IService<Collections> {
             
             c.setStatus(rs.getString("status"));
 
+            // Create user with first and last name
             User user = new User();
             user.setId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
             c.setUser(user);
 
             c.setCurrentAmount(rs.getDouble("current_amount"));
@@ -109,5 +112,48 @@ public class CollectionsService implements IService<Collections> {
             list.add(c);
         }
         return list;
+    }
+    
+    /**
+     * Retrieve a single collection by ID with complete user details
+     */
+    public Collections recupererById(int id) throws SQLException {
+        String sql = "SELECT c.*, u.first_name, u.last_name FROM collections c JOIN user u ON c.user_id = u.id WHERE c.id = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, id);
+        
+        ResultSet rs = preparedStatement.executeQuery();
+        
+        if (rs.next()) {
+            Collections c = new Collections();
+            c.setId(rs.getInt("id"));
+            c.setTitle(rs.getString("title"));
+            c.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime());
+            c.setImage(rs.getString("image"));
+            c.setDescription(rs.getString("description"));
+            
+            // Handle null goal values in the result set
+            double goal = rs.getDouble("goal");
+            if (rs.wasNull()) {
+                c.setGoal(null);
+            } else {
+                c.setGoal(goal);
+            }
+            
+            c.setStatus(rs.getString("status"));
+
+            // Create user with first and last name
+            User user = new User();
+            user.setId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            c.setUser(user);
+
+            c.setCurrentAmount(rs.getDouble("current_amount"));
+            
+            return c;
+        }
+        
+        return null;
     }
 }

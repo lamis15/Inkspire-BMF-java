@@ -8,7 +8,6 @@ public class Donation {
     private Integer id = null;
     private LocalDateTime date = LocalDateTime.now();
     private Double amount = null;
-
     private Collections collections = null;
     private User user = null;
 
@@ -69,6 +68,8 @@ public class Donation {
     public void setUser(User user) {
         this.user = user;
     }
+    
+
 
     @Override
     public boolean equals(Object o) {
