@@ -17,7 +17,7 @@ public class CollectionsService implements IService<Collections> {
     }
 
     @Override
-    public void ajouter(Collections collection) throws SQLException {
+    public boolean ajouter(Collections collection) throws SQLException {
         String sql = "INSERT INTO collections (title, creation_date, image, description, goal, status, user_id, current_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -38,10 +38,11 @@ public class CollectionsService implements IService<Collections> {
         preparedStatement.setDouble(8, collection.getCurrentAmount());
 
         preparedStatement.executeUpdate();
+        return false;
     }
 
     @Override
-    public void modifier(Collections collection) throws SQLException {
+    public boolean modifier(Collections collection) throws SQLException {
         String sql = "UPDATE collections SET title=?, creation_date=?, image=?, description=?, goal=?, status=?, user_id=?, current_amount=? WHERE id=?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -63,22 +64,23 @@ public class CollectionsService implements IService<Collections> {
         preparedStatement.setInt(9, collection.getId());
 
         preparedStatement.executeUpdate();
+        return false;
     }
 
     @Override
-    public void supprimer(int id) throws SQLException {
+    public boolean supprimer(int id) throws SQLException {
         String sql = "DELETE FROM collections WHERE id=?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, id);
         preparedStatement.executeUpdate();
+        return false;
     }
 
     @Override
     public List<Collections> recuperer() throws SQLException {
         String sql = "SELECT * FROM collections";
         Statement statement = connection.createStatement();
-
         ResultSet rs = statement.executeQuery(sql);
         List<Collections> list = new ArrayList<>();
 
@@ -89,7 +91,7 @@ public class CollectionsService implements IService<Collections> {
             c.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime());
             c.setImage(rs.getString("image"));
             c.setDescription(rs.getString("description"));
-            
+
             // Handle null goal values in the result set
             double goal = rs.getDouble("goal");
             if (rs.wasNull()) {
@@ -97,7 +99,7 @@ public class CollectionsService implements IService<Collections> {
             } else {
                 c.setGoal(goal);
             }
-            
+
             c.setStatus(rs.getString("status"));
 
             User user = new User();

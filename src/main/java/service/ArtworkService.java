@@ -17,7 +17,7 @@ public class ArtworkService implements IService<Artwork> {
     }
 
     @Override
-    public void ajouter(Artwork artwork) throws SQLException {
+    public boolean ajouter(Artwork artwork) throws SQLException {
         String sql = "INSERT INTO artwork (name, theme, description, picture, status, user_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -35,10 +35,11 @@ public class ArtworkService implements IService<Artwork> {
         preparedStatement.setInt(6, artwork.getUser().getId());
 
         preparedStatement.executeUpdate();
+        return false;
     }
 
     @Override
-    public void modifier(Artwork artwork) throws SQLException {
+    public boolean modifier(Artwork artwork) throws SQLException {
         String sql = "UPDATE artwork SET name=?, theme=?, description=?, picture=?, status=?, user_id=? WHERE id=?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -57,15 +58,17 @@ public class ArtworkService implements IService<Artwork> {
         preparedStatement.setInt(7, artwork.getId());
 
         preparedStatement.executeUpdate();
+        return false;
     }
 
     @Override
-    public void supprimer(int id) throws SQLException {
+    public boolean supprimer(int id) throws SQLException {
         String sql = "DELETE FROM artwork WHERE id=?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, id);
         preparedStatement.executeUpdate();
+        return false;
     }
 
     @Override
