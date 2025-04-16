@@ -31,22 +31,16 @@
                     <Insets top="20" right="20" bottom="20" left="20"/>
                 </padding>
                 
-                <HBox spacing="30" alignment="CENTER_LEFT">
-                    <!-- Left side - Big image -->
-                    <ImageView fx:id="imageView" fitHeight="300" fitWidth="300" preserveRatio="true"/>
-                    
-                    <!-- Right side - Collection details -->
-                    <VBox spacing="15" HBox.hgrow="ALWAYS">
-                        <Label fx:id="titleLabel" styleClass="title"/>
-                        <Label fx:id="descriptionLabel" wrapText="true" styleClass="description"/>
-                        <Label fx:id="goalLabel" styleClass="subtitle"/>
-                        <Label fx:id="statusLabel" styleClass="subtitle"/>
-                        
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <Button fx:id="modifyButton" text="Modify" styleClass="action-button"/>
-                            <Button fx:id="deleteButton" text="Delete" styleClass="delete-button"/>
-                        </HBox>
-                    </VBox>
+                <ImageView fx:id="imageView" fitHeight="150" fitWidth="150" preserveRatio="true"/>
+                
+                <Label fx:id="titleLabel" styleClass="title"/>
+                <Label fx:id="descriptionLabel" wrapText="true" styleClass="description"/>
+                <Label fx:id="goalLabel" styleClass="subtitle"/>
+                <Label fx:id="statusLabel" styleClass="subtitle"/>
+                
+                <HBox spacing="10" alignment="CENTER">
+                    <Button fx:id="modifyButton" text="Modify" styleClass="action-button"/>
+                    <Button fx:id="deleteButton" text="Delete" styleClass="delete-button"/>
                 </HBox>
                 
                 <Label text="Artworks in this collection" styleClass="section-title"/>

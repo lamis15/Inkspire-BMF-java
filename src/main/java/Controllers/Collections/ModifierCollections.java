@@ -7,26 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import service.ArtworkService;
 import service.CollectionsService;
-import utils.SceneSwitch;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import java.io.File;
 import java.net.URL;
@@ -51,17 +37,25 @@ public class ModifierCollections implements Initializable {
     private Label imagePathLabel;
     
     @FXML
-    private Button backButton;
+    private TableView<Artwork> artworkTable;
     
     @FXML
-    private VBox rootVBox;
+    private TableColumn<Artwork, String> nameColumn;
     
     @FXML
-    private FlowPane availableArtworksContainer;
+    private TableColumn<Artwork, String> themeColumn;
     
     @FXML
-    private FlowPane collectionArtworksContainer;
+    private TableColumn<Artwork, String> descriptionColumn;
     
+    @FXML
+    private TableView<Artwork> collectionArtworksTable;
+    
+    @FXML
+    private TableColumn<Artwork, String> collectionNameColumn;
+    
+    @FXML
+    private TableColumn<Artwork, String> collectionThemeColumn;
 
     private File selectedImageFile;
     private Collections currentCollection;
@@ -70,36 +64,25 @@ public class ModifierCollections implements Initializable {
     private CollectionsService collectionsService = new CollectionsService();
     private ArtworkService artworkService = new ArtworkService();
     
-    private List<Artwork> availableArtworks = new ArrayList<Artwork>();
-    private List<Artwork> collectionArtworks = new ArrayList<Artwork>();
-    private List<Artwork> artworksToAdd = new ArrayList<Artwork>();
-    private List<Artwork> artworksToRemove = new ArrayList<Artwork>();
-    private Map<Integer, CheckBox> availableArtworkCheckboxes = new HashMap<Integer, CheckBox>();
-    private Map<Integer, CheckBox> collectionArtworkCheckboxes = new HashMap<Integer, CheckBox>();
+    private ObservableList<Artwork> availableArtworks = FXCollections.observableArrayList();
+    private ObservableList<Artwork> collectionArtworks = FXCollections.observableArrayList();
+    private ObservableList<Artwork> artworksToAdd = FXCollections.observableArrayList();
+    private ObservableList<Artwork> artworksToRemove = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Configure the scene after it's loaded
-        // Configure the scene after it's loaded
-        if (rootVBox != null) {
-            rootVBox.sceneProperty().addListener((observable, oldScene, newScene) -> {
-                if (newScene != null) {
-                    // Find the ScrollPane parent
-                    Parent parent = rootVBox.getParent();
-                    while (parent != null && !(parent instanceof ScrollPane)) {
-                        parent = parent.getParent();
-                    }
-                    
-                    if (parent instanceof ScrollPane) {
-                        ScrollPane mainScrollPane = (ScrollPane) parent;
-                        mainScrollPane.setFitToWidth(true);
-                        mainScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                        mainScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                        mainScrollPane.setPannable(true);
-                    }
-                }
-            });
-        }
+        // Initialize table columns for available artworks
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        themeColumn.setCellValueFactory(new PropertyValueFactory<>("theme"));
+        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        
+        // Initialize table columns for collection artworks
+        collectionNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        collectionThemeColumn.setCellValueFactory(new PropertyValueFactory<>("theme"));
+        
+        // Set up selection models for the tables
+        artworkTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        collectionArtworksTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     /**
@@ -152,34 +135,16 @@ public class ModifierCollections implements Initializable {
                 .filter(artwork -> !existingCollectionArtworks.contains(artwork))
                 .collect(Collectors.toList());
             
-            // Update the lists
+            // Update the observable lists
             availableArtworks.clear();
             availableArtworks.addAll(filteredUserArtworks);
             
             collectionArtworks.clear();
             collectionArtworks.addAll(existingCollectionArtworks);
             
-            // Use the service method to load artwork cards for available artworks
-            artworkService.loadArtworkCards(availableArtworksContainer, availableArtworks, 
-                                          availableArtworkCheckboxes, null);
-            
-            // Use the service method to load artwork cards for collection artworks
-            artworkService.loadArtworkCards(collectionArtworksContainer, collectionArtworks, 
-                                          collectionArtworkCheckboxes, null);
-            
-            // Show a message if no artworks are available
-            if (availableArtworks.isEmpty() && availableArtworksContainer.getChildren().isEmpty()) {
-                Label noArtworksLabel = new Label("You don't have any additional artworks to add");
-                noArtworksLabel.getStyleClass().add("no-artworks-label");
-                availableArtworksContainer.getChildren().add(noArtworksLabel);
-            }
-            
-            // Show a message if no artworks in collection
-            if (collectionArtworks.isEmpty() && collectionArtworksContainer.getChildren().isEmpty()) {
-                Label noArtworksLabel = new Label("This collection doesn't have any artworks yet");
-                noArtworksLabel.getStyleClass().add("no-artworks-label");
-                collectionArtworksContainer.getChildren().add(noArtworksLabel);
-            }
+            // Set the items in the tables
+            artworkTable.setItems(availableArtworks);
+            collectionArtworksTable.setItems(collectionArtworks);
             
         } catch (SQLException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -200,23 +165,9 @@ public class ModifierCollections implements Initializable {
 
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
-            // Validate that the file is a valid image
-            try {
-                // Attempt to create an image from the file to validate it
-                new javafx.scene.image.Image(file.toURI().toString());
-                
-                // If no exception is thrown, it's a valid image
-                selectedImageFile = file;
-                imagePathLabel.setText(file.getName());
-                imageRemoved = false;
-            } catch (Exception e) {
-                // Not a valid image file
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Image");
-                alert.setHeaderText(null);
-                alert.setContentText("The selected file is not a valid image. Please select a valid image file.");
-                alert.showAndWait();
-            }
+            selectedImageFile = file;
+            imagePathLabel.setText(file.getName());
+            imageRemoved = false;
         }
     }
     
@@ -232,14 +183,8 @@ public class ModifierCollections implements Initializable {
      */
     @FXML
     void addArtworksToCollection(ActionEvent event) {
-        // Get selected artworks based on checkboxes
-        List<Artwork> selected = new ArrayList<Artwork>();
-        for (Artwork artwork : availableArtworks) {
-            CheckBox checkbox = availableArtworkCheckboxes.get(artwork.getId());
-            if (checkbox != null && checkbox.isSelected()) {
-                selected.add(artwork);
-            }
-        }
+        // Get selected artworks from the available artworks table
+        ObservableList<Artwork> selected = artworkTable.getSelectionModel().getSelectedItems();
         
         if (selected.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -253,12 +198,9 @@ public class ModifierCollections implements Initializable {
         // Add to artworks to add list
         artworksToAdd.addAll(selected);
         
-        // Update the artwork lists
+        // Update the collection artworks table
         collectionArtworks.addAll(selected);
         availableArtworks.removeAll(selected);
-        
-        // Reload the artwork cards
-        loadArtworks();
         
         // Show confirmation
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -273,14 +215,8 @@ public class ModifierCollections implements Initializable {
      */
     @FXML
     void removeArtworksFromCollection(ActionEvent event) {
-        // Get selected artworks based on checkboxes
-        List<Artwork> selected = new ArrayList<Artwork>();
-        for (Artwork artwork : collectionArtworks) {
-            CheckBox checkbox = collectionArtworkCheckboxes.get(artwork.getId());
-            if (checkbox != null && checkbox.isSelected()) {
-                selected.add(artwork);
-            }
-        }
+        // Get selected artworks from the collection artworks table
+        ObservableList<Artwork> selected = collectionArtworksTable.getSelectionModel().getSelectedItems();
         
         if (selected.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -294,12 +230,9 @@ public class ModifierCollections implements Initializable {
         // Add to artworks to remove list
         artworksToRemove.addAll(selected);
         
-        // Update the lists
+        // Update the tables
         collectionArtworks.removeAll(selected);
         availableArtworks.addAll(selected);
-        
-        // Reload the artwork cards
-        loadArtworks();
         
         // Show confirmation
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -309,45 +242,11 @@ public class ModifierCollections implements Initializable {
         alert.showAndWait();
     }
     
-    /**
-     * Handle back button click to return to the previous screen
-     */
-    @FXML
-    void onBackClick(ActionEvent event) {
-        try {
-            // Find the mainRouter in the scene graph
-            Node mainRouter = backButton.getScene().getRoot().lookup("#mainRouter");
-            if (mainRouter != null) {
-                // Switch back to the collection details view
-                SceneSwitch.switchScene((javafx.scene.layout.Pane) mainRouter, "/CollectionDetails.fxml");
-            } else {
-                throw new Exception("mainRouter not found in scene graph");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Failed to navigate back: " + e.getMessage());
-            alert.showAndWait();
-        }
-    }
-    
     @FXML
     void modifierCollection(ActionEvent event) {
         try {
             if (currentCollection == null) {
                 throw new IllegalStateException("No collection loaded for editing");
-            }
-            
-            // Validate that the collection name is not empty
-            if (titleField.getText() == null || titleField.getText().trim().isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Input");
-                alert.setHeaderText(null);
-                alert.setContentText("Collection name cannot be empty. Please enter a name for your collection.");
-                alert.showAndWait();
-                return;
             }
             
             // Update collection with form data

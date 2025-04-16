@@ -2,22 +2,11 @@ package service;
 
 import entities.Artwork;
 import entities.User;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
 import utils.DataSource;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ArtworkService implements IService<Artwork> {
 
@@ -250,94 +239,5 @@ public class ArtworkService implements IService<Artwork> {
         
         System.out.println("Returning " + list.size() + " artworks for collection ID: " + collectionId);
         return list;
-    }
-    
-    /**
-     * Load artwork cards into a FlowPane container
-     * @param container The FlowPane container to load cards into
-     * @param artworks The list of artworks to display
-     * @param artworkCheckboxes Map to store checkbox references by artwork ID
-     * @param selectedArtworks Optional list to track selected artworks
-     * @return Map of artwork checkboxes by ID
-     */
-    public void loadArtworkCards(FlowPane container, List<Artwork> artworks, 
-                                Map<Integer, CheckBox> artworkCheckboxes,
-                                List<Artwork> selectedArtworks) {
-        try {
-            // Clear previous artworks and checkboxes
-            container.getChildren().clear();
-            artworkCheckboxes.clear();
-            if (selectedArtworks != null) {
-                selectedArtworks.clear();
-            }
-            
-            // Configure the FlowPane for proper scrolling
-            container.setPrefWidth(600);
-            container.setMaxWidth(Double.MAX_VALUE);
-            container.setMinHeight(400);
-            
-            // Create a card for each artwork
-            for (Artwork artwork : artworks) {
-                try {
-                    // Load the artwork card template
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/ArtworkCard.fxml"));
-                    Node artworkCard = loader.load();
-                    
-                    // Add style class to the card
-                    artworkCard.getStyleClass().add("artwork-card");
-                    
-                    // Find components in the card
-                    ImageView artworkImage = (ImageView) ((VBox) artworkCard).lookup("#artworkImage");
-                    Label artworkTitle = (Label) ((VBox) artworkCard).lookup("#artworkTitle");
-                    Label artworkTheme = (Label) ((VBox) artworkCard).lookup("#artworkTheme");
-                    Label artworkDescription = (Label) ((VBox) artworkCard).lookup("#artworkDescription");
-                    CheckBox artworkSelect = (CheckBox) ((VBox) artworkCard).lookup("#artworkSelect");
-                    
-                    // Set artwork data
-                    if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
-                        try {
-                            Image image = new Image(artwork.getPicture());
-                            artworkImage.setImage(image);
-                        } catch (Exception e) {
-                            // Use placeholder image if artwork image can't be loaded
-                            Image placeholder = new Image(getClass().getResourceAsStream("/placeholder.png"));
-                            artworkImage.setImage(placeholder);
-                        }
-                    } else {
-                        // Use placeholder image if no artwork image
-                        Image placeholder = new Image(getClass().getResourceAsStream("/placeholder.png"));
-                        artworkImage.setImage(placeholder);
-                    }
-                    
-                    artworkTitle.setText(artwork.getName());
-                    artworkTheme.setText(artwork.getTheme());
-                    artworkDescription.setText(artwork.getDescription());
-                    
-                    // Store the checkbox for later reference
-                    artworkCheckboxes.put(artwork.getId(), artworkSelect);
-                    
-                    // Add the card to the container
-                    container.getChildren().add(artworkCard);
-                    
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            
-            // Show a message if no artworks are available
-            if (artworks.isEmpty()) {
-                Label noArtworksLabel = new Label("You don't have any artworks yet. Create some artworks first!");
-                noArtworksLabel.getStyleClass().add("no-artworks-label");
-                container.getChildren().add(noArtworksLabel);
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Failed to load artworks: " + e.getMessage());
-            alert.showAndWait();
-        }
     }
 }

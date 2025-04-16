@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootVBox" prefHeight="600.0" prefWidth="800.0" spacing="10" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.user.AfficherUsers">
+   <children>
+      <Button fx:id="addButton" maxWidth="100" onAction="#onAddClick" style="-fx-background-radius: 50; -fx-border-radius: 50; -fx-background-color: #4D81F7; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 8 16; -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);" text="+" />
+      <ScrollPane fitToWidth="true" prefHeight="550.0">
+         <content>
+            <FlowPane fx:id="cardsContainer" hgap="20" style="-fx-background-color: transparent;" vgap="20" />
+         </content>
+      </ScrollPane>
+   </children>
+</VBox>

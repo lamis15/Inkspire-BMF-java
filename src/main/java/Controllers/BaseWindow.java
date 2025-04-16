@@ -27,4 +27,10 @@ public class BaseWindow {
     @FXML
     void goAuction(ActionEvent event) {
     }
+
+    @FXML
+    void goUser(ActionEvent event) {
+        SceneSwitch.switchScene(mainRouter, "/UserUtils/AfficherUsers.fxml");;
+    }
+
 }
