@@ -264,24 +264,23 @@ public class ModifierDonation implements Initializable {
             
             // Load image if available
             if (collection.getImage() != null && !collection.getImage().isEmpty()) {
-                File imageFile = new File(collection.getImage());
-                if (imageFile.exists()) {
-                    try {
-                        Image image = new Image(imageFile.toURI().toString());
-                        ImageView imageView = new ImageView(image);
-                        imageView.setFitWidth(150);
-                        imageView.setFitHeight(150);
-                        imageView.setPreserveRatio(true);
-                        collectionImageLabel.setGraphic(imageView);
-                        collectionImageLabel.setText("");
-                    } catch (Exception e) {
-                        collectionImageLabel.setText("Image Error");
-                    }
-                } else {
-                    collectionImageLabel.setText("No Image");
+                try {
+                    // Create an ImageView to display the image
+                    ImageView imageView = new ImageView(new Image(collection.getImage()));
+                    imageView.setFitWidth(150);
+                    imageView.setFitHeight(150);
+                    imageView.setPreserveRatio(true);
+
+                    // Replace the label with the ImageView
+                    collectionImageLabel.setGraphic(imageView);
+                    collectionImageLabel.setText("");
+                } catch (Exception e) {
+                    collectionImageLabel.setText("Image not available");
+                    collectionImageLabel.setGraphic(null);
                 }
             } else {
                 collectionImageLabel.setText("No Image");
+                collectionImageLabel.setGraphic(null);
             }
         } else {
             collectionDetailsContainer.setVisible(false);
