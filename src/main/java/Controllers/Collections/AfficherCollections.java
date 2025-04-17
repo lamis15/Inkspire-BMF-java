@@ -116,7 +116,6 @@ public class AfficherCollections {
             List<Collections> userCollections = allCollections.stream()
                     .filter(c -> c.getUser() != null && c.getUser().getId() == currentUser.getId())
                     .collect(Collectors.toList());
-
             // Update button text
             myCollectionsButton.setText("All Collections");
             showingMyCollections = true;

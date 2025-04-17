@@ -35,7 +35,7 @@ public class ArtworkService implements IService<Artwork> {
         preparedStatement.setInt(6, artwork.getUser().getId());
 
         preparedStatement.executeUpdate();
-        return false;
+        return true;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ArtworkService implements IService<Artwork> {
         preparedStatement.setInt(7, artwork.getId());
 
         preparedStatement.executeUpdate();
-        return false;
+        return true;
     }
 
     @Override
@@ -68,38 +68,37 @@ public class ArtworkService implements IService<Artwork> {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, id);
         preparedStatement.executeUpdate();
-        return false;
+        return true;
     }
 
     @Override
     public List<Artwork> recuperer() throws SQLException {
-        String sql = "SELECT * FROM artwork";
-        Statement statement = connection.createStatement();
+        return  null;
+    }
 
-        ResultSet rs = statement.executeQuery(sql);
+    public List<Artwork> recuperer1(int id) throws SQLException {
+        String sql = "SELECT * FROM artwork WHERE id = ?";
         List<Artwork> list = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Artwork a = new Artwork();
+                    a.setId(rs.getInt("id"));
+                    a.setName(rs.getString("name"));
+                    a.setTheme(rs.getString("theme"));
+                    a.setDescription(rs.getString("description"));
+                    a.setPicture(rs.getString("picture"));
+                    if (rs.getObject("status") == null) {
+                        a.setStatus(null);
+                    } else {
+                        a.setStatus(rs.getBoolean("status"));
+                    }
 
-        while (rs.next()) {
-            Artwork a = new Artwork();
-            a.setId(rs.getInt("id"));
-            a.setName(rs.getString("name"));
-            a.setTheme(rs.getString("theme"));
-            a.setDescription(rs.getString("description"));
-            a.setPicture(rs.getString("picture"));
 
-            // Handle status values
-            int status = rs.getInt("status");
-            if (rs.wasNull()) {
-                a.setStatus(null);
-            } else {
-                a.setStatus(status > 0);
+                    list.add(a);
+                }
             }
-
-            User user = new User();
-            user.setId(rs.getInt("user_id"));
-            a.setUser(user);
-
-            list.add(a);
         }
         return list;
     }
@@ -113,7 +112,6 @@ public class ArtworkService implements IService<Artwork> {
         String sql = "SELECT * FROM artwork WHERE user_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, userId);
-
         ResultSet rs = preparedStatement.executeQuery();
         List<Artwork> list = new ArrayList<>();
 
@@ -243,6 +241,4 @@ public class ArtworkService implements IService<Artwork> {
         System.out.println("Returning " + list.size() + " artworks for collection ID: " + collectionId);
         return list;
     }
-
-    // The loadArtworkCards method has been moved to AjouterCollections class
 }

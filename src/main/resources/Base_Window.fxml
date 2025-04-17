@@ -14,6 +14,12 @@
         <!-- Sidebar -->
         <AnchorPane prefHeight="600.0" prefWidth="200.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
+                <!-- User icon in top left -->
+                <ImageView fx:id="userIcon" fitHeight="20.0" fitWidth="20.0" layoutX="20.0" layoutY="20.0" onMouseClicked="#goUser" preserveRatio="true" styleClass="clickable-icon">
+                    <image>
+                        <Image url="@assets/icons/user.png" />
+                    </image>
+                </ImageView>
                 <VBox alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
                     <children>
                         <ImageView fitHeight="80.0" fitWidth="150.0" preserveRatio="true">
@@ -27,8 +33,10 @@
                         <Button fx:id="buttonCollections" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCollections" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Collections" />
                         <Button fx:id="buttonDonations" maxWidth="Infinity" mnemonicParsing="false" onAction="#goDonations" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Donations" />
                         <Button fx:id="buttonEvents" maxWidth="Infinity" mnemonicParsing="false" onAction="#goEvents" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Events" />
+                        <Button fx:id="buttonCategory" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCategory" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Category" />
+
                         <Button fx:id="buttonAuction" maxWidth="Infinity" mnemonicParsing="false" onAction="#goAuction" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Auction" />
-                  <Button fx:id="buttonAuction1" maxWidth="Infinity" mnemonicParsing="false" onAction="#goUser" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="User" />
+                  <Button fx:id="buttonAuction11" maxWidth="Infinity" mnemonicParsing="false" onAction="#goArtwork" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Artwork" />
                     </children>
                 </VBox>
             </children>
