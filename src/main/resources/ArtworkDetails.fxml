@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.Artwork.ArtworkDetails"
+            stylesheets="@style.css"
+            prefWidth="800" prefHeight="600"
+            styleClass="window">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+            <Button fx:id="backButton" text="Back" styleClass="back-button" onAction="#onBackClick"/>
+            <Label text="Artwork Details" styleClass="title" HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="main-scroll-pane">
+            <VBox spacing="20" alignment="TOP_CENTER" styleClass="card">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <ImageView fx:id="imageView" fitHeight="150" fitWidth="150" preserveRatio="true"/>
+
+                <Label fx:id="nameLabel" styleClass="title"/>
+                <Label fx:id="themeLabel" styleClass="subtitle"/>
+                <Label fx:id="descriptionLabel" wrapText="true" styleClass="description"/>
+                <Label fx:id="statusLabel" styleClass="subtitle"/>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button fx:id="editButton" text="Edit" styleClass="action-button" onAction="#onEditClick"/>
+                    <Button fx:id="deleteButton" text="Delete" styleClass="delete-button" onAction="#onDeleteClick"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
