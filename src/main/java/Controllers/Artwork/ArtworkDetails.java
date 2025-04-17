@@ -1,13 +1,21 @@
 package Controllers.Artwork;
 
 import entities.Artwork;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import service.ArtworkService;
@@ -27,7 +35,8 @@ public class ArtworkDetails {
     @FXML private Label descriptionLabel;
     @FXML private Label statusLabel;
     @FXML private ImageView imageView;
-
+    @FXML
+    private AnchorPane mainRouter;
     private Artwork artwork;
     private final ArtworkService artworkService = new ArtworkService();
 
@@ -47,7 +56,7 @@ public class ArtworkDetails {
 
     @FXML
     void onBackClick() {
-        SceneSwitch.goBack(backButton);
+       // SceneSwitch.goBack(backButton);
     }
 
     @FXML
@@ -84,7 +93,7 @@ public class ArtworkDetails {
                 try {
                     System.out.println(artwork.getId());
                     artworkService.supprimer(artwork.getId());
-                    SceneSwitch.goBack(deleteButton);
+                  //  SceneSwitch.goBack(deleteButton);
                 } catch (SQLException e) {
                     e.printStackTrace();
                     Alert error = new Alert(Alert.AlertType.ERROR, "Failed to delete artwork.");
@@ -92,5 +101,20 @@ public class ArtworkDetails {
                 }
             }
         });
+    }
+
+    @FXML
+    public void goBack(ActionEvent event) {
+
+            // Find the mainRouter in the scene graph
+            Node node = backButton.getScene().getRoot().lookup("#mainRouter");
+
+            if (node instanceof Pane) {
+                SceneSwitch.switchScene((Pane) node, "/ArtworkDisplay.fxml");
+                System.out.println("Successfully navigated back to Artwork");
+            } else {
+                System.out.println("Could not find mainRouter for navigation");
+
+        }
     }
 }

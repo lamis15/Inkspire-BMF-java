@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -70,7 +69,7 @@ public class ArtworkCardController {
             Parent detailsView = loader.load();
 
             // Get the controller and set the artwork
-            Controllers.Artwork.ArtworkDetails controller = loader.getController();
+            ArtworkDetails controller = loader.getController();
             controller.setArtwork(artwork);
 
             // Find the mainRouter in the StackPane structure

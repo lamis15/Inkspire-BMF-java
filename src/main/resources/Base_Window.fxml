@@ -29,6 +29,7 @@
                         <Button fx:id="buttonEvents" maxWidth="Infinity" mnemonicParsing="false" onAction="#goEvents" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Events" />
                         <Button fx:id="buttonAuction" maxWidth="Infinity" mnemonicParsing="false" onAction="#goAuction" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Auction" />
                   <Button fx:id="buttonAuction1" maxWidth="Infinity" mnemonicParsing="false" onAction="#goUser" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="User" />
+                  <Button fx:id="buttonAuction11" maxWidth="Infinity" mnemonicParsing="false" onAction="#goArtwork" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Artwork" />
                     </children>
                 </VBox>
             </children>

@@ -4,12 +4,14 @@ import entities.Artwork;
 import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import service.ArtworkService;
 import utils.SceneSwitch;
-
+import entities.Session;
 import java.io.File;
 import java.sql.SQLException;
 
@@ -29,6 +31,8 @@ public class AjouterArtworkController {
     private Label imagePathLabel;
 
     private String imagePath = null;
+    @FXML private Button backButton;
+
 
     private final ArtworkService artworkService = new ArtworkService();
 
@@ -71,8 +75,7 @@ public class AjouterArtworkController {
         try {
 
 
-            User currentUser = new User();
-            currentUser.setId(1);
+            User currentUser = Session.getCurrentUser();
 
             Artwork artwork = new Artwork(name, theme, description, imagePath, isOnBid, currentUser);
 
@@ -111,5 +114,20 @@ public class AjouterArtworkController {
         themeField.clear();
         descriptionArea.clear();
         imagePathLabel.setText("No image chosen");
+    }
+
+    @FXML
+    public void goBack(ActionEvent event) {
+
+        // Find the mainRouter in the scene graph
+        Node node = backButton.getScene().getRoot().lookup("#mainRouter");
+
+        if (node instanceof Pane) {
+            SceneSwitch.switchScene((Pane) node, "/ArtworkDisplay.fxml");
+            System.out.println("Successfully navigated back to Artwork");
+        } else {
+            System.out.println("Could not find mainRouter for navigation");
+
+        }
     }
 }

@@ -11,14 +11,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@style.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.AjouterArtworkController">
+<BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.AjouterArtworkController">
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="10" styleClass="top-nav">
             <padding>
                 <Insets bottom="10" left="20" right="20" top="10" />
             </padding>
-            <Button fx:id="backButton" onAction="#onBackClick" styleClass="back-button" text="Back" />
+            <Button fx:id="backButton" onAction="#goBack" styleClass="back-button" text="back" />
             <Label styleClass="title" text="Add New Artwork" HBox.hgrow="ALWAYS" />
         </HBox>
     </top>
