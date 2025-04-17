@@ -10,16 +10,26 @@ public class Donation {
     private Double amount = null;
     private Collections collections = null;
     private User user = null;
+    private String message = null;
 
     public Donation() {}
 
-    public Donation(LocalDateTime date, Double amount, Collections collections, User user) {
+    public Donation(LocalDateTime date, Double amount, Collections collections, User user, String message) {
         this.date = date;
         this.amount = amount;
         this.collections = collections;
         this.user = user;
+        this.message = message;
     }
 
+    public Donation(Double amount, Collections collections, User user, String message) {
+        this.amount = amount;
+        this.collections = collections;
+        this.user = user;
+        this.message = message;
+        this.date = LocalDateTime.now();
+    }
+    
     public Donation(Double amount, Collections collections, User user) {
         this.amount = amount;
         this.collections = collections;
@@ -69,6 +79,13 @@ public class Donation {
         this.user = user;
     }
     
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
 
     @Override
@@ -91,6 +108,7 @@ public class Donation {
                 ", amount=" + amount +
                 ", collections=" + (collections != null ? collections.getId() : null) +
                 ", user=" + (user != null ? user.getId() : null) +
+                ", message=" + message +
                 '}';
     }
 }

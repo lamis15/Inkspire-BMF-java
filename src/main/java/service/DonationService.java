@@ -19,7 +19,7 @@ public class DonationService implements IService<Donation> {
     }
 
     @Override
-    public void ajouter(Donation donation) throws SQLException {
+    public boolean ajouter(Donation donation) throws SQLException {
         String sql = "INSERT INTO donation (date, amount, collections_id, user_id) VALUES (?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -28,11 +28,13 @@ public class DonationService implements IService<Donation> {
         preparedStatement.setInt(3, donation.getCollections().getId());
         preparedStatement.setInt(4, donation.getUser().getId());
 
-        preparedStatement.executeUpdate();
+        int rowsInserted = preparedStatement.executeUpdate();
+        return rowsInserted > 0;
     }
 
+
     @Override
-    public void modifier(Donation donation) throws SQLException {
+    public boolean modifier(Donation donation) throws SQLException {
         String sql = "UPDATE donation SET date=?, amount=?, collections_id=?, user_id=? WHERE id=?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -42,22 +44,27 @@ public class DonationService implements IService<Donation> {
         preparedStatement.setInt(4, donation.getUser().getId());
         preparedStatement.setInt(5, donation.getId());
 
-        preparedStatement.executeUpdate();
+        int rowsUpdated = preparedStatement.executeUpdate();
+        return rowsUpdated > 0;
     }
 
+
     @Override
-    public void supprimer(int id) throws SQLException {
+    public boolean supprimer(int id) throws SQLException {
         String sql = "DELETE FROM donation WHERE id=?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, id);
-        preparedStatement.executeUpdate();
+
+        int rowsDeleted = preparedStatement.executeUpdate();
+        return rowsDeleted > 0;
     }
+
 
     @Override
     public List<Donation> recuperer() throws SQLException {
         String sql = "SELECT d.id, d.date, d.amount, d.collections_id, d.user_id, c.title as collection_title FROM donation d " +
-                     "JOIN collections c ON d.collections_id = c.id";
+                "JOIN collections c ON d.collections_id = c.id";
         Statement statement = connection.createStatement();
 
         ResultSet rs = statement.executeQuery(sql);
@@ -84,7 +91,7 @@ public class DonationService implements IService<Donation> {
         }
         return list;
     }
-    
+
     /**
      * Get donations by collection ID
      * @param collectionId The collection ID to filter by
@@ -92,12 +99,12 @@ public class DonationService implements IService<Donation> {
      */
     public List<Donation> getDonationsByCollectionId(int collectionId) throws SQLException {
         String sql = "SELECT d.id, d.date, d.amount, d.collections_id, d.user_id, u.first_name, u.last_name FROM donation d " +
-                     "JOIN user u ON d.user_id = u.id " +
-                     "WHERE d.collections_id = ?";
-        
+                "JOIN user u ON d.user_id = u.id " +
+                "WHERE d.collections_id = ?";
+
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, collectionId);
-        
+
         ResultSet rs = preparedStatement.executeQuery();
         List<Donation> list = new ArrayList<>();
 
@@ -123,7 +130,7 @@ public class DonationService implements IService<Donation> {
         }
         return list;
     }
-    
+
     /**
      * Get donations by user ID
      * @param userId The user ID to filter by
@@ -131,12 +138,12 @@ public class DonationService implements IService<Donation> {
      */
     public List<Donation> getDonationsByUserId(int userId) throws SQLException {
         String sql = "SELECT d.id, d.date, d.amount, d.collections_id, d.user_id, c.title as collection_title FROM donation d " +
-                     "JOIN collections c ON d.collections_id = c.id " +
-                     "WHERE d.user_id = ?";
-        
+                "JOIN collections c ON d.collections_id = c.id " +
+                "WHERE d.user_id = ?";
+
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, userId);
-        
+
         ResultSet rs = preparedStatement.executeQuery();
         List<Donation> list = new ArrayList<>();
 
@@ -161,7 +168,7 @@ public class DonationService implements IService<Donation> {
         }
         return list;
     }
-    
+
     /**
      * Calculate total donations for a collection
      * @param collectionId The collection ID
@@ -169,10 +176,10 @@ public class DonationService implements IService<Donation> {
      */
     public double getTotalDonationsForCollection(int collectionId) throws SQLException {
         String sql = "SELECT SUM(amount) as total FROM donation WHERE collections_id = ?";
-        
+
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setInt(1, collectionId);
-        
+
         ResultSet rs = preparedStatement.executeQuery();
         if (rs.next()) {
             return rs.getDouble("total");

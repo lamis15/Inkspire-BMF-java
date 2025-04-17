@@ -23,13 +23,15 @@
     font-size: 14px;
     -fx-font-weight: bold;
     font-weight: bold;
-    -fx-text-fill: #020741;
+    -fx-text-fill: #000000;
+    color: #000000;
 }
 
 .artwork-theme {
     -fx-font-size: 12px;
     font-size: 12px;
-    -fx-text-fill: #4D81F7;
+    -fx-text-fill: #000000;
+    color: #000000;
     -fx-font-style: italic;
     font-style: italic;
 }
@@ -37,15 +39,17 @@
 .artwork-description {
     -fx-font-size: 11px;
     font-size: 11px;
-    -fx-text-fill: #020741;
-    -fx-opacity: 0.8;
-    opacity: 0.8;
+    -fx-text-fill: #000000;
+    color: #000000;
+    -fx-opacity: 1.0;
+    opacity: 1.0;
     -fx-max-height: 40px;
     max-height: 40px;
 }
 
 .artwork-select {
-    -fx-text-fill: #020741;
+    -fx-text-fill: #000000;
+    color: #000000;
 }
 
 .artwork-select .box {

@@ -35,7 +35,7 @@ public class CollectionCard {
 
     @FXML
     private ImageView imageView;
-    
+
     @FXML
     private Label ownerNameLabel;
 
@@ -48,7 +48,7 @@ public class CollectionCard {
         descriptionLabel.setText(collection.getDescription());
         goalLabel.setText("Goal: " + collection.getGoal() + " TND");
         statusLabel.setText("Status: " + collection.getStatus());
-        
+
         // Set owner name if available
         if (collection.getUser() != null) {
             String ownerName = collection.getUser().getFirstName() + " " + collection.getUser().getLastName();
@@ -71,19 +71,19 @@ public class CollectionCard {
     private void handleCardClick(MouseEvent event) {
         try {
             System.out.println("Collection card clicked: " + collection.getId() + " - " + collection.getTitle());
-            
+
             // Load the CollectionDetails view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CollectionDetails.fxml"));
             Parent detailsView = loader.load();
-            
+
             // Get the controller and set the collection with full user details
             CollectionDetails controller = loader.getController();
-            
+
             try {
                 // Load the collection with complete user details
                 CollectionsService collectionsService = new CollectionsService();
                 Collections collectionWithUserDetails = collectionsService.recupererById(collection.getId());
-                
+
                 if (collectionWithUserDetails != null) {
                     controller.setCollection(collectionWithUserDetails);
                 } else {
@@ -95,27 +95,27 @@ public class CollectionCard {
                 // Fallback to the original collection if an error occurs
                 controller.setCollection(collection);
             }
-            
+
             // Find the mainRouter in the StackPane structure
             Node source = (Node) event.getSource();
             AnchorPane mainRouter = (AnchorPane) source.getScene().getRoot().lookup("#mainRouter");
-            
+
             if (mainRouter != null) {
                 // Clear the mainRouter and add the collection details view
                 mainRouter.getChildren().clear();
                 mainRouter.getChildren().add(detailsView);
-                
+
                 // Set the anchor constraints to make the view fill the mainRouter
                 AnchorPane.setTopAnchor(detailsView, 0.0);
                 AnchorPane.setRightAnchor(detailsView, 0.0);
                 AnchorPane.setBottomAnchor(detailsView, 0.0);
                 AnchorPane.setLeftAnchor(detailsView, 0.0);
-                
+
                 System.out.println("Successfully loaded collection details into mainRouter");
             } else {
                 System.out.println("Could not find mainRouter to load collection details");
             }
-            
+
         } catch (IOException e) {
             System.out.println("Error loading collection details: " + e.getMessage());
             e.printStackTrace();

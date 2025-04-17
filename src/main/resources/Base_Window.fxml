@@ -9,17 +9,12 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx/23.0.1"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="Controllers.BaseWindow"
-           stylesheets="@style.css">
+<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.BaseWindow">
     <children>
         <!-- Sidebar -->
-        <AnchorPane prefHeight="600.0" prefWidth="200.0" styleClass="sidebar" 
-                   AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" 
-                   AnchorPane.bottomAnchor="0.0">
+        <AnchorPane prefHeight="600.0" prefWidth="200.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <VBox spacing="10" layoutX="0.0" layoutY="100.0" alignment="CENTER" prefWidth="200.0">
+                <VBox alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
                     <children>
                         <ImageView fitHeight="80.0" fitWidth="150.0" preserveRatio="true">
                             <image>
@@ -29,24 +24,17 @@
                                 <Insets bottom="20.0" />
                             </VBox.margin>
                         </ImageView>
-                        <Button fx:id="buttonCollections" mnemonicParsing="false" onAction="#goCollections"
-                                prefHeight="30.0" prefWidth="150.0" styleClass="nav-button"
-                                text="Collections" maxWidth="Infinity"/>
-                        <Button fx:id="buttonDonations" mnemonicParsing="false" onAction="#goDonations"
-                                prefHeight="30.0" prefWidth="150.0" styleClass="nav-button"
-                                text="Donations" maxWidth="Infinity"/>
-                        <Button fx:id="buttonEvents" mnemonicParsing="false" onAction="#goEvents"
-                                prefHeight="30.0" prefWidth="150.0" styleClass="nav-button"
-                                text="Events" maxWidth="Infinity"/>
-                        <Button fx:id="buttonAuction" mnemonicParsing="false" onAction="#goAuction"
-                                prefHeight="30.0" prefWidth="150.0" styleClass="nav-button"
-                                text="Auction" maxWidth="Infinity"/>
+                        <Button fx:id="buttonCollections" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCollections" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Collections" />
+                        <Button fx:id="buttonDonations" maxWidth="Infinity" mnemonicParsing="false" onAction="#goDonations" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Donations" />
+                        <Button fx:id="buttonEvents" maxWidth="Infinity" mnemonicParsing="false" onAction="#goEvents" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Events" />
+                        <Button fx:id="buttonAuction" maxWidth="Infinity" mnemonicParsing="false" onAction="#goAuction" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Auction" />
+                  <Button fx:id="buttonAuction1" maxWidth="Infinity" mnemonicParsing="false" onAction="#goUser" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="User" />
                     </children>
                 </VBox>
             </children>
         </AnchorPane>
         
-        <!-- Main Content Area - Positioned on top with margin to show sidebar -->
+                    <!-- Main Content Area - Positioned on top with margin to show sidebar -->
         <BorderPane pickOnBounds="false">
             <left>
                 <AnchorPane prefWidth="180.0" visible="false" />

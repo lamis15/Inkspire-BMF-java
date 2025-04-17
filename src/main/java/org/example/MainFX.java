@@ -17,16 +17,15 @@ public class MainFX extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Base_Window.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UserUtils/SigninUser.fxml"));
             Parent root = loader.load();
             Scene sc = new Scene(root);
             stage.setTitle("Ajouter");
             stage.setScene(sc);
             stage.show();
-        }catch (IOException e){
-            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error loading FXML: " + e.getMessage());
+            e.printStackTrace();  // print full stack trace to console
         }
-
-
     }
 }

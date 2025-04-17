@@ -12,7 +12,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/23.0.2"
            xmlns:fx="http://javafx.com/fxml"
-           fx:controller="Controllers.Donations.AjouterDonation"
+           fx:controller="Controllers.Donations.ModifierDonation"
            prefWidth="800" prefHeight="700"
            styleClass="window"
            stylesheets="@style.css,@ajoutercollections.css">
@@ -23,7 +23,7 @@
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
             <Button fx:id="backButton" text="← Back" styleClass="back-button" onAction="#onBackClick" />
-            <Label text="💰 Make a Donation" styleClass="title" HBox.hgrow="ALWAYS" />
+            <Label text="✏️ Modify Donation" styleClass="title" HBox.hgrow="ALWAYS" />
         </HBox>
     </top>
            
@@ -32,8 +32,25 @@
                   vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
             <content>
                 <VBox alignment="CENTER" spacing="20" styleClass="form-container" fx:id="rootVBox">
-                    <Label text="🎁 Support a Collection" styleClass="section-title" style="-fx-font-size: 22px; -fx-text-fill: #020741;"/>
-                    <Label text="Make a donation to support a collection you love" styleClass="description" style="-fx-text-fill: #020741; -fx-opacity: 0.6;"/>
+                    <Label text="✏️ Update Donation Details" styleClass="section-title" style="-fx-font-size: 22px; -fx-text-fill: #020741;"/>
+                    <Label text="Modify your donation to a collection" styleClass="description" style="-fx-text-fill: #020741; -fx-opacity: 0.6;"/>
+                    
+                    <!-- Original Donation Details -->
+                    <VBox styleClass="field-group">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="📅" styleClass="field-icon" style="-fx-text-fill: #4D81F7;"/>
+                            <Label text="Original Donation Details" styleClass="field-label"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Donation ID:" styleClass="field-label" style="-fx-font-weight: bold;"/>
+                            <Label fx:id="donationIdLabel" styleClass="field-value" 
+                                  style="-fx-font-size: 14px; -fx-text-fill: #4D81F7;"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Date:" styleClass="field-label" style="-fx-font-weight: bold;"/>
+                            <Label fx:id="donationDateLabel" styleClass="field-value" style="-fx-text-fill: #020741;"/>
+                        </HBox>
+                    </VBox>
                     
                     <!-- Collection Title -->
                     <VBox styleClass="field-group">
@@ -50,7 +67,7 @@
                         <HBox spacing="30" alignment="CENTER_LEFT">
                             <!-- Left side - Collection image -->
                             <VBox alignment="CENTER" spacing="10">
-                                <Label text="Collection Image" styleClass="field-label" style="-fx-text-fill: #020741;"/>
+                                <Label text="Collection Image" styleClass="field-label"/>
                                 <Label fx:id="collectionImageLabel" styleClass="image-placeholder" 
                                       text="No Image" style="-fx-min-width: 150; -fx-min-height: 150; -fx-alignment: center;"/>
                             </VBox>
@@ -58,23 +75,23 @@
                             <!-- Right side - Collection details -->
                             <VBox spacing="10" HBox.hgrow="ALWAYS">
                                 <HBox spacing="8" alignment="CENTER_LEFT">
-                                    <Label text="Title:" styleClass="field-label" style="-fx-font-weight: bold; -fx-text-fill: #020741;"/>
+                                    <Label text="Title:" styleClass="field-label" style="-fx-font-weight: bold;"/>
                                     <Label fx:id="collectionTitleLabel" styleClass="field-value" style="-fx-text-fill: #020741;"/>
                                 </HBox>
                                 <HBox spacing="8" alignment="CENTER_LEFT">
-                                    <Label text="Description:" styleClass="field-label" style="-fx-font-weight: bold; -fx-text-fill: #020741;"/>
+                                    <Label text="Description:" styleClass="field-label" style="-fx-font-weight: bold;"/>
                                     <Label fx:id="collectionDescriptionLabel" styleClass="field-value" wrapText="true" style="-fx-text-fill: #020741;"/>
                                 </HBox>
                                 <HBox spacing="8" alignment="CENTER_LEFT">
-                                    <Label text="Goal:" styleClass="field-label" style="-fx-font-weight: bold; -fx-text-fill: #020741;"/>
+                                    <Label text="Goal:" styleClass="field-label" style="-fx-font-weight: bold;"/>
                                     <Label fx:id="collectionGoalLabel" styleClass="field-value" style="-fx-text-fill: #020741;"/>
                                 </HBox>
                                 <HBox spacing="8" alignment="CENTER_LEFT">
-                                    <Label text="Current Amount:" styleClass="field-label" style="-fx-font-weight: bold; -fx-text-fill: #020741;"/>
+                                    <Label text="Current Amount:" styleClass="field-label" style="-fx-font-weight: bold;"/>
                                     <Label fx:id="collectionCurrentAmountLabel" styleClass="field-value" style="-fx-text-fill: #020741;"/>
                                 </HBox>
                                 <HBox spacing="8" alignment="CENTER_LEFT">
-                                    <Label text="Status:" styleClass="field-label" style="-fx-font-weight: bold; -fx-text-fill: #020741;"/>
+                                    <Label text="Status:" styleClass="field-label" style="-fx-font-weight: bold;"/>
                                     <Label fx:id="collectionStatusLabel" styleClass="field-value" style="-fx-text-fill: #020741;"/>
                                 </HBox>
                             </VBox>
@@ -108,13 +125,11 @@
                         </VBox>
                     </VBox>
                     
-
-                    
                     <!-- Submit Button -->
                     <HBox alignment="CENTER" spacing="20">
                         <Button text="← Back" onAction="#onBackClick" 
                                styleClass="secondary-button" style="-fx-border-color: #4D81F7;" />
-                        <Button text="💰 Make Donation" onAction="#ajouterDonation" 
+                        <Button fx:id="saveButton" text="💾 Save Changes" onAction="#saveDonation" 
                                styleClass="primary-button" style="-fx-background-color: #4D81F7;" />
                     </HBox>
                 </VBox>
