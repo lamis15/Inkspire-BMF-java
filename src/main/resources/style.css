@@ -55,6 +55,23 @@
     -fx-translate-y: -2;
 }
 
+/* Clickable Icon Style */
+.clickable-icon {
+    -fx-cursor: hand;
+    cursor: hand;
+    -fx-opacity: 0.8;
+    opacity: 0.8;
+    -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);
+}
+
+.clickable-icon:hover {
+    -fx-opacity: 1.0;
+    opacity: 1.0;
+    -fx-effect: dropshadow(gaussian, rgba(77, 129, 247, 0.3), 6, 0, 0, 3);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
 /* Collection Details Specific Styles */
 .main-scroll-pane {
     -fx-background: transparent;
