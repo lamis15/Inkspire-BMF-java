@@ -33,8 +33,21 @@ public class BaseWindow {
 
     @FXML
     void goEvents(ActionEvent event) {
+<<<<<<< HEAD
+        SceneSwitch.switchScene(mainRouter, "/AfficherEventBack.fxml");
+    }
+    @FXML
+    void goCategory(ActionEvent event) {
+        SceneSwitch.switchScene(mainRouter, "/AfficherCategory.fxml");
+    }
+    @FXML
+    void goEv(ActionEvent event) {
+        SceneSwitch.switchScene(mainRouter, "/AfficherEvent.fxml");
+    }
+=======
     }
 
+>>>>>>> 85fe68fa65eb18b76018b05ec9434c92cbcfcf9e
     @FXML
     void goAuction(ActionEvent event) {
     }
