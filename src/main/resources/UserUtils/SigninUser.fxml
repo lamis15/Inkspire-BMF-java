@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.2"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.user.UserSignin"
+            prefWidth="800" prefHeight="700"
+            styleClass="window"
+            stylesheets="/style.css">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+            <Label text="Sign In" styleClass="title" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" pannable="true" styleClass="main-scroll-pane"
+                    vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
+            <content>
+                <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <Label text="Welcome Back" styleClass="title"/>
+                    <Label text="Sign in to continue" styleClass="subtitle"/>
+
+                    <!-- Email Field -->
+                    <TextField fx:id="emailField" promptText="Email" styleClass="text-input"/>
+                    <Label fx:id="emailError" styleClass="error-label" />
+
+                    <!-- Password Field -->
+                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-input"/>
+                    <Label fx:id="passwordError" styleClass="error-label" />
+
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="Forgot Password?" styleClass="link-button"/>
+                    </HBox>
+
+                    <!-- Sign In Button -->
+                    <Button fx:id="signInButton" text="Sign In" onAction="#signIn" styleClass="primary-button" />
+
+                    <HBox spacing="5" alignment="CENTER">
+                        <Label text="Don't have an account?" styleClass="body-text"/>
+                        <Button text="Sign Up" styleClass="link-button" onAction="#switchToSignUp"/>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

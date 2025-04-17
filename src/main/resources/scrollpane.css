@@ -1,0 +1,42 @@
+/* ScrollPane Styling */
+.main-scroll-pane {
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-padding: 0;
+    padding: 0;
+    -fx-border-width: 0;
+    border-width: 0;
+}
+
+.main-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+
+.main-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: rgba(10, 10, 74, 0.5);
+    background-color: rgba(10, 10, 74, 0.5);
+}
+
+.main-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #8BFFD0;
+    background-color: #8BFFD0;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.artwork-scroll-pane {
+    -fx-background-color: rgba(20, 20, 100, 0.3);
+    background-color: rgba(20, 20, 100, 0.3);
+    -fx-border-color: #8BFFD0;
+    border-color: #8BFFD0;
+    -fx-border-width: 1;
+    border-width: 1px;
+    -fx-border-radius: 8;
+    border-radius: 8px;
+}
+
+.artwork-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
