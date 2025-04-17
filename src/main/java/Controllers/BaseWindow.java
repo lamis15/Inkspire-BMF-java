@@ -43,5 +43,7 @@ public class BaseWindow {
     void goUser(ActionEvent event) {
         SceneSwitch.switchScene(mainRouter, "/UserUtils/AfficherUsers.fxml");;
     }
+    public void goArtwork(ActionEvent actionEvent) {SceneSwitch.switchScene(mainRouter, "/ArtworkDisplay.fxml");
+    }
 
 }

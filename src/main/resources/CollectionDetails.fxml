@@ -63,6 +63,16 @@
                             <Label fx:id="ownerNameLabel" styleClass="subtitle" style="-fx-font-size: 14; -fx-text-fill: #555555;"/>
                         </HBox>
                         
+                        <!-- Creation date information -->
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <ImageView fitWidth="24" fitHeight="24" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 0, 0, 0, 0); -fx-opacity: 0.8;">
+                                <image>
+                                    <javafx.scene.image.Image url="@/assets/icons/calendrier.png"/>
+                                </image>
+                            </ImageView>
+                            <Label fx:id="creationDateLabel" styleClass="subtitle" style="-fx-font-size: 14; -fx-text-fill: #555555;"/>
+                        </HBox>
+                        
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <Button fx:id="modifyButton" text="Modify" styleClass="action-button"/>
                             <Button fx:id="deleteButton" text="Delete" styleClass="delete-button"/>
