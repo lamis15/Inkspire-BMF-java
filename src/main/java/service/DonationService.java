@@ -63,8 +63,10 @@ public class DonationService implements IService<Donation> {
 
     @Override
     public List<Donation> recuperer() throws SQLException {
-        String sql = "SELECT d.id, d.date, d.amount, d.collections_id, d.user_id, c.title as collection_title FROM donation d " +
-                "JOIN collections c ON d.collections_id = c.id";
+        String sql = "SELECT d.id, d.date, d.amount, d.collections_id, d.user_id, c.title as collection_title, " +
+                "u.first_name, u.last_name FROM donation d " +
+                "JOIN collections c ON d.collections_id = c.id " +
+                "JOIN user u ON d.user_id = u.id";
         Statement statement = connection.createStatement();
 
         ResultSet rs = statement.executeQuery(sql);
@@ -82,9 +84,11 @@ public class DonationService implements IService<Donation> {
             collection.setTitle(rs.getString("collection_title"));
             d.setCollections(collection);
 
-            // Set user
+            // Set user with first and last name
             User user = new User();
             user.setId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
             d.setUser(user);
 
             list.add(d);

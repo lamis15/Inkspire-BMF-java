@@ -33,6 +33,24 @@ public class BaseWindow {
 
     @FXML
     void goEvents(ActionEvent event) {
+        User currentUser = entities.Session.getCurrentUser();
+
+        if (currentUser != null && currentUser.getRole() == 1) {
+            // Admin user - show all donations
+            SceneSwitch.switchScene(mainRouter, "/AfficherEventBack.fxml");
+        } else {
+            // Regular user - show only their donations
+            SceneSwitch.switchScene(mainRouter, "/AfficherEvent.fxml");
+        }
+    }
+    @FXML
+    void goCategory(ActionEvent event) {
+        User currentUser = entities.Session.getCurrentUser();
+
+        if (currentUser != null && currentUser.getRole() == 1) {
+            // Admin user - show all donations
+            SceneSwitch.switchScene(mainRouter, "/AfficherCategory.fxml");
+        }
     }
 
     @FXML
