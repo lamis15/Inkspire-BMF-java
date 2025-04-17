@@ -1,0 +1,211 @@
+package service;
+
+import entities.Collections;
+import entities.User;
+import utils.DataSource;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CollectionsService implements IService<Collections> {
+
+    private Connection connection;
+
+    public CollectionsService() {
+        connection = DataSource.getInstance().getConnection();
+    }
+
+    @Override
+    public boolean ajouter(Collections collection) throws SQLException {
+        String sql = "INSERT INTO collections (title, creation_date, image, description, goal, status, user_id, current_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, collection.getTitle());
+        preparedStatement.setTimestamp(2, Timestamp.valueOf(collection.getCreationDate()));
+        preparedStatement.setString(3, collection.getImage());
+        preparedStatement.setString(4, collection.getDescription());
+
+        // Handle null goal values
+        if (collection.getGoal() != null) {
+            preparedStatement.setDouble(5, collection.getGoal());
+        } else {
+            preparedStatement.setNull(5, Types.DOUBLE);
+        }
+
+        preparedStatement.setString(6, collection.getStatusValue());
+        preparedStatement.setInt(7, collection.getUser().getId());
+        preparedStatement.setDouble(8, collection.getCurrentAmount());
+
+        preparedStatement.executeUpdate();
+        return false;
+    }
+
+    @Override
+    public boolean modifier(Collections collection) throws SQLException {
+        String sql = "UPDATE collections SET title=?, creation_date=?, image=?, description=?, goal=?, status=?, user_id=?, current_amount=? WHERE id=?";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, collection.getTitle());
+        preparedStatement.setTimestamp(2, Timestamp.valueOf(collection.getCreationDate()));
+        preparedStatement.setString(3, collection.getImage());
+        preparedStatement.setString(4, collection.getDescription());
+
+        // Handle null goal values
+        if (collection.getGoal() != null) {
+            preparedStatement.setDouble(5, collection.getGoal());
+        } else {
+            preparedStatement.setNull(5, Types.DOUBLE);
+        }
+
+        preparedStatement.setString(6, collection.getStatusValue());
+        preparedStatement.setInt(7, collection.getUser().getId());
+        preparedStatement.setDouble(8, collection.getCurrentAmount());
+        preparedStatement.setInt(9, collection.getId());
+
+        int rowsAffected = preparedStatement.executeUpdate();
+        return rowsAffected > 0;
+    }
+
+    @Override
+    public boolean supprimer(int id) throws SQLException {
+        String sql = "DELETE FROM collections WHERE id=?";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, id);
+        preparedStatement.executeUpdate();
+        return false;
+    }
+
+    @Override
+    public List<Collections> recuperer() throws SQLException {
+        String sql = "SELECT c.*, u.first_name, u.last_name FROM collections c JOIN user u ON c.user_id = u.id";
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery(sql);
+        List<Collections> list = new ArrayList<>();
+
+        while (rs.next()) {
+            Collections c = new Collections();
+            c.setId(rs.getInt("id"));
+            c.setTitle(rs.getString("title"));
+            c.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime());
+            c.setImage(rs.getString("image"));
+            c.setDescription(rs.getString("description"));
+
+            // Handle null goal values in the result set
+            double goal = rs.getDouble("goal");
+            if (rs.wasNull()) {
+                c.setGoal(null);
+            } else {
+                c.setGoal(goal);
+            }
+
+            c.setStatusFromString(rs.getString("status"));
+
+            // Create user with first and last name
+            User user = new User();
+            user.setId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            c.setUser(user);
+
+            c.setCurrentAmount(rs.getDouble("current_amount"));
+
+            list.add(c);
+        }
+        return list;
+    }
+    /**
+     * Retrieve a single collection by ID with complete user details
+     */
+    public Collections recupererById(int id) throws SQLException {
+        String sql = "SELECT c.*, u.first_name, u.last_name FROM collections c JOIN user u ON c.user_id = u.id WHERE c.id = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, id);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            Collections c = new Collections();
+            c.setId(rs.getInt("id"));
+            c.setTitle(rs.getString("title"));
+            c.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime());
+            c.setImage(rs.getString("image"));
+            c.setDescription(rs.getString("description"));
+
+            // Handle null goal values in the result set
+            double goal = rs.getDouble("goal");
+            if (rs.wasNull()) {
+                c.setGoal(null);
+            } else {
+                c.setGoal(goal);
+            }
+
+            c.setStatusFromString(rs.getString("status"));
+
+            // Create user with first and last name
+            User user = new User();
+            user.setId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            c.setUser(user);
+
+            c.setCurrentAmount(rs.getDouble("current_amount"));
+
+            return c;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the most recently created collection by user ID and title
+     * This is useful after creating a new collection to get its ID
+     * @param userId The user ID who owns the collection
+     * @param title The title of the collection
+     * @return The most recently created collection matching the criteria, or null if not found
+     */
+    public Collections getRecentlyCreatedCollection(int userId, String title) throws SQLException {
+        String sql = "SELECT c.*, u.first_name, u.last_name FROM collections c JOIN user u ON c.user_id = u.id " +
+                "WHERE c.user_id = ? AND c.title = ? ORDER BY c.creation_date DESC LIMIT 1";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, userId);
+        preparedStatement.setString(2, title);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            Collections c = new Collections();
+            c.setId(rs.getInt("id"));
+            c.setTitle(rs.getString("title"));
+            c.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime());
+            c.setImage(rs.getString("image"));
+            c.setDescription(rs.getString("description"));
+
+            // Handle null goal values in the result set
+            double goal = rs.getDouble("goal");
+            if (rs.wasNull()) {
+                c.setGoal(null);
+            } else {
+                c.setGoal(goal);
+            }
+
+            c.setStatusFromString(rs.getString("status"));
+
+            // Create user with first and last name
+            User user = new User();
+            user.setId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            c.setUser(user);
+
+            c.setCurrentAmount(rs.getDouble("current_amount"));
+
+            return c;
+        }
+
+        return null;
+    }
+}
+
