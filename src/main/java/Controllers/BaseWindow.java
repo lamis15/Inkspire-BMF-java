@@ -1,5 +1,6 @@
 package Controllers;
 
+import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
@@ -18,6 +19,16 @@ public class BaseWindow {
 
     @FXML
     void goDonations(ActionEvent event) {
+        // Check user role to determine which donations view to show
+        User currentUser = entities.Session.getCurrentUser();
+        
+        if (currentUser != null && currentUser.getRole() == 1) {
+            // Admin user - show all donations
+            SceneSwitch.switchScene(mainRouter, "/AfficherAllDonations.fxml");
+        } else {
+            // Regular user - show only their donations
+            SceneSwitch.switchScene(mainRouter, "/AfficherDonations.fxml");
+        }
     }
 
     @FXML

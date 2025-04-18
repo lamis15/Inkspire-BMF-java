@@ -1,15 +1,21 @@
 package Controllers.user;
 
+import entities.Session;
 import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 import service.UserService;
 import utils.SceneSwitch;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -58,6 +64,8 @@ public class AfficherUsers {
 
         return card;
     }
+    
+
 
     private String getRoleString(int role) {
         return switch (role) {
@@ -68,6 +76,14 @@ public class AfficherUsers {
     }
 
     public void onAddClick(ActionEvent actionEvent) {
+
+    }
+
+    public void onModifyClick(ActionEvent actionEvent) {
+        SceneSwitch.switchScene(rootVBox, "/UserUtils/ModifierUser.fxml" );
+    }
+
+    public void onDeleteClick(ActionEvent actionEvent) {
 
     }
 }

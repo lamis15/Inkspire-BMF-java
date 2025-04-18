@@ -7,15 +7,22 @@
 <VBox fx:id="rootVBox"
       xmlns="http://javafx.com/javafx/23.0.1"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="Controllers.user.AfficherUsers"
+      fx:controller="Controllers.Collections.AfficherCollections"
       spacing="10" style="-fx-padding: 20;" prefWidth="800.0" prefHeight="600.0">
 
-    <Button fx:id="addButton"
-            text="+"
-            onAction="#onAddClick"
-            maxWidth="100"
-            style="-fx-background-radius: 50; -fx-border-radius: 50; -fx-background-color: #4D81F7; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 8 16; -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);"
-            styleClass="add-button"/>
+    <javafx.scene.layout.HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="addButton"
+                text="+"
+                onAction="#onAddClick"
+                maxWidth="100"
+                style="-fx-background-radius: 50; -fx-border-radius: 50; -fx-background-color: #4D81F7; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 8 16; -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);"
+                styleClass="add-button"/>
+        <Button fx:id="myCollectionsButton"
+                text="My Collections"
+                onAction="#onMyCollectionsClick"
+                style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-background-color: #4D81F7; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 8 16; -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);"
+                styleClass="my-collections-button"/>
+    </javafx.scene.layout.HBox>
 
     <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="550.0">
         <content>

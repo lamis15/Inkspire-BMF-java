@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.2"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.user.ModifierUser"
+            prefWidth="800" prefHeight="700"
+            styleClass="window"
+            stylesheets="@user.css">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+            <Button fx:id="backButton" text="Back" styleClass="back-button"  />
+            <Label text="Modify User" styleClass="title" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" pannable="true" styleClass="main-scroll-pane"
+                    vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
+            <content>
+                <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <Label text="Modify User Information" styleClass="title"/>
+                    <Label text="Edit the details below" styleClass="subtitle"/>
+
+                    <!-- First Name Field -->
+                    <TextField fx:id="firstNameField" promptText="First Name" styleClass="text-input"/>
+                    <Label fx:id="firstNameError" styleClass="error-label"/>
+
+                    <!-- Last Name Field -->
+                    <TextField fx:id="lastNameField" promptText="Last Name" styleClass="text-input"/>
+                    <Label fx:id="lastNameError" styleClass="error-label"/>
+
+                    <!-- Email Field -->
+                    <TextField fx:id="emailField" promptText="Email" styleClass="text-input"/>
+                    <Label fx:id="emailError" styleClass="error-label"/>
+
+                    <!-- Password Field -->
+                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-input"/>
+                    <Label fx:id="passwordError" styleClass="error-label"/>
+
+
+                    <!-- Modify Button -->
+                    <Button fx:id="modifyButton" text="Modify" onAction="#modifyUser" styleClass="primary-button" />
+
+                    <!-- Delete Button -->
+                    <Button fx:id="deleteButton" text="Delete" onAction="#deleteUser" styleClass="danger-button" />
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
