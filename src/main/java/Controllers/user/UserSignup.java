@@ -1,8 +1,6 @@
 package Controllers.user;
 
 import entities.User;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import service.UserService;
-import utils.SceneSwitch;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
@@ -25,7 +23,10 @@ public class UserSignup {
     @FXML private PasswordField confirmPasswordField;
 
     @FXML private Label emailError;
+    @FXML private Label firstnameError;
+    @FXML private Label LastnameError;
     @FXML private Label passwordError;
+    @FXML private Label confirmError;
     @FXML private Label confirmPasswordError;
 
     @FXML private Button signUpButton;
@@ -78,7 +79,7 @@ public class UserSignup {
             }
 
             // Match check after typing
-            if (!newVal.equals(confirmPasswordField.getText())) {
+            if (!newVal.equals(confirmPasswordField.getText()) || newVal.isEmpty()) {
                 confirmPasswordError.setText("Passwords do not match");
             } else {
                 confirmPasswordError.setText("");
@@ -87,51 +88,72 @@ public class UserSignup {
 
         // Confirm password check
         confirmPasswordField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.equals(passwordField.getText())) {
+            if (!newVal.equals(passwordField.getText()) || newVal.isEmpty()) {
                 confirmPasswordError.setText("Passwords do not match");
             } else {
                 confirmPasswordError.setText("");
             }
         });
-
-        // Enable button only when everything is valid
-        BooleanBinding formValid = Bindings.createBooleanBinding(() ->
-                        !firstNameField.getText().trim().isEmpty() &&
-                                firstNameField.getText().matches("[a-zA-Z]+") &&
-                                !lastNameField.getText().trim().isEmpty() &&
-                                lastNameField.getText().matches("[a-zA-Z]+") &&
-                                !emailField.getText().trim().isEmpty() &&
-                                emailError.getText().isEmpty() &&
-                                !passwordField.getText().trim().isEmpty() &&
-                                passwordError.getText().isEmpty() &&
-                                confirmPasswordError.getText().isEmpty() &&
-                                passwordField.getText().equals(confirmPasswordField.getText()),
-                firstNameField.textProperty(),
-                lastNameField.textProperty(),
-                emailField.textProperty(),
-                emailError.textProperty(),
-                passwordField.textProperty(),
-                passwordError.textProperty(),
-                confirmPasswordField.textProperty(),
-                confirmPasswordError.textProperty()
-        );
-
-        signUpButton.disableProperty().bind(formValid.not());
     }
 
     @FXML
     private void signUp(ActionEvent event) {
+        boolean hasError = false;
+
+        // Clear previous styles
+        firstNameField.setStyle(null);
+        lastNameField.setStyle(null);
+        emailField.setStyle(null);
+        passwordField.setStyle(null);
+        confirmPasswordField.setStyle(null);
+
+        // Check if fields are empty
+        if (firstNameField.getText().trim().isEmpty()) {
+            firstnameError.setStyle("-fx-text-fill: red;");
+            firstnameError.setText("First name is required * ");
+            hasError = true;
+        }
+        if (lastNameField.getText().trim().isEmpty()) {
+            LastnameError.setStyle("-fx-text-fill: red;");
+            LastnameError.setText("Last name is required * ");
+            hasError = true;
+        }
+        if (emailField.getText().trim().isEmpty()) {
+
+            emailError.setStyle("-fx-text-fill: red;");
+            emailError.setText("Email is required * ");
+            hasError = true;
+        }
+        if (passwordField.getText().trim().isEmpty()) {
+            passwordError.setStyle("-fx-text-fill: red;");
+            passwordError.setText("Password is required * ");
+            hasError = true;
+        }
+        if (confirmPasswordField.getText().trim().isEmpty()) {
+            confirmError.setStyle("-fx-text-fill: red;");
+            confirmPasswordError.setText("Please confirm your password");
+            hasError = true;
+        }
+
+        if (hasError) {
+            System.out.println("Please fill all fields correctly.");
+            return;
+        }
+
+        // Proceed with user creation
         User newUser = new User();
-        newUser.setFirstName(firstNameField.getText().trim()) ;
+        newUser.setFirstName(firstNameField.getText().trim());
         newUser.setLastName(lastNameField.getText().trim());
         newUser.setEmail(emailField.getText().trim());
-        newUser.setPassword(passwordField.getText().trim());
+
+        String rawPassword = passwordField.getText().trim();
+        String hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+        newUser.setPassword(hashedPassword);
+
         newUser.setRole(0);
         newUser.setStatus(1);
-
         service.ajouter(newUser);
 
-        // Optional: Redirect or show confirmation label
         System.out.println("User created successfully");
     }
 

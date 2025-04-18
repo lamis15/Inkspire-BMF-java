@@ -11,7 +11,7 @@
             fx:controller="Controllers.user.ModifierUser"
             prefWidth="800" prefHeight="700"
             styleClass="window"
-            stylesheets="/style.css">
+            stylesheets="@user.css">
 
     <top>
         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
