@@ -28,3 +28,46 @@
 .link-button:hover{
     -fx-text-fill: #08267A;
 }
+
+.ModifyButton{
+    -fx-background-color: #515AB9;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+}
+
+.main-scroll-pane-modify{
+    -fx-min-width: 250px;
+    -fx-max-width: 250px;
+}
+
+.title{
+    -fx-font-size: 40;
+    -fx-font-weight: bold;
+}
+
+.card-modify{
+
+}
+
+.text-input{
+    -fx-min-width: 270px;
+    -fx-min-height: 33px;
+}
+
+.danger-button{
+    -fx-background-color: transparent;
+    -fx-text-fill: red;
+}
+
+.uploadImage{
+    -fx-background-color: transparent;
+    -fx-font-size: 15px;
+}
+
+.uploadImage:hover{
+    -fx-text-fill: grey;
+}
+
+
+

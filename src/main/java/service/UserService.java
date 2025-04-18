@@ -62,13 +62,14 @@ public class UserService implements IService<User> {
 
     @Override
     public boolean modifier(User user) {
-        String query = "UPDATE user SET first_name = ?, last_name = ?, email = ?, password = ? WHERE id = ?";
+        String query = "UPDATE user SET first_name = ?, last_name = ?, email = ?, password = ?, picture = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, user.getFirstName());
             statement.setString(2, user.getLastName());
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getPassword());
-            statement.setInt(5, user.getId());
+            statement.setString(5, user.getPicture());
+            statement.setInt(6, user.getId());
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
@@ -82,6 +83,7 @@ public class UserService implements IService<User> {
         }
         return false;
     }
+
 
 
     @Override
@@ -115,6 +117,7 @@ public class UserService implements IService<User> {
                 user.setFirstName(rs.getString("first_name"));
                 user.setEmail(rs.getString("email"));
                 user.setRole(rs.getInt("role"));
+
                 users.add(user);
             }
         return users;
