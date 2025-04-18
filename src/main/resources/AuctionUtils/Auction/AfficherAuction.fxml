@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controllers.Auction.AfficherAuction"
-            fx:id="anchorPane"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane fx:id="anchorPane" xmlns:fx="http://javafx.com/fxml" fx:controller="Controllers.Auction.AfficherAuction">
+    <VBox spacing="10" prefWidth="800" alignment="TOP_CENTER">
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="addBtn" text="+ Add Auction" />
+            <Button fx:id="myAuctionsBtn" text="📁 My Auctions" />
+            <Button fx:id="myBidsBtn" text="📁 My bids" />
+        </HBox>
+        <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" prefWrapLength="800" />
+    </VBox>
 </AnchorPane>

@@ -1,6 +1,7 @@
 package service;
 
 import entities.Bid;
+import utils.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,11 +9,11 @@ import java.util.List;
 
 public class BidService implements IService<Bid>{
 
-    private Connection connection;
+    private final Connection connection = DataSource.getInstance().getConnection();
 
     @Override
     public boolean ajouter(Bid bid) throws SQLException {
-        String query = "INSERT INTO bid (amount, time, auctionId, userId) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO bid (amount, time, auction_id, user_id) VALUES (?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setDouble(1, bid.getAmount());
             statement.setString(2, bid.getTime());
@@ -85,4 +86,31 @@ public class BidService implements IService<Bid>{
         }
         return bids;
     }
+    public List<Bid> recupererParUtilisateur(int userId) throws SQLException {
+        List<Bid> bids = new ArrayList<>();
+        String query = "SELECT * FROM bid WHERE user_id = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, userId);
+            ResultSet result = statement.executeQuery();
+
+            while (result.next()) {
+                Bid bid = new Bid(
+                        result.getDouble("amount"),
+                        result.getString("time"),
+                        result.getInt("auction_id"),
+                        result.getInt("user_id")
+                );
+                bid.setId(result.getInt("id")); // if needed
+                bids.add(bid);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return bids;
+    }
+
+
 }
