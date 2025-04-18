@@ -74,10 +74,8 @@ public class ModifierUser {
         usericon2.setClip(clip);
 
         if (currentUser != null && currentUser.getRole() == 0) {
-
             String imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
-
-            if (imagePath != null && !imagePath.isEmpty()) {
+            if (!imagePath.equals("C:/xampp/htdocs/images/profilePictures/null") && !imagePath.isEmpty()) {
                 try {
                     File file = new File(imagePath);
                     if (file.exists()) {
@@ -243,7 +241,7 @@ public class ModifierUser {
         currentUser.setLastName(lastName);
         currentUser.setEmail(email);
 
-        if(!ImageUrl.isEmpty()){
+        if(ImageUrl != null){
             currentUser.setPicture(ImageUrl) ;
         }
 
