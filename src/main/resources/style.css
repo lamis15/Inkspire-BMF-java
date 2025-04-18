@@ -1,5 +1,6 @@
 /* Modern Elegant Dashboard Design System */
 
+
 /* Color Palette - Only using specified colors and their derivatives */
 .root {
     /* Primary Colors */
@@ -53,6 +54,23 @@
 .card:hover {
     -fx-effect: dropshadow(gaussian, rgba(77, 129, 247, 0.2), 12, 0, 0, 8);
     -fx-translate-y: -2;
+}
+
+/* Clickable Icon Style */
+.clickable-icon {
+    -fx-cursor: hand;
+    cursor: hand;
+    -fx-opacity: 0.8;
+    opacity: 0.8;
+    -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);
+}
+
+.clickable-icon:hover {
+    -fx-opacity: 1.0;
+    opacity: 1.0;
+    -fx-effect: dropshadow(gaussian, rgba(77, 129, 247, 0.3), 6, 0, 0, 3);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
 }
 
 /* Collection Details Specific Styles */
@@ -889,4 +907,15 @@
     -fx-underline: true;
 
     -fx-effect: dropshadow(gaussian, rgba(126, 250, 213, 0.3), 2, 0, 0, 0);
+}
+
+
+
+.clickable-icon{
+    fx-border-radius: 50%;
+}
+
+.displayName{
+    -fx-font-size: 15;
+    -fx-text-fill: white;
 }

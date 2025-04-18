@@ -1,5 +1,6 @@
 package Controllers.user;
 
+import entities.SceneManager;
 import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -107,6 +108,19 @@ public class UserSignup {
         passwordField.setStyle(null);
         confirmPasswordField.setStyle(null);
 
+        //numeric values for first and last
+        if (firstNameField.getText().trim().matches(".*\\d.*")) {
+            firstnameError.setStyle("-fx-text-fill: red;");
+            firstnameError.setText("First name cannot contain numbers");
+            hasError = true;
+        }
+
+        if (lastNameField.getText().trim().matches(".*\\d.*")) {
+            LastnameError.setStyle("-fx-text-fill: red;");
+            LastnameError.setText("Last name cannot contain numbers");
+            hasError = true;
+        }
+
         // Check if fields are empty
         if (firstNameField.getText().trim().isEmpty()) {
             firstnameError.setStyle("-fx-text-fill: red;");
@@ -154,30 +168,15 @@ public class UserSignup {
         newUser.setStatus(1);
         service.ajouter(newUser);
 
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        SceneManager.switchTo(stage,"/UserUtils/SigninUser.fxml");
         System.out.println("User created successfully");
     }
 
     @FXML
     private void switchToSignIn(ActionEvent event) {
-        try {
-            // Get the current stage (primaryStage)
-            Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Load the new FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UserUtils/SigninUser.fxml"));
-            Pane pane = loader.load();
-
-            // Create a new scene with the loaded pane and set it on the stage
-            Scene scene = new Scene(pane);
-            primaryStage.setScene(scene);
-            primaryStage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        SceneManager.switchTo(primaryStage, "/UserUtils/SigninUser.fxml");
     }
 
-    @FXML
-    private void onBackClick(ActionEvent event) {
-        // Handle back navigation
-    }
 }

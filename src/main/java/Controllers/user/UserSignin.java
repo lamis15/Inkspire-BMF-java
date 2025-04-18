@@ -1,5 +1,6 @@
 package Controllers.user;
 
+import entities.SceneManager;
 import entities.Session;
 import entities.User;
 import javafx.beans.binding.Bindings;
@@ -64,16 +65,8 @@ public class UserSignin {
         } else if (service.checkUser(email, password) != null) {
             User loggedInUser = service.checkUser(email, password);
             Session.setCurrentUser(loggedInUser);
-
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("/Base_Window.fxml"));
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            SceneManager.switchTo(stage,"/Base_Window.fxml");
         } else {
             // Handle invalid login
             emailError.setStyle("-fx-text-fill: red ; ") ;
@@ -84,15 +77,8 @@ public class UserSignin {
 
     @FXML
     private void switchToSignUp(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/UserUtils/SignupUser.fxml"));
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        SceneManager.switchTo(stage,"/UserUtils/SignupUser.fxml");
     }
 
 }

@@ -2,6 +2,7 @@ package Controllers.Collections;
 
 import entities.Artwork;
 import entities.Collections;
+import javafx.scene.layout.Pane;
 import enums.CollectionStatus;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -317,21 +318,20 @@ public class ModifierCollections implements Initializable {
     @FXML
     void onBackClick(ActionEvent event) {
         try {
-            // Find the mainRouter in the scene graph
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CollectionDetails.fxml"));
+            Parent detailsView = loader.load();
+
+            CollectionDetails controller = loader.getController();
+            controller.setCollection(currentCollection); // Pass the current collection
+
+            // Find the mainRouter and set the new view
             Node mainRouter = backButton.getScene().getRoot().lookup("#mainRouter");
-            if (mainRouter != null) {
-                // Switch back to the collection details view
-                SceneSwitch.switchScene((javafx.scene.layout.Pane) mainRouter, "/CollectionDetails.fxml");
-            } else {
-                throw new Exception("mainRouter not found in scene graph");
+            if (mainRouter instanceof Pane) {
+                ((Pane) mainRouter).getChildren().setAll(detailsView);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Failed to navigate back: " + e.getMessage());
-            alert.showAndWait();
+            // Show error alert as before
         }
     }
 
