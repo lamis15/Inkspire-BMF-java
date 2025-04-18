@@ -4,8 +4,10 @@ import entities.Category;
 import entities.Event;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -33,10 +35,29 @@ public class AjouterEvent implements Initializable {
     @FXML private Label imagePathLabel;        // Label pour afficher le nom de l'image
     @FXML private Button backButton;
     @FXML private ComboBox<Category> categoryComboBox;
+
     private void closeWindow() {
         Stage stage = (Stage) titleField.getScene().getWindow();
         stage.close();
     }
+    @FXML
+    void chooseImage(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File file = fileChooser.showOpenDialog(null);
+
+        if (file != null) {
+            selectedImageFile = file;
+            // Ajouter le préfixe "file:/"
+            String filePath = "file:" + file.getAbsolutePath().replace("\\", "/"); // Remplacer les antislashs par des slashes
+            imagePathLabel.setText(filePath); // Afficher le chemin avec file:/ pour l'utilisateur
+        }
+    }
+
     @FXML
     private void handleCancel() {
         closeWindow();
@@ -84,7 +105,7 @@ public class AjouterEvent implements Initializable {
             }
         });
     }
-
+/*
     @FXML
     void chooseImage(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -98,7 +119,7 @@ public class AjouterEvent implements Initializable {
             selectedImageFile = file;
             imagePathLabel.setText(file.getName());
         }
-    }
+    }*/
 
     @FXML
     void removeImage(ActionEvent event) {
@@ -138,8 +159,8 @@ public class AjouterEvent implements Initializable {
                 }
 
                 String categoryId = String.valueOf(selectedCategory.getId());
-                String imagePath = (selectedImageFile != null) ? selectedImageFile.getAbsolutePath() : "";
 
+                // Créer l'objet Event
                 Event newEvent = new Event(
                         titleField.getText(),
                         startDatePicker.getValue(),
@@ -150,22 +171,58 @@ public class AjouterEvent implements Initializable {
                         categoryId
                 );
 
+                // Définir l'image avec le préfixe file:/ si une image est sélectionnée
+                if (selectedImageFile != null) {
+                    String imagePath = "file:" + selectedImageFile.getAbsolutePath().replace("\\", "/");
+                    newEvent.setImage(imagePath); // Utiliser le chemin formaté avec file:/
+                } else {
+                    newEvent.setImage("file:/default.png"); // Image par défaut
+                }
+
+                // Ajouter l'événement
                 eventService.ajouter(newEvent);
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
 
-                // Fermer la fenêtre courante
-
-
-                // Charger la nouvelle scène
-                SceneSwitch.switchScene((Pane) rootVBox, "/AfficherEventBack.fxml");
+                // Redirection après ajout
+                switchSceneToAfficherEventBack(); // Redirection vers AfficherEventBack.fxml
 
             } catch (SQLException e) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout : " + e.getMessage());
             }
         }
     }
-    private void switchScene(Pane rootVBox, String fxmlPath) {
+
+    private void switchSceneToAfficherEventBack() {
+        try {
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEventBack.fxml"));
+            Pane newPane = loader.load();
+
+            // Accéder à la scène actuelle et la mettre à jour
+            Stage currentStage = (Stage) rootVBox.getScene().getWindow();
+            Scene newScene = new Scene(newPane);
+            currentStage.setScene(newScene);  // Appliquer la nouvelle scène
+            currentStage.show(); // Afficher la nouvelle scène
+
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la redirection vers la page des événements : " + e.getMessage());
+        }
     }
+
+    @FXML
+    private void switchScene(Pane rootVBox, String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Pane newPane = loader.load();
+            Stage currentStage = (Stage) rootVBox.getScene().getWindow();
+            Scene newScene = new Scene(newPane);
+            currentStage.setScene(newScene);  // Appliquer la nouvelle scène
+            currentStage.show(); // Afficher la nouvelle scène
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la redirection vers la page précédente : " + e.getMessage());
+        }
+    }
+
 
 
     private boolean validateInputs() {
