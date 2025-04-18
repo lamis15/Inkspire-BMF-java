@@ -115,7 +115,6 @@ public class UserService implements IService<User> {
                 user.setFirstName(rs.getString("first_name"));
                 user.setEmail(rs.getString("email"));
                 user.setRole(rs.getInt("role"));
-
                 users.add(user);
             }
         return users;

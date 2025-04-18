@@ -44,7 +44,6 @@ public class AfficherCollections {
                 myCollectionsButton.setVisible(false);
                 myCollectionsButton.setManaged(false);
             }
-            
             // Find the add button in the parent HBox
             if (myCollectionsButton != null && myCollectionsButton.getParent() != null) {
                 Node addButton = myCollectionsButton.getParent().lookup("#addButton");
@@ -116,7 +115,6 @@ public class AfficherCollections {
             List<Collections> userCollections = allCollections.stream()
                     .filter(c -> c.getUser() != null && c.getUser().getId() == currentUser.getId())
                     .collect(Collectors.toList());
-
             // Update button text
             myCollectionsButton.setText("All Collections");
             showingMyCollections = true;
