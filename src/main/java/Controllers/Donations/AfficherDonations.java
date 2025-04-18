@@ -261,8 +261,10 @@ public class AfficherDonations implements Initializable {
                             " has been refunded successfully. The tokens have been returned to your account.");
                     alert.showAndWait();
 
-                    // Reload donations to refresh the table
-                    loadDonations();
+                    // Remove refunded donation from the list and update UI
+                    donations.remove(donation);
+                    donationsListView.getItems().remove(donation);
+                    updateStatistics();
                 } else {
                     // Show error message
                     Alert alert = new Alert(Alert.AlertType.ERROR);
