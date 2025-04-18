@@ -13,7 +13,26 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+
 <BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@user.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.user.ModifierUser">
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.2"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.user.ModifierUser"
+            prefWidth="800" prefHeight="700"
+            styleClass="window"
+            stylesheets="@user.css">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+            <Button fx:id="backButton" text="Back" styleClass="back-button"  />
+            <Label text="Modify User" styleClass="title" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </top>
+
 
     <center>
         <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" pannable="true" prefHeight="700.0" prefWidth="269.0" styleClass="main-scroll-pane-modify" vbarPolicy="AS_NEEDED">

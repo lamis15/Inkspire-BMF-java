@@ -121,6 +121,7 @@ public class UserSignup {
             hasError = true;
         }
 
+
         // Check if fields are empty
         if (firstNameField.getText().trim().isEmpty()) {
             firstnameError.setStyle("-fx-text-fill: red;");
@@ -168,8 +169,10 @@ public class UserSignup {
         newUser.setStatus(1);
         service.ajouter(newUser);
 
+
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         SceneManager.switchTo(stage,"/UserUtils/SigninUser.fxml");
+
         System.out.println("User created successfully");
     }
 
