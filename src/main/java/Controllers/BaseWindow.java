@@ -57,21 +57,19 @@ public class BaseWindow {
             SceneSwitch.switchScene(mainRouter, "/AfficherCategory.fxml");
         }
     }
-
     @FXML
     void goAuction(ActionEvent event) {
+        SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/AfficherAuction.fxml");;
     }
 
-    @FXML
-    void goUser(ActionEvent event) {
-        SceneSwitch.switchScene(mainRouter, "/UserUtils/AfficherUsers.fxml");
-    }
     
     @FXML
     void goUser(MouseEvent event) {
         SceneSwitch.switchScene(mainRouter, "/UserUtils/AfficherUsers.fxml");
     }
-    public void goArtwork(ActionEvent actionEvent) {SceneSwitch.switchScene(mainRouter, "/ArtworkDisplay.fxml");
+    @FXML
+    public void goArtwork(ActionEvent actionEvent) {
+        SceneSwitch.switchScene(mainRouter, "/AuctionUtils/ArtworkDisplay.fxml");
     }
 
 }
