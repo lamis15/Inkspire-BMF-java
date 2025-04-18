@@ -3,6 +3,8 @@ package Controllers;
 import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import utils.SceneSwitch;
@@ -11,6 +13,9 @@ public class BaseWindow {
 
     @FXML
     private AnchorPane mainRouter;
+    
+    @FXML
+    private ImageView userIcon;
 
     @FXML
     void goCollections(ActionEvent event) {
@@ -52,16 +57,19 @@ public class BaseWindow {
             SceneSwitch.switchScene(mainRouter, "/AfficherCategory.fxml");
         }
     }
-
     @FXML
     void goAuction(ActionEvent event) {
+        SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/AfficherAuction.fxml");;
     }
 
+    
     @FXML
-    void goUser(ActionEvent event) {
-        SceneSwitch.switchScene(mainRouter, "/UserUtils/AfficherUsers.fxml");;
+    void goUser(MouseEvent event) {
+        SceneSwitch.switchScene(mainRouter, "/UserUtils/AfficherUsers.fxml");
     }
-    public void goArtwork(ActionEvent actionEvent) {SceneSwitch.switchScene(mainRouter, "/ArtworkDisplay.fxml");
+    @FXML
+    public void goArtwork(ActionEvent actionEvent) {
+        SceneSwitch.switchScene(mainRouter, "/AuctionUtils/ArtworkDisplay.fxml");
     }
 
 }

@@ -2,6 +2,7 @@ package Controllers.Donations;
 
 import entities.Collections;
 import entities.Donation;
+import service.CollectionsService;
 import entities.Session;
 import entities.User;
 import javafx.beans.property.SimpleStringProperty;
@@ -251,23 +252,27 @@ public class AfficherDonations implements Initializable {
         }
         collectionsCountLabel.setText(String.valueOf(uniqueCollections.size()));
     }
-    
+
     private void navigateToCollectionDetails(Collections collection) {
         try {
+            // Fetch full collection details by ID
+            CollectionsService collectionsService = new CollectionsService();
+            Collections fullCollection = collectionsService.recupererById(collection.getId());
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CollectionDetails.fxml"));
             Parent root = loader.load();
-            
-            // Get the controller and pass the collection
+
+            // Pass the full collection to the controller
             Controllers.Collections.CollectionDetails controller = loader.getController();
-            controller.setCollection(collection);
-            
+            controller.setCollection(fullCollection);
+
             // Find the mainRouter and load the view
             Pane mainRouter = (Pane) donationsTable.getScene().getRoot().lookup("#mainRouter");
             if (mainRouter != null) {
                 mainRouter.getChildren().clear();
                 mainRouter.getChildren().add(root);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Error navigating to collection details: " + e.getMessage());
             e.printStackTrace();
         }
