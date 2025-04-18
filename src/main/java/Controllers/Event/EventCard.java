@@ -31,19 +31,19 @@ public class EventCard extends VBox {
 
     @FXML
     private ImageView eventImage;
-    
+
     @FXML
     private Label titleLabel;
-    
+
     @FXML
     private Label locationLabel;
-    
+
     @FXML
     private Label dateLabel;
-    
+
     @FXML
     private Button voirDetailsButton;
-    
+
     private Event event;
     private Event imageView;
 
@@ -51,30 +51,40 @@ public class EventCard extends VBox {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventCard.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
-        
+
         try {
             fxmlLoader.load();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }
-    
+    @FXML
     public void setEvent(Event event) {
         this.event = event;
         titleLabel.setText(event.getTitle());
         locationLabel.setText("Lieu: " + event.getLocation());
-        //dateLabel.setText("Date: " + event.getStartingDate() + " - " + event.getEndingDate());
-        
+        startingDateLabel.setText("Start Date: " + event.getStartingDate().toString());
+        endingDateLabel.setText("End Date: " + event.getEndingDate().toString());
+        latitudeLabel.setText("Latitude: " + event.getLatitude());
+        longitudeLabel.setText("Longitude: " + event.getLongitude());
+        categoryLabel.setText("Category ID: " + event.getCategoryId());
+
         if (event.getImage() != null && !event.getImage().isEmpty()) {
             try {
-                Image image = new Image(event.getImage());
+                // Vérifier si le chemin de l'image est valide et charger l'image
+                Image image = new Image("file:" + event.getImage());
                 eventImage.setImage(image);
             } catch (Exception e) {
-                // Si l'image ne peut pas être chargée, utiliser une image par défaut
+                System.out.println("Image loading failed: " + e.getMessage());
                 eventImage.setImage(new Image("/images/default-event.jpg"));
             }
+        } else {
+            eventImage.setImage(new Image("/images/default-event.jpg"));
         }
+
     }
+
+
     Pane container;
     @FXML
     private void handleVoirDetails() {

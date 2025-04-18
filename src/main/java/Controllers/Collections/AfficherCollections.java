@@ -44,7 +44,6 @@ public class AfficherCollections {
                 myCollectionsButton.setVisible(false);
                 myCollectionsButton.setManaged(false);
             }
-            
             // Find the add button in the parent HBox
             if (myCollectionsButton != null && myCollectionsButton.getParent() != null) {
                 Node addButton = myCollectionsButton.getParent().lookup("#addButton");

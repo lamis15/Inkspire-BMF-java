@@ -32,14 +32,10 @@ public class BaseWindow {
 
     @FXML
     void goDonations(ActionEvent event) {
-        // Check user role to determine which donations view to show
         User currentUser = entities.Session.getCurrentUser();
-        
         if (currentUser != null && currentUser.getRole() == 1) {
-            // Admin user - show all donations
             SceneSwitch.switchScene(mainRouter, "/AfficherAllDonations.fxml");
         } else {
-            // Regular user - show only their donations
             SceneSwitch.switchScene(mainRouter, "/AfficherDonations.fxml");
         }
     }
@@ -47,37 +43,38 @@ public class BaseWindow {
     @FXML
     void goEvents(ActionEvent event) {
         User currentUser = entities.Session.getCurrentUser();
-
         if (currentUser != null && currentUser.getRole() == 1) {
-            // Admin user - show all donations
             SceneSwitch.switchScene(mainRouter, "/AfficherEventBack.fxml");
         } else {
-            // Regular user - show only their donations
             SceneSwitch.switchScene(mainRouter, "/AfficherEvent.fxml");
         }
     }
     @FXML
     void goCategory(ActionEvent event) {
         User currentUser = entities.Session.getCurrentUser();
-
         if (currentUser != null && currentUser.getRole() == 1) {
-            // Admin user - show all donations
             SceneSwitch.switchScene(mainRouter, "/AfficherCategory.fxml");
         }
     }
     @FXML
     void goAuction(ActionEvent event) {
-        SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/AfficherAuction.fxml");;
-    }
+        User currentUser = entities.Session.getCurrentUser();
+        if (currentUser != null && currentUser.getRole() == 1) {
+            SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/AfficherAuctionAdmin.fxml");
+        } else {
+            SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/AfficherAuction.fxml");
+        }
 
+    }
+    
     @FXML
     void goUser(MouseEvent event) {
         SceneSwitch.switchScene(mainRouter, "/UserUtils/ModifierUser.fxml");
     }
 
     @FXML
-    public void goArtwork(ActionEvent actionEvent) {
-        SceneSwitch.switchScene(mainRouter, "/AuctionUtils/ArtworkDisplay.fxml");
+    void goArtwork(ActionEvent actionEvent) {
+        SceneSwitch.switchScene(mainRouter, "/ArtworkDisplay.fxml");
     }
 
     @FXML
