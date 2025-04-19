@@ -1,64 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/23.0.2"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controllers.user.ModifierUser"
-            prefWidth="800" prefHeight="700"
-            styleClass="window"
-            stylesheets="/style.css">
 
-    <top>
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
-            <padding>
-                <Insets top="10" right="20" bottom="10" left="20"/>
-            </padding>
-            <Button fx:id="backButton" text="Back" styleClass="back-button"  />
-            <Label text="Modify User" styleClass="title" HBox.hgrow="ALWAYS" />
-        </HBox>
-    </top>
+<BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@user.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.user.ModifierUser">
+
 
     <center>
-        <ScrollPane fitToWidth="true" pannable="true" styleClass="main-scroll-pane"
-                    vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
-            <content>
-                <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;" styleClass="card">
-                    <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
-                    </padding>
-
-                    <Label text="Modify User Information" styleClass="title"/>
-                    <Label text="Edit the details below" styleClass="subtitle"/>
-
-                    <!-- First Name Field -->
-                    <TextField fx:id="firstNameField" promptText="First Name" styleClass="text-input"/>
-                    <Label fx:id="firstNameError" styleClass="error-label"/>
-
-                    <!-- Last Name Field -->
-                    <TextField fx:id="lastNameField" promptText="Last Name" styleClass="text-input"/>
-                    <Label fx:id="lastNameError" styleClass="error-label"/>
-
-                    <!-- Email Field -->
-                    <TextField fx:id="emailField" promptText="Email" styleClass="text-input"/>
-                    <Label fx:id="emailError" styleClass="error-label"/>
-
-                    <!-- Password Field -->
-                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-input"/>
-                    <Label fx:id="passwordError" styleClass="error-label"/>
-
-
-                    <!-- Modify Button -->
-                    <Button fx:id="modifyButton" text="Modify" onAction="#modifyUser" styleClass="primary-button" />
-
-                    <!-- Delete Button -->
-                    <Button fx:id="deleteButton" text="Delete" onAction="#deleteUser" styleClass="danger-button" />
-                </VBox>
-            </content>
+        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" pannable="true" prefHeight="700.0" prefWidth="269.0" styleClass="main-scroll-pane-modify" vbarPolicy="AS_NEEDED">
+         <content>
+            <Pane prefHeight="698.0" prefWidth="214.0">
+               <children>
+                  <ImageView fx:id="usericon2" fitHeight="134.0" fitWidth="148.0" layoutX="54.0" layoutY="65.0" pickOnBounds="true" preserveRatio="true" styleClass="usericon2">
+                     <image>
+                        <Image url="@../../../../../../../../../xampp/htdocs/images/profile.png" />
+                     </image>
+                  </ImageView>
+                  <Button fx:id="logoutButton" layoutX="64.0" layoutY="608.0" onAction="#logout" prefHeight="33.0" prefWidth="111.0" styleClass="ModifyButton" text="Log out" />
+                  <Button fx:id="uploadImage" layoutX="61.0" layoutY="215.0" mnemonicParsing="false" onAction="#upload" styleClass="uploadImage" text="Upload Image" />
+               </children>
+            </Pane>
+         </content>
         </ScrollPane>
     </center>
+   <right>
+          <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="700.0" prefWidth="574.0" spacing="8.0" style="-fx-padding: 40;" styleClass="card-modify">
+              <padding>
+                  <Insets bottom="20" left="20" right="20" top="20" />
+              </padding>
+
+              <Label prefHeight="17.0" prefWidth="715.0" styleClass="title" text="Profile">
+            <font>
+               <Font name="System Bold" size="40.0" />
+            </font>
+         </Label>
+              <Label prefHeight="17.0" prefWidth="718.0" styleClass="subtitle" text="Your informations">
+            <font>
+               <Font size="15.0" />
+            </font>
+         </Label>
+         <Label fx:id="firstnameError" prefHeight="17.0" prefWidth="716.0" styleClass="FirstnameError" text="Firstname" />
+
+              <!-- First Name Field -->
+              <TextField fx:id="firstNameField" prefHeight="33.0" prefWidth="270.0" promptText="First Name" styleClass="text-input">
+            <VBox.margin>
+               <Insets bottom="15.0" />
+            </VBox.margin>
+         </TextField>
+              <Label fx:id="lastnameError" prefHeight="17.0" prefWidth="716.0" styleClass="LastnameError" text="Lastname" />
+
+              <!-- Last Name Field -->
+              <TextField fx:id="lastNameField" prefHeight="33.0" prefWidth="270.0" promptText="Last Name" styleClass="text-input">
+            <VBox.margin>
+               <Insets bottom="15.0" />
+            </VBox.margin>
+         </TextField>
+              <Label fx:id="EmailError" prefHeight="17.0" prefWidth="715.0" styleClass="EmailError" text="Email" />
+
+              <!-- Email Field -->
+              <TextField fx:id="emailField" prefHeight="33.0" prefWidth="270.0" promptText="Email" styleClass="text-input">
+            <VBox.margin>
+               <Insets bottom="15.0" />
+            </VBox.margin>
+         </TextField>
+              <Label fx:id="passwordError" prefHeight="17.0" prefWidth="738.0" styleClass="PasswordError" text="Password" />
+
+              <!-- Password Field -->
+              <PasswordField fx:id="passwordField" prefHeight="33.0" prefWidth="270.0" promptText="Password" styleClass="text-input">
+            <VBox.margin>
+               <Insets bottom="15.0" />
+            </VBox.margin>
+         </PasswordField>
+              <Label fx:id="confirmpassword" prefHeight="17.0" prefWidth="754.0" styleClass="confirmError" text="Confirm password" />
+         <PasswordField fx:id="passwordField1" prefHeight="33.0" prefWidth="270.0" promptText="confirmPassword" styleClass="text-input" />
+         <Pane prefHeight="85.0" prefWidth="521.0">
+            <children>
+
+
+                          <!-- Modify Button -->
+                    <Button fx:id="ModifyButton" layoutY="59.0" onAction="#modifyUser" prefHeight="33.0" prefWidth="84.0" styleClass="ModifyButton" text="Modify" />
+      
+                          <!-- Delete Button -->
+                    <Button fx:id="deleteButton" layoutX="3.0" layoutY="8.0" onAction="#deleteUser" prefHeight="25.0" prefWidth="62.0" styleClass="danger-button" text="Delete" />
+            </children>
+         </Pane>
+          </VBox>
+   </right>
 </BorderPane>

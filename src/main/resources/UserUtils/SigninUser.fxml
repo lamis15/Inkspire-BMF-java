@@ -1,60 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/23.0.2"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controllers.user.UserSignin"
-            prefWidth="800" prefHeight="700"
-            styleClass="window"
-            stylesheets="/style.css">
-
-    <top>
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
-            <padding>
-                <Insets top="10" right="20" bottom="10" left="20"/>
-            </padding>
-            <Label text="Sign In" styleClass="title" HBox.hgrow="ALWAYS" />
-        </HBox>
-    </top>
+<BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@user.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.user.UserSignin">
 
     <center>
-        <ScrollPane fitToWidth="true" pannable="true" styleClass="main-scroll-pane"
-                    vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
+        <ScrollPane hbarPolicy="NEVER" pannable="true" styleClass="main-scroll-pane" vbarPolicy="AS_NEEDED">
             <content>
-                <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;" styleClass="card">
+                <VBox alignment="CENTER" fillWidth="false" prefHeight="698.0" prefWidth="423.0" spacing="8.0" style="-fx-padding: 40;" styleClass="card">
                     <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
+                        <Insets bottom="20" left="20" right="20" top="20" />
                     </padding>
 
-                    <Label text="Welcome Back" styleClass="title"/>
-                    <Label text="Sign in to continue" styleClass="subtitle"/>
+                    <Label prefHeight="58.0" prefWidth="271.0" styleClass="title" text="Sign In">
+                  <font>
+                     <Font name="System Bold" size="40.0" />
+                  </font>
+                  <VBox.margin>
+                     <Insets bottom="20.0" />
+                  </VBox.margin></Label>
+                    <Label fx:id="emailError" prefHeight="17.0" prefWidth="263.0" styleClass="error-label" text="Email" />
 
                     <!-- Email Field -->
-                    <TextField fx:id="emailField" promptText="Email" styleClass="text-input"/>
-                    <Label fx:id="emailError" styleClass="error-label" />
+                    <TextField fx:id="emailField" minWidth="10.0" prefHeight="33.0" prefWidth="270.0" promptText="Email" styleClass="text-input">
+                  <opaqueInsets>
+                     <Insets />
+                  </opaqueInsets>
+                  <VBox.margin>
+                     <Insets bottom="10.0" />
+                  </VBox.margin></TextField>
+                    <Label fx:id="passwordError" prefHeight="17.0" prefWidth="260.0" styleClass="error-label" text="Password" />
 
                     <!-- Password Field -->
-                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-input"/>
-                    <Label fx:id="passwordError" styleClass="error-label" />
-
-                    <HBox spacing="10" alignment="CENTER">
-                        <Button text="Forgot Password?" styleClass="link-button"/>
-                    </HBox>
+                    <PasswordField fx:id="passwordField" prefHeight="33.0" prefWidth="270.0" promptText="Password" styleClass="text-input">
+                  <VBox.margin>
+                     <Insets bottom="15.0" />
+                  </VBox.margin></PasswordField>
+                     <Button styleClass="link-button" text="Forgot Password?">
+                  <VBox.margin>
+                     <Insets bottom="10.0" top="15.0" />
+                  </VBox.margin></Button>
 
                     <!-- Sign In Button -->
-                    <Button fx:id="signInButton" text="Sign In" onAction="#signIn" styleClass="primary-button" />
+                    <Button fx:id="signInButton" onAction="#signIn" prefHeight="33.0" prefWidth="270.0" styleClass="Signin-button" text="Sign In" textFill="WHITE" />
 
-                    <HBox spacing="5" alignment="CENTER">
-                        <Label text="Don't have an account?" styleClass="body-text"/>
-                        <Button text="Sign Up" styleClass="link-button" onAction="#switchToSignUp"/>
+                    <HBox alignment="CENTER" spacing="10" />
+
+                    <HBox alignment="CENTER" spacing="5">
+                        <Label styleClass="body-text" text="Don't have an account?" />
+                        <Button onAction="#switchToSignUp" styleClass="link-button" text="Sign Up" />
                     </HBox>
                 </VBox>
             </content>
         </ScrollPane>
     </center>
+   <right>
+      <Pane prefHeight="700.0" prefWidth="385.0" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fitHeight="700.0" fitWidth="397.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../../../../../../xampp/htdocs/images/Signin.png" />
+               </image>
+            </ImageView>
+         </children>
+      </Pane>
+   </right>
 </BorderPane>
