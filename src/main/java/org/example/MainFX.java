@@ -21,7 +21,7 @@ public class MainFX extends Application {
         try {
             Image image = new Image("file:/C:/xampp/htdocs/images/logo.png");
             stage.getIcons().add(image);
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEventBack.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEvent.fxml"));
             Parent root = loader.load();
             Scene sc = new Scene(root);
             stage.setTitle("InkSpire");

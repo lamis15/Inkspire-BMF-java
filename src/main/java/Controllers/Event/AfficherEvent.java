@@ -55,7 +55,7 @@ public class AfficherEvent {
         cardsContainer.getChildren().clear(); // Vider les cartes existantes
         try {
             for (Event c : list) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventDetails.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/EventDetails.fxml"));
                 Node eventCard = loader.load();
 
                 // Récupération du contrôleur associé à EventDetails.fxml

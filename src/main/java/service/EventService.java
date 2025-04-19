@@ -17,22 +17,55 @@ public class EventService implements IService<Event> {
     public EventService() {
         connection = DataSource.getInstance().getConnection();
     }
-
     @Override
     public boolean ajouter(Event event) throws SQLException {
-        String sql = "INSERT INTO event (title, starting_date, ending_date, location, latitude, longitude, image) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, event.getTitle());
-        ps.setTimestamp(2, Timestamp.valueOf(event.getStartingDate().atStartOfDay()));
-        ps.setTimestamp(3, Timestamp.valueOf(event.getEndingDate().atStartOfDay()));
-        ps.setString(4, event.getLocation());
-        ps.setDouble(5, event.getLatitude());
-        ps.setDouble(6, event.getLongitude());
-        ps.setString(7, event.getImage());
-        ps.executeUpdate();
-        return true;
-    }
+        // Start transaction
+        connection.setAutoCommit(false);
 
+        try {
+            // 1. Insert the event
+            String eventSql = "INSERT INTO event (title, starting_date, ending_date, location, latitude, longitude, image) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            try (PreparedStatement ps = connection.prepareStatement(eventSql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, event.getTitle());
+                ps.setTimestamp(2, Timestamp.valueOf(event.getStartingDate().atStartOfDay()));
+                ps.setTimestamp(3, Timestamp.valueOf(event.getEndingDate().atStartOfDay()));
+                ps.setString(4, event.getLocation());
+                ps.setDouble(5, event.getLatitude());
+                ps.setDouble(6, event.getLongitude());
+                ps.setString(7, event.getImage());
+                ps.executeUpdate();
+
+                // 2. Get generated event ID
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int eventId = generatedKeys.getInt(1);
+
+                        // 3. Save category association if exists
+                        if (event.getCategoryId() > 0) {
+                            String assocSql = "INSERT INTO event_category (event_id, category_id) VALUES (?, ?)";
+                            try (PreparedStatement assocPs = connection.prepareStatement(assocSql)) {
+                                assocPs.setInt(1, eventId);
+                                assocPs.setInt(2, event.getCategoryId());
+                                assocPs.executeUpdate();
+                                System.out.println("Saved association: event " + eventId + " -> category " + event.getCategoryId());
+                            }
+                        }
+
+                        connection.commit();
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+        } finally {
+            connection.setAutoCommit(true);
+        }
+        return false;
+    }
     @Override
     public boolean modifier(Event event) throws SQLException {
         String sql = "UPDATE event SET title=?, starting_date=?, ending_date=?, location=?, latitude=?, longitude=?, image=? WHERE id=?";
@@ -58,7 +91,14 @@ public class EventService implements IService<Event> {
         return false;
     }
 
-
+    public void assignCategoryToEvent(int eventId, int categoryId) throws SQLException {
+        String sql = "INSERT INTO event_category (event_id, category_id) VALUES (?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, eventId);
+            ps.setInt(2, categoryId);
+            ps.executeUpdate();
+        }
+    }
 
 
     @Override
@@ -67,8 +107,6 @@ public class EventService implements IService<Event> {
         String sql = "SELECT * FROM event";
         Statement st = connection.createStatement();
         ResultSet rs = st.executeQuery(sql);
-
-        logger.log(Level.INFO, "Début de la récupération des événements");
 
         while (rs.next()) {
             try {
@@ -83,15 +121,15 @@ public class EventService implements IService<Event> {
                 event.setImage(rs.getString("image"));
 
                 list.add(event);
-                logger.log(Level.INFO, "Événement récupéré: " + event.getTitle());
             } catch (SQLException e) {
+                // Tu peux garder ce log d'erreur si tu veux être informé en cas de problème
                 logger.log(Level.SEVERE, "Erreur lors de la récupération d'un événement", e);
             }
         }
 
-        logger.log(Level.INFO, "Nombre d'événements récupérés: " + list.size());
         return list;
     }
+
 
     public Event getById(int id) throws SQLException {
         String sql = "SELECT * FROM event WHERE id=?";

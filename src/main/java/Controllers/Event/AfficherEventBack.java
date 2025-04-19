@@ -103,7 +103,7 @@ public class AfficherEventBack extends SceneSwitch {
      */
     @FXML
     private void onAddClick(ActionEvent event) throws IOException {
-        switchScene(rootVBox, "/AjouterEvent.fxml");
+        switchScene(rootVBox, "/EventUtils/AjouterEvent.fxml");
         loadEventCards();
     }
 
@@ -112,7 +112,7 @@ public class AfficherEventBack extends SceneSwitch {
      */
     private void handleModifyEvent(Event event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/ModifierEvent.fxml"));
             VBox modifierRoot = loader.load();
 
             ModifierEvent controller = loader.getController();

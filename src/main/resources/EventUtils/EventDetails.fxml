@@ -19,29 +19,28 @@
     </padding>
 
     <!-- Image de l'événement -->
-    <ImageView fx:id="imageView" fitHeight="150" fitWidth="320" preserveRatio="true"/>
+    <ImageView fx:id="imageView" fitHeight="320" fitWidth="320" preserveRatio="true"/>
 
     <!-- Titre -->
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="🎉" styleClass="icon"/>
+        <Label text="🎉 Event : " styleClass="icon"/>
         <Label fx:id="titleLabel" styleClass="title"/>
     </HBox>
 
     <!-- Lieu -->
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="📍" styleClass="icon"/>
+        <Label text="📍 Location : " styleClass="icon"/>
         <Label fx:id="locationlabel" styleClass="subtitle"/>
     </HBox>
-
     <!-- Starting Date -->
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="📆 Début:" styleClass="icon"/>
+        <Label text="📆 Start : " styleClass="icon"/>
         <Label fx:id="startingDateLabel" styleClass="subtitle"/>
     </HBox>
 
     <!-- Ending Date -->
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="⏳ Fin:" styleClass="icon"/>
+        <Label text="⏳ END : " styleClass="icon"/>
         <Label fx:id="endingDateLabel" styleClass="subtitle"/>
     </HBox>
 
@@ -49,9 +48,12 @@
     <!-- Catégories -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="🗂" styleClass="icon"/>
-        <Label text="Catégories" styleClass="section-title"/>
-    </HBox>
+        <Label text="Category : " styleClass="section-title"/>
+        <FlowPane fx:id="categoryContainer" hgap="10" vgap="10" prefWidth="20" styleClass="category-container"/> </HBox>
+
+
+
 
     <!-- Conteneur des catégories -->
-    <FlowPane fx:id="categoryContainer" hgap="10" vgap="10" prefWidth="320" styleClass="category-container"/>
+
 </VBox>

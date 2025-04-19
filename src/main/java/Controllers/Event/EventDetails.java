@@ -1,6 +1,5 @@
 package Controllers.Event;
 
-
 import entities.Category;
 import entities.Event;
 import javafx.fxml.FXML;
@@ -31,26 +30,18 @@ public class EventDetails implements javafx.fxml.Initializable {
     public Label imagelabel;
     @FXML
     private Label titleLabel;
-
     @FXML
     private Label startingDateLabel;
-
     @FXML
     private Label endingDateLabel;
-
-
     @FXML
     private Label locationlabel;
-
     @FXML
     private Label statusLabel;
-
     @FXML
     private ImageView imageView;
-
     @FXML
     private Button backButton;
-
     @FXML
     private FlowPane categoryContainer;
 
@@ -61,20 +52,14 @@ public class EventDetails implements javafx.fxml.Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize the controller
-        System.out.println("Initializing EventDetails controller");
-
-        // Configure the FlowPane for proper display of artworks
         categoryContainer.setHgap(15);
         categoryContainer.setVgap(15);
         categoryContainer.setPrefWrapLength(700);
     }
 
     public void setEvent(Event event) {
-        System.out.println("Setting collection: " + event.getId() + " - " + event.getTitle());
         this.event = event;
 
-        // Set collection details
         titleLabel.setText(event.getTitle());
         locationlabel.setText(event.getLocation());
         startingDateLabel.setText(event.getStartingDate().toString());
@@ -88,16 +73,46 @@ public class EventDetails implements javafx.fxml.Initializable {
                 System.out.println("Error loading image: " + e.getMessage());
             }
         }
-      }
 
+        // Load and display categories for this event
+        loadCategories();
+    }
+
+    private void loadCategories() {
+        try {
+            categoryContainer.getChildren().clear();
+            System.out.println("Loading categories for event ID: " + event.getId()); // Debug log
+
+            List<Category> categories = categoryService.getCategoriesForEvent(event.getId());
+            System.out.println("Retrieved " + categories.size() + " categories"); // Debug log
+
+            for (Category category : categories) {
+                Label categoryLabel = new Label(category.getName());
+                categoryLabel.getStyleClass().add("category-label");
+                categoryContainer.getChildren().add(categoryLabel);
+                System.out.println("Added category: " + category.getName()); // Debug log
+            }
+
+            if (categories.isEmpty()) {
+                System.out.println("No categories found for event " + event.getId()); // Debug log
+                Label noCategoriesLabel = new Label("No categories assigned");
+                noCategoriesLabel.getStyleClass().add("no-categories-label");
+                categoryContainer.getChildren().add(noCategoriesLabel);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading categories: " + e.getMessage());
+            e.printStackTrace(); // Full stack trace
+            Label errorLabel = new Label("Error loading categories");
+            errorLabel.getStyleClass().add("category-error-label");
+            categoryContainer.getChildren().add(errorLabel);
+        }
+    }
 
     @FXML
     private void onBackClick() {
-        // Find the mainRouter in the scene graph
         Node node = backButton.getScene().getRoot().lookup("#mainRouter");
-
         if (node instanceof Pane) {
-            SceneSwitch.switchScene((Pane) node, "/AfficherEvent.fxml");
+            SceneSwitch.switchScene((Pane) node, "/EventUtils/AfficherEvent.fxml");
             System.out.println("Successfully navigated back to events view");
         } else {
             System.out.println("Could not find mainRouter for navigation");
