@@ -1,83 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
 
-<BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@user.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.user.UserSignup">
-   <right>
-        <ScrollPane hbarPolicy="NEVER" pannable="true" styleClass="main-scroll-pane" vbarPolicy="AS_NEEDED" BorderPane.alignment="CENTER">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.2"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.user.UserSignup"
+            prefWidth="800" prefHeight="700"
+            styleClass="window"
+            stylesheets="/style.css">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-nav">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+            <Button fx:id="backButton" text="Back" styleClass="back-button" onAction="#onBackClick" />
+            <Label text="Create an Account" styleClass="title" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" pannable="true" styleClass="main-scroll-pane"
+                    vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
             <content>
-                <VBox alignment="CENTER" fillWidth="false" prefHeight="698.0" prefWidth="403.0" spacing="8.0" style="-fx-padding: 40;" styleClass="card">
+                <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;" styleClass="card">
                     <padding>
-                        <Insets bottom="20" left="20" right="20" top="20" />
+                        <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>
 
-                    <Label prefHeight="58.0" prefWidth="272.0" styleClass="title" text="Sign Up">
-                  <font>
-                     <Font name="System Bold" size="40.0" />
-                  </font>
-                  <VBox.margin>
-                     <Insets bottom="15.0" />
-                  </VBox.margin></Label>
-                    <Label styleClass="subtitle" text="Create a new account" />
-               <Label fx:id="firstnameError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="First name" />
+                    <Label text="Sign Up" styleClass="title"/>
+                    <Label text="Create a new account" styleClass="subtitle"/>
 
-                    <TextField fx:id="firstNameField" prefHeight="33.0" prefWidth="270.0" promptText="First Name" styleClass="text-input">
-                  <VBox.margin>
-                     <Insets bottom="8.0" />
-                  </VBox.margin></TextField>
-               <Label fx:id="LastnameError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="Last name " />
-                    <TextField fx:id="lastNameField" prefHeight="33.0" prefWidth="270.0" promptText="Last Name" styleClass="text-input">
-                  <VBox.margin>
-                     <Insets bottom="8.0" />
-                  </VBox.margin></TextField>
-               <Label fx:id="emailError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="Email" />
+                    <TextField fx:id="firstNameField" promptText="First Name" styleClass="text-input"/>
+                    <TextField fx:id="lastNameField" promptText="Last Name" styleClass="text-input"/>
 
-                    <TextField fx:id="emailField" prefHeight="33.0" prefWidth="270.0" promptText="Email" styleClass="text-input">
-                  <VBox.margin>
-                     <Insets bottom="8.0" />
-                  </VBox.margin></TextField>
-                    <Label fx:id="passwordError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="Password" />
+                    <TextField fx:id="emailField" promptText="Email" styleClass="text-input"/>
+                    <Label fx:id="emailError" styleClass="error-label"/>
 
-                    <PasswordField fx:id="passwordField" prefHeight="33.0" prefWidth="270.0" promptText="Password" styleClass="text-input">
-                  <VBox.margin>
-                     <Insets bottom="8.0" />
-                  </VBox.margin></PasswordField>
-                    <Label fx:id="confirmError" prefHeight="17.0" prefWidth="267.0" styleClass="error-label" text="Confirm Password" />
+                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-input"/>
+                    <Label fx:id="passwordError" styleClass="error-label"/>
 
-                    <PasswordField fx:id="confirmPasswordField" prefHeight="33.0" prefWidth="270.0" promptText="Confirm Password" styleClass="text-input" />
-                    <Label fx:id="confirmPasswordError" styleClass="error-label" />
+                    <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" styleClass="text-input"/>
+                    <Label fx:id="confirmPasswordError" styleClass="error-label"/>
 
-                    <Button fx:id="signUpButton" disable="false" onAction="#signUp" prefHeight="33.0" prefWidth="270.0" styleClass="Signup-button" text="Sign Up" />
+                    <Button fx:id="signUpButton" text="Sign Up" onAction="#signUp"
+                            styleClass="primary-button" disable="true" />
 
-                    <HBox alignment="CENTER" spacing="5">
-                        <Label styleClass="body-text" text="Already have an account?" />
-                        <Button onAction="#switchToSignIn" styleClass="link-button" text="Sign In" />
+                    <HBox spacing="5" alignment="CENTER">
+                        <Label text="Already have an account?" styleClass="body-text"/>
+                        <Button text="Sign In" styleClass="link-button" onAction="#switchToSignIn"/>
                     </HBox>
                 </VBox>
             </content>
         </ScrollPane>
-   </right>
-   <left>
-      <Pane prefHeight="700.0" prefWidth="397.0">
-         <children>
-            <ImageView fitHeight="760.0" fitWidth="398.0" layoutY="-1.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../../../../../../../xampp/htdocs/images/Signup.png" />
-               </image>
-            </ImageView>
-         </children>
-      </Pane>
-   </left>
+    </center>
 </BorderPane>

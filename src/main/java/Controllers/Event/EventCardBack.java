@@ -48,7 +48,7 @@ public class EventCardBack extends VBox {
     private Event imageView;
 
     public EventCardBack() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventUtils/EventCard.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventCard.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -78,7 +78,7 @@ public class EventCardBack extends VBox {
     Pane container;
     @FXML
     private void handleVoirDetails() {
-        SceneSwitch.switchScene(container,"/EventUtils/EventDetails.fxml" );
+        SceneSwitch.switchScene(container,"/EventDetails.fxml" );
     }
 
     public void setData(Event c) {

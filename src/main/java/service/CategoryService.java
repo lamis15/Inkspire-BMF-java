@@ -13,28 +13,6 @@ public class CategoryService {
     public CategoryService() {
         conn = DataSource.getInstance().getConnection();  // Changé de getCnx() à getConnection()
     }
-    public List<Category> getCategoriesForEvent(int eventId) throws SQLException {
-        System.out.println("DEBUG: Querying categories for event " + eventId);
-
-        String sql = "SELECT c.* FROM category c " +
-                "JOIN event_category ec ON c.id = ec.category_id " +
-                "WHERE ec.event_id = ?";
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, eventId);
-            ResultSet rs = stmt.executeQuery();
-
-            List<Category> categories = new ArrayList<>();
-            while (rs.next()) {
-                Category cat = new Category();
-                cat.setId(rs.getInt("id"));
-                cat.setName(rs.getString("name"));
-                categories.add(cat);
-                System.out.println("DEBUG: Found category: " + cat.getName());
-            }
-            return categories;
-        }
-    }
 
     public void ajouter(Category category) throws SQLException {
         String query = "INSERT INTO category (name, description, statut) VALUES (?, ?, ?)";
@@ -58,21 +36,12 @@ public class CategoryService {
     }
 
     public void supprimer(int id) throws SQLException {
-        // Supprimer d'abord les événements associés à la catégorie
-        String queryDeleteEvents = "DELETE FROM event WHERE category_id = ?";
-        try (PreparedStatement pst = conn.prepareStatement(queryDeleteEvents)) {
-            pst.setInt(1, id);
-            pst.executeUpdate();
-        }
-
-        // Ensuite, supprimer la catégorie
-        String queryDeleteCategory = "DELETE FROM category WHERE id = ?";
-        try (PreparedStatement pst = conn.prepareStatement(queryDeleteCategory)) {
+        String query = "DELETE FROM category WHERE id=?";
+        try (PreparedStatement pst = conn.prepareStatement(query)) {
             pst.setInt(1, id);
             pst.executeUpdate();
         }
     }
-
 
     public List<Category> afficher() throws SQLException {
         List<Category> categories = new ArrayList<>();

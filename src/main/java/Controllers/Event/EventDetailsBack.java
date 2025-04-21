@@ -99,7 +99,7 @@ public class EventDetailsBack implements javafx.fxml.Initializable {
                 // Navigate back to event list using mainRouter
                 Node mainRouter = deleteButton.getScene().getRoot().lookup("#mainRouter");
                 if (mainRouter instanceof Pane) {
-                    SceneSwitch.switchScene((Pane) mainRouter, "/EventUtils/AfficherEvent.fxml");
+                    SceneSwitch.switchScene((Pane) mainRouter, "/AfficherEvent.fxml");
                     System.out.println("Successfully navigated back to event view after delete");
                 } else {
                     System.out.println("Could not find mainRouter for navigation after delete");

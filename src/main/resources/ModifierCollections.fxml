@@ -82,7 +82,7 @@
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <Button text="Choose an image" onAction="#chooseImage" styleClass="secondary-button"/>
                             <Button text="Remove image" onAction="#removeImage" styleClass="secondary-button" style="-fx-border-color: #FF6B6B;"/>
-                            <Label fx:id="imagePathLabel" text="No image chosen" styleClass="body-text"/>
+                            <Label fx:id="imagePathLabel" style="-fx-text-fill: #222222;" text="No image chosen" styleClass="body-text"/>
                         </HBox>
                     </VBox>
                     

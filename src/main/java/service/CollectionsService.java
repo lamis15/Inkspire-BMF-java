@@ -34,9 +34,6 @@ public class CollectionsService implements IService<Collections> {
         }
 
         preparedStatement.setString(6, collection.getStatusValue());
-        if (collection.getUser() == null) {
-            throw new IllegalArgumentException("Collection has no associated user (user is null)");
-        }
         preparedStatement.setInt(7, collection.getUser().getId());
         preparedStatement.setDouble(8, collection.getCurrentAmount());
 
@@ -62,9 +59,6 @@ public class CollectionsService implements IService<Collections> {
         }
 
         preparedStatement.setString(6, collection.getStatusValue());
-        if (collection.getUser() == null) {
-            throw new IllegalArgumentException("Collection has no associated user (user is null)");
-        }
         preparedStatement.setInt(7, collection.getUser().getId());
         preparedStatement.setDouble(8, collection.getCurrentAmount());
         preparedStatement.setInt(9, collection.getId());

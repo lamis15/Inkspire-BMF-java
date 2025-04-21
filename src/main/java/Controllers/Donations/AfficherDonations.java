@@ -1,7 +1,6 @@
 package Controllers.Donations;
 
 import entities.Collections;
-import javafx.scene.control.ListView;
 import entities.Donation;
 import service.CollectionsService;
 import entities.Session;
@@ -33,19 +32,43 @@ public class AfficherDonations implements Initializable {
 
     @FXML
     private Label pageTitle;
-
+    
     @FXML
     private Label totalDonationsLabel;
-
+    
     @FXML
     private Label totalAmountLabel;
-
+    
     @FXML
     private Label collectionsCountLabel;
-
+    
     @FXML
-    private ListView<Donation> donationsListView; // New ListView for donations
-
+    private TableView<Donation> donationsTable;
+    
+    @FXML
+    private TableColumn<Donation, String> dateColumn;
+    
+    @FXML
+    private TableColumn<Donation, String> donorColumn;
+    
+    @FXML
+    private TableColumn<Donation, String> collectionColumn;
+    
+    @FXML
+    private TableColumn<Donation, String> amountColumn;
+    
+    @FXML
+    private TableColumn<Donation, Void> actionsColumn;
+    
+    @FXML
+    private HBox actionButtonsTemplate;
+    
+    @FXML
+    private Button modifyButtonTemplate;
+    
+    @FXML
+    private Button refundButtonTemplate;
+    
     private final DonationService donationService = new DonationService();
     private List<Donation> donations;
     private boolean isAdmin = false;
@@ -60,75 +83,126 @@ public class AfficherDonations implements Initializable {
             alert.showAndWait();
             return;
         }
-
+        
         // Check if user is admin
         isAdmin = currentUser.getRole() != null && currentUser.getRole() == 1;
-
+        
         // Update UI based on user role
         if (isAdmin) {
             pageTitle.setText("All Donations");
         } else {
             pageTitle.setText("My Donations");
         }
-
+        
+        // Setup table columns
+        setupTableColumns();
+        
         // Load donations
         loadDonations();
-
-        // Populate ListView
-        if (donations != null) {
-            donationsListView.setItems(FXCollections.observableArrayList(donations));
-            donationsListView.setCellFactory(listView -> new ListCell<Donation>() {
-                private final Button modifyButton = new Button("Modify");
-                private final Button refundButton = new Button("Refund");
-                private final HBox buttonBox = new HBox(10, modifyButton, refundButton);
-                {
-                    modifyButton.getStyleClass().addAll("action-btn", "modify-btn");
-                    refundButton.getStyleClass().addAll("action-btn", "refund-btn");
-                }
-                @Override
-                protected void updateItem(Donation donation, boolean empty) {
-                    super.updateItem(donation, empty);
-                    if (empty || donation == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        // Create Labels for each column
-                        Label dateLabel = new Label(donation.getDate() != null ? donation.getDate().toString() : "-");
-                        Label collectionLabel = new Label(donation.getCollections() != null ? donation.getCollections().getTitle() : "Unknown Collection");
-                        Label amountLabel = new Label(String.format("%.2f TND", donation.getAmount()));
-                        // Make fields expand evenly and closely
-                        dateLabel.setMaxWidth(Double.MAX_VALUE);
-                        collectionLabel.setMaxWidth(Double.MAX_VALUE);
-                        amountLabel.setMaxWidth(Double.MAX_VALUE);
-                        HBox.setHgrow(dateLabel, javafx.scene.layout.Priority.ALWAYS);
-                        HBox.setHgrow(collectionLabel, javafx.scene.layout.Priority.ALWAYS);
-                        HBox.setHgrow(amountLabel, javafx.scene.layout.Priority.ALWAYS);
-                        buttonBox.setPrefWidth(120);
-                        // Layout for row
-                        HBox rowBox = new HBox(dateLabel, collectionLabel, amountLabel, buttonBox);
-                        rowBox.setSpacing(2);
-                        rowBox.getStyleClass().add("listview-row");
-                        setText(null);
-                        setGraphic(rowBox);
-                        // Action handlers
-                        modifyButton.setOnAction(e -> onModifyDonation(donation));
-                        refundButton.setOnAction(e -> onRefundDonation(donation));
-                    }
-                }
-            });
-        }
-
+        
         // Update statistics
         updateStatistics();
     }
+    
+    private void setupTableColumns() {
+        // Configure date column
+        dateColumn.setCellValueFactory(cellData -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String formattedDate = cellData.getValue().getDate().format(formatter);
+            return new SimpleStringProperty(formattedDate);
+        });
+        
+        // Configure donor column - only visible for admin
+        donorColumn.setCellValueFactory(cellData -> {
+            User user = cellData.getValue().getUser();
+            String donorName = user != null ? 
+                    user.getFirstName() + " " + user.getLastName() : "Unknown";
+            return new SimpleStringProperty(donorName);
+        });
+        donorColumn.setVisible(isAdmin);
+        
+        // Configure collection column
+        setupCollectionColumn();
+        
+        // Configure amount column
+        amountColumn.setCellValueFactory(cellData -> {
+            Double amount = cellData.getValue().getAmount();
+            return new SimpleStringProperty(String.format("%.2f TND", amount));
+        });
+        
+        // Configure actions column with buttons
+        setupActionsColumn();
+    }
+    
+    private void setupCollectionColumn() {
+        collectionColumn.setCellValueFactory(cellData -> {
+            Donation donation = cellData.getValue();
+            String collectionName = donation.getCollections() != null ? donation.getCollections().getTitle() : "Unknown";
+            return new SimpleStringProperty(collectionName);
+        });
+        
+        collectionColumn.setCellFactory(param -> new TableCell<Donation, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || item.equals("Unknown")) {
+                    setText(null);
+                    setOnMouseClicked(null);
+                    getStyleClass().removeAll("collection-name");
+                } else {
+                    setText(item);
+                    getStyleClass().add("collection-name");
+                    setOnMouseClicked(event -> {
+                        Donation donation = getTableView().getItems().get(getIndex());
+                        if (donation.getCollections() != null) {
+                            navigateToCollectionDetails(donation.getCollections());
+                        }
+                    });
+                }
+            }
+        });
+    }
+    
+    private void setupActionsColumn() {
+        actionsColumn.setCellFactory(param -> new TableCell<Donation, Void>() {
+            private final Button modifyButton = new Button("Modify");
+            private final Button refundButton = new Button("Refund");
+            private final HBox buttonsBox = new HBox(20, modifyButton, refundButton);
 
+            {
+                // Apply CSS classes to buttons
+                modifyButton.getStyleClass().addAll("action-btn", "modify-btn");
+                refundButton.getStyleClass().addAll("action-btn", "refund-btn");
+                
+                buttonsBox.setAlignment(Pos.CENTER);
+                
+                modifyButton.setOnAction(event -> {
+                    Donation donation = getTableView().getItems().get(getIndex());
+                    onModifyDonation(donation);
+                });
+                
+                refundButton.setOnAction(event -> {
+                    Donation donation = getTableView().getItems().get(getIndex());
+                    onRefundDonation(donation);
+                });
+            }
 
-
-
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(buttonsBox);
+                }
+            }
+        });
+    }
+    
     private void loadDonations() {
         try {
             User currentUser = Session.getCurrentUser();
-
+            
             // Get donations based on user role
             if (isAdmin) {
                 // Admin sees all donations
@@ -137,11 +211,11 @@ public class AfficherDonations implements Initializable {
                 // Regular user sees only their donations
                 donations = donationService.getDonationsByUserId(currentUser.getId());
             }
-
+            
             // Set the data to the table
             ObservableList<Donation> donationsList = FXCollections.observableArrayList(donations);
-
-
+            donationsTable.setItems(donationsList);
+            
         } catch (SQLException e) {
             System.out.println("Error loading donations: " + e.getMessage());
             e.printStackTrace();
@@ -149,9 +223,9 @@ public class AfficherDonations implements Initializable {
             alert.showAndWait();
         }
     }
-
-
-
+    
+    
+    
     private void updateStatistics() {
         if (donations == null || donations.isEmpty()) {
             totalDonationsLabel.setText("0");
@@ -159,16 +233,16 @@ public class AfficherDonations implements Initializable {
             collectionsCountLabel.setText("0");
             return;
         }
-
+        
         // Count total donations
         totalDonationsLabel.setText(String.valueOf(donations.size()));
-
+        
         // Calculate total amount
         double totalAmount = donations.stream()
                 .mapToDouble(Donation::getAmount)
                 .sum();
         totalAmountLabel.setText(String.format("%.2f TND", totalAmount));
-
+        
         // Count unique collections
         Set<Integer> uniqueCollections = new HashSet<>();
         for (Donation donation : donations) {
@@ -193,7 +267,7 @@ public class AfficherDonations implements Initializable {
             controller.setCollection(fullCollection);
 
             // Find the mainRouter and load the view
-            Pane mainRouter = (Pane) donationsListView.getScene().getRoot().lookup("#mainRouter");
+            Pane mainRouter = (Pane) donationsTable.getScene().getRoot().lookup("#mainRouter");
             if (mainRouter != null) {
                 mainRouter.getChildren().clear();
                 mainRouter.getChildren().add(root);
@@ -203,21 +277,21 @@ public class AfficherDonations implements Initializable {
             e.printStackTrace();
         }
     }
-
+    
     private void onModifyDonation(Donation donation) {
         try {
             System.out.println("Modify donation: " + donation.getId());
-
+            
             // Load the ModifierDonation view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierDonation.fxml"));
             Parent root = loader.load();
-
+            
             // Get the controller and pass the donation to modify
             ModifierDonation controller = loader.getController();
             controller.setDonation(donation);
-
+            
             // Find the mainRouter and load the view
-            Pane mainRouter = (Pane) donationsListView.getScene().getRoot().lookup("#mainRouter");
+            Pane mainRouter = (Pane) donationsTable.getScene().getRoot().lookup("#mainRouter");
             if (mainRouter != null) {
                 mainRouter.getChildren().clear();
                 mainRouter.getChildren().add(root);
@@ -225,7 +299,7 @@ public class AfficherDonations implements Initializable {
         } catch (IOException e) {
             System.out.println("Error navigating to modify donation view: " + e.getMessage());
             e.printStackTrace();
-
+            
             // Show error alert
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -234,37 +308,35 @@ public class AfficherDonations implements Initializable {
             alert.showAndWait();
         }
     }
-
+    
     private void onRefundDonation(Donation donation) {
         System.out.println("Refund donation: " + donation.getId());
-
+        
         // Ask for confirmation
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirm Refund");
         confirmAlert.setHeaderText("Refund Donation");
-        confirmAlert.setContentText("Are you sure you want to refund this donation of " +
-                String.format("%.2f TND", donation.getAmount()) + " from " +
+        confirmAlert.setContentText("Are you sure you want to refund this donation of " + 
+                String.format("%.2f TND", donation.getAmount()) + " from " + 
                 donation.getCollections().getTitle() + "?");
-
+        
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 // Process the refund
                 boolean refundSuccess = processDonationRefund(donation);
-
+                
                 if (refundSuccess) {
                     // Show success message
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Refund Successful");
                     alert.setHeaderText("Donation Refunded");
-                    alert.setContentText("Your donation of " + String.format("%.2f TND", donation.getAmount()) +
+                    alert.setContentText("Your donation of " + String.format("%.2f TND", donation.getAmount()) + 
                             " has been refunded successfully. The tokens have been returned to your account.");
                     alert.showAndWait();
-
-                    // Remove refunded donation from the list and update UI
-                    donations.remove(donation);
-                    donationsListView.getItems().remove(donation);
-                    updateStatistics();
+                    
+                    // Reload donations to refresh the table
+                    loadDonations();
                 } else {
                     // Show error message
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -284,7 +356,7 @@ public class AfficherDonations implements Initializable {
             }
         }
     }
-
+    
     /**
      * Process a donation refund
      * @param donation The donation to refund
@@ -295,77 +367,77 @@ public class AfficherDonations implements Initializable {
         DonationService donationService = new DonationService();
         service.CollectionsService collectionsService = new service.CollectionsService();
         service.UserService userService = new service.UserService();
-
+        
         // Get the donation amount
         double donationAmount = donation.getAmount();
-
+        
         // Get the collection and its owner
         Collections collection = donation.getCollections();
         if (collection == null) {
             throw new SQLException("Collection not found for donation");
         }
-
+        
         // Load the full collection details from the database to ensure we have the owner
         Collections fullCollection = collectionsService.recupererById(collection.getId());
         if (fullCollection == null) {
             throw new SQLException("Could not load complete collection details");
         }
-
+        
         // Get the collection owner (who received the tokens)
         User collectionOwner = fullCollection.getUser();
         if (collectionOwner == null) {
             throw new SQLException("Collection owner not found");
         }
-
+        
         // Get the donor (who will receive the tokens back)
         User donor = donation.getUser();
         if (donor == null) {
             throw new SQLException("Donor not found");
         }
-
+        
         // Calculate tokens to transfer (round up to ensure full refund)
         int tokensToRefund = (int)Math.ceil(donationAmount);
-
+        
         // Check if collection owner has enough tokens for the refund
         User collectionOwnerWithTokens = userService.getById(collectionOwner.getId());
         if (collectionOwnerWithTokens == null) {
             throw new SQLException("Could not retrieve collection owner details");
         }
-
+        
         int ownerTokens = collectionOwnerWithTokens.getTokens() != null ? collectionOwnerWithTokens.getTokens() : 0;
         if (ownerTokens < tokensToRefund) {
             throw new SQLException("Collection owner doesn't have enough tokens for the refund");
         }
-
+        
         // Start the refund process
-
+        
         // 1. Transfer tokens from collection owner back to donor
         boolean tokenTransferSuccess = userService.transferTokens(
-                collectionOwner.getId(),
-                donor.getId(),
-                tokensToRefund
+            collectionOwner.getId(),
+            donor.getId(),
+            tokensToRefund
         );
-
+        
         if (!tokenTransferSuccess) {
             throw new SQLException("Failed to transfer tokens during refund");
         }
-
+        
         // 2. Update the collection's current amount
         // We need to use the fullCollection object which has all properties properly set
         double newCollectionAmount = fullCollection.getCurrentAmount() - donationAmount;
         fullCollection.setCurrentAmount(Math.max(0, newCollectionAmount));
-
+        
         // Update collection status if needed
         if (fullCollection.getGoal() != null && newCollectionAmount < fullCollection.getGoal()) {
             fullCollection.setStatus(enums.CollectionStatus.IN_PROGRESS);
         }
-
+        
         // Make sure the user property is set before updating
         // This prevents NullPointerException in collectionsService.modifier
         if (fullCollection.getUser() == null) {
             fullCollection.setUser(collectionOwner);
         }
-
+        
         boolean collectionUpdateSuccess = collectionsService.modifier(fullCollection);
         if (!collectionUpdateSuccess) {
             // If collection update failed, try to revert token transfer
@@ -377,7 +449,7 @@ public class AfficherDonations implements Initializable {
             }
             throw new SQLException("Failed to update collection during refund");
         }
-
+        
         // 3. Delete the donation from the database
         boolean donationDeleteSuccess = donationService.supprimer(donation.getId());
         if (!donationDeleteSuccess) {
@@ -389,7 +461,7 @@ public class AfficherDonations implements Initializable {
                     collection.setStatus(enums.CollectionStatus.REACHED);
                 }
                 collectionsService.modifier(collection);
-
+                
                 // Revert token transfer
                 userService.transferTokens(donor.getId(), collectionOwner.getId(), tokensToRefund);
             } catch (SQLException ex) {
@@ -398,7 +470,7 @@ public class AfficherDonations implements Initializable {
             }
             throw new SQLException("Failed to delete donation during refund");
         }
-
+        
         // If we got here, the refund was successful
         return true;
     }

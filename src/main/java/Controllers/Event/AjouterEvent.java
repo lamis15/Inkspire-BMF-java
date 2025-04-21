@@ -7,15 +7,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import service.CategoryService;
 import service.EventService;
-import utils.SceneSwitch;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,9 +65,8 @@ public class AjouterEvent implements Initializable {
                     setText(empty || category == null ? null : category.getName());
                 }
             });
-
         } catch (SQLException e) {
-            showAlert("Erreur", "Impossible de charger les catégories : " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger les catégories : " + e.getMessage());
         }
     }
 
@@ -89,7 +87,6 @@ public class AjouterEvent implements Initializable {
         );
 
         File file = fileChooser.showOpenDialog(null);
-
         if (file != null) {
             selectedImageFile = file;
             String filePath = "file:" + file.getAbsolutePath().replace("\\", "/");
@@ -111,18 +108,30 @@ public class AjouterEvent implements Initializable {
                 double longitude = 0.0;
 
                 if (!latitudeField.getText().isEmpty()) {
-                    latitude = Double.parseDouble(latitudeField.getText());
+                    try {
+                        latitude = Double.parseDouble(latitudeField.getText());
+                    } catch (NumberFormatException e) {
+                        showAlert(Alert.AlertType.ERROR, "Erreur", "Latitude invalide !");
+                        return;
+                    }
                 }
 
                 if (!longitudeField.getText().isEmpty()) {
-                    longitude = Double.parseDouble(longitudeField.getText());
+                    try {
+                        longitude = Double.parseDouble(longitudeField.getText());
+                    } catch (NumberFormatException e) {
+                        showAlert(Alert.AlertType.ERROR, "Erreur", "Longitude invalide !");
+                        return;
+                    }
                 }
 
                 Category selectedCategory = categoryComboBox.getValue();
                 if (selectedCategory == null) {
-                    showAlert("Erreur", "Veuillez sélectionner une catégorie !");
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez sélectionner une catégorie !");
                     return;
                 }
+
+                String categoryId = String.valueOf(selectedCategory.getId());
 
                 Event newEvent = new Event(
                         titleField.getText(),
@@ -131,24 +140,33 @@ public class AjouterEvent implements Initializable {
                         locationField.getText(),
                         latitude,
                         longitude,
-                        selectedImageFile != null ?
-                                "file:" + selectedImageFile.getAbsolutePath().replace("\\", "/") :
-                                "file:/default.png"
+                        categoryId
                 );
 
-                newEvent.setCategoryId(selectedCategory.getId());
-
-                if (eventService.ajouter(newEvent)) {
-                    showAlert("Succès", "Événement ajouté avec succès !");
-                    switchSceneToAfficherEventBack();
+                if (selectedImageFile != null) {
+                    String imagePath = "file:" + selectedImageFile.getAbsolutePath().replace("\\", "/");
+                    newEvent.setImage(imagePath);
                 } else {
-                    showAlert("Erreur", "Échec de l'ajout de l'événement");
+                    newEvent.setImage("file:/default.png");
                 }
-            } catch (NumberFormatException e) {
-                showAlert("Erreur", "Latitude ou longitude invalide !");
-            } catch (SQLException e) {
-                showAlert("Erreur", "Erreur lors de l'ajout : " + e.getMessage());
-                e.printStackTrace();
+
+                eventService.ajouter(newEvent);
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
+
+                // Redirect to AfficherEvent
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEvent.fxml"));
+                if (loader.getLocation() == null) {
+                    throw new IOException("Cannot find AfficherEvent.fxml");
+                }
+                Parent newPane = loader.load();
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                Scene newScene = new Scene(newPane);
+                stage.setScene(newScene);
+                stage.setTitle("Event List");
+                stage.show();
+
+            } catch (SQLException | IOException e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout ou redirection : " + e.getMessage());
             }
         }
     }
@@ -161,23 +179,22 @@ public class AjouterEvent implements Initializable {
                 startDatePicker.getValue() == null ||
                 endDatePicker.getValue() == null ||
                 categoryComboBox.getValue() == null) {
-
-            showAlert("Champs manquants", "Veuillez remplir tous les champs obligatoires.");
+            showAlert(Alert.AlertType.WARNING, "Champs manquants", "Veuillez remplir tous les champs obligatoires.");
             return false;
         }
 
         if (title.length() < 3) {
-            showAlert("Titre invalide", "Le titre doit contenir au moins 3 caractères.");
+            showAlert(Alert.AlertType.WARNING, "Titre invalide", "Le titre doit contenir au moins 3 caractères.");
             return false;
         }
 
         if (!title.matches("[a-zA-Z0-9\\s\\-éèàçêâîïùûü]*")) {
-            showAlert("Titre invalide", "Le titre contient des caractères non autorisés.");
+            showAlert(Alert.AlertType.WARNING, "Titre invalide", "Le titre contient des caractères non autorisés.");
             return false;
         }
 
         if (location.length() < 3) {
-            showAlert("Emplacement invalide", "L'emplacement doit contenir au moins 3 caractères.");
+            showAlert(Alert.AlertType.WARNING, "Emplacement invalide", "L'emplacement doit contenir au moins 3 caractères.");
             return false;
         }
 
@@ -186,17 +203,17 @@ public class AjouterEvent implements Initializable {
         LocalDate endDate = endDatePicker.getValue();
 
         if (startDate.isBefore(today)) {
-            showAlert("Date invalide", "La date de début ne peut pas être dans le passé.");
+            showAlert(Alert.AlertType.WARNING, "Date invalide", "La date de début ne peut pas être dans le passé.");
             return false;
         }
 
         if (endDate.isBefore(today)) {
-            showAlert("Date invalide", "La date de fin ne peut pas être dans le passé.");
+            showAlert(Alert.AlertType.WARNING, "Date invalide", "La date de fin ne peut pas être dans le passé.");
             return false;
         }
 
         if (startDate.isAfter(endDate)) {
-            showAlert("Dates incohérentes", "La date de début ne peut pas être après la date de fin.");
+            showAlert(Alert.AlertType.WARNING, "Dates incohérentes", "La date de début ne peut pas être après la date de fin.");
             return false;
         }
 
@@ -204,11 +221,11 @@ public class AjouterEvent implements Initializable {
             try {
                 double lat = Double.parseDouble(latitudeField.getText());
                 if (lat < -90 || lat > 90) {
-                    showAlert("Latitude invalide", "La latitude doit être entre -90 et 90.");
+                    showAlert(Alert.AlertType.ERROR, "Latitude invalide", "La latitude doit être entre -90 et 90.");
                     return false;
                 }
             } catch (NumberFormatException e) {
-                showAlert("Latitude invalide", "Veuillez entrer un nombre valide pour la latitude.");
+                showAlert(Alert.AlertType.ERROR, "Latitude invalide", "Veuillez entrer un nombre valide pour la latitude.");
                 return false;
             }
         }
@@ -217,11 +234,11 @@ public class AjouterEvent implements Initializable {
             try {
                 double lon = Double.parseDouble(longitudeField.getText());
                 if (lon < -180 || lon > 180) {
-                    showAlert("Longitude invalide", "La longitude doit être entre -180 et 180.");
+                    showAlert(Alert.AlertType.ERROR, "Longitude invalide", "La longitude doit être entre -180 et 180.");
                     return false;
                 }
             } catch (NumberFormatException e) {
-                showAlert("Longitude invalide", "Veuillez entrer un nombre valide pour la longitude.");
+                showAlert(Alert.AlertType.ERROR, "Longitude invalide", "Veuillez entrer un nombre valide pour la longitude.");
                 return false;
             }
         }
@@ -229,21 +246,8 @@ public class AjouterEvent implements Initializable {
         return true;
     }
 
-    private void switchSceneToAfficherEventBack() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEventBack.fxml"));
-            Pane newPane = loader.load();
-            Stage currentStage = (Stage) rootVBox.getScene().getWindow();
-            Scene newScene = new Scene(newPane);
-            currentStage.setScene(newScene);
-            currentStage.show();
-        } catch (IOException e) {
-            showAlert("Erreur", "Erreur lors de la redirection : " + e.getMessage());
-        }
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
@@ -252,8 +256,20 @@ public class AjouterEvent implements Initializable {
 
     @FXML
     void onBackClick(ActionEvent event) {
-        Stage stage = (Stage) rootVBox.getScene().getWindow();
-        stage.close();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEvent.fxml"));
+            if (loader.getLocation() == null) {
+                throw new IOException("Cannot find AfficherEvent.fxml");
+            }
+            Parent newPane = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene newScene = new Scene(newPane);
+            stage.setScene(newScene);
+            stage.setTitle("Event List");
+            stage.show();
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la redirection : " + e.getMessage());
+        }
     }
 
     @FXML
@@ -261,7 +277,8 @@ public class AjouterEvent implements Initializable {
         ajouterEvent(actionEvent);
     }
 
-    public void annuler(ActionEvent actionEvent) {
+    @FXML
+    void annuler(ActionEvent actionEvent) {
         onBackClick(actionEvent);
     }
 }

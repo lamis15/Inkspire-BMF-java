@@ -1,7 +1,8 @@
 package Controllers.user;
 
-import entities.SceneManager;
 import entities.User;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import service.UserService;
-import org.mindrot.jbcrypt.BCrypt;
+import utils.SceneSwitch;
 
 import java.sql.SQLException;
 
@@ -24,10 +25,7 @@ public class UserSignup {
     @FXML private PasswordField confirmPasswordField;
 
     @FXML private Label emailError;
-    @FXML private Label firstnameError;
-    @FXML private Label LastnameError;
     @FXML private Label passwordError;
-    @FXML private Label confirmError;
     @FXML private Label confirmPasswordError;
 
     @FXML private Button signUpButton;
@@ -80,7 +78,7 @@ public class UserSignup {
             }
 
             // Match check after typing
-            if (!newVal.equals(confirmPasswordField.getText()) || newVal.isEmpty()) {
+            if (!newVal.equals(confirmPasswordField.getText())) {
                 confirmPasswordError.setText("Passwords do not match");
             } else {
                 confirmPasswordError.setText("");
@@ -89,97 +87,75 @@ public class UserSignup {
 
         // Confirm password check
         confirmPasswordField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.equals(passwordField.getText()) || newVal.isEmpty()) {
+            if (!newVal.equals(passwordField.getText())) {
                 confirmPasswordError.setText("Passwords do not match");
             } else {
                 confirmPasswordError.setText("");
             }
         });
+
+        // Enable button only when everything is valid
+        BooleanBinding formValid = Bindings.createBooleanBinding(() ->
+                        !firstNameField.getText().trim().isEmpty() &&
+                                firstNameField.getText().matches("[a-zA-Z]+") &&
+                                !lastNameField.getText().trim().isEmpty() &&
+                                lastNameField.getText().matches("[a-zA-Z]+") &&
+                                !emailField.getText().trim().isEmpty() &&
+                                emailError.getText().isEmpty() &&
+                                !passwordField.getText().trim().isEmpty() &&
+                                passwordError.getText().isEmpty() &&
+                                confirmPasswordError.getText().isEmpty() &&
+                                passwordField.getText().equals(confirmPasswordField.getText()),
+                firstNameField.textProperty(),
+                lastNameField.textProperty(),
+                emailField.textProperty(),
+                emailError.textProperty(),
+                passwordField.textProperty(),
+                passwordError.textProperty(),
+                confirmPasswordField.textProperty(),
+                confirmPasswordError.textProperty()
+        );
+
+        signUpButton.disableProperty().bind(formValid.not());
     }
 
     @FXML
     private void signUp(ActionEvent event) {
-        boolean hasError = false;
-
-        // Clear previous styles
-        firstNameField.setStyle(null);
-        lastNameField.setStyle(null);
-        emailField.setStyle(null);
-        passwordField.setStyle(null);
-        confirmPasswordField.setStyle(null);
-
-        //numeric values for first and last
-        if (firstNameField.getText().trim().matches(".*\\d.*")) {
-            firstnameError.setStyle("-fx-text-fill: red;");
-            firstnameError.setText("First name cannot contain numbers");
-            hasError = true;
-        }
-
-        if (lastNameField.getText().trim().matches(".*\\d.*")) {
-            LastnameError.setStyle("-fx-text-fill: red;");
-            LastnameError.setText("Last name cannot contain numbers");
-            hasError = true;
-        }
-
-
-        // Check if fields are empty
-        if (firstNameField.getText().trim().isEmpty()) {
-            firstnameError.setStyle("-fx-text-fill: red;");
-            firstnameError.setText("First name is required * ");
-            hasError = true;
-        }
-        if (lastNameField.getText().trim().isEmpty()) {
-            LastnameError.setStyle("-fx-text-fill: red;");
-            LastnameError.setText("Last name is required * ");
-            hasError = true;
-        }
-        if (emailField.getText().trim().isEmpty()) {
-
-            emailError.setStyle("-fx-text-fill: red;");
-            emailError.setText("Email is required * ");
-            hasError = true;
-        }
-        if (passwordField.getText().trim().isEmpty()) {
-            passwordError.setStyle("-fx-text-fill: red;");
-            passwordError.setText("Password is required * ");
-            hasError = true;
-        }
-        if (confirmPasswordField.getText().trim().isEmpty()) {
-            confirmError.setStyle("-fx-text-fill: red;");
-            confirmPasswordError.setText("Please confirm your password");
-            hasError = true;
-        }
-
-        if (hasError) {
-            System.out.println("Please fill all fields correctly.");
-            return;
-        }
-
-        // Proceed with user creation
         User newUser = new User();
-        newUser.setFirstName(firstNameField.getText().trim());
+        newUser.setFirstName(firstNameField.getText().trim()) ;
         newUser.setLastName(lastNameField.getText().trim());
         newUser.setEmail(emailField.getText().trim());
-
-        String rawPassword = passwordField.getText().trim();
-        String hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
-        newUser.setPassword(hashedPassword);
-
+        newUser.setPassword(passwordField.getText().trim());
         newUser.setRole(0);
         newUser.setStatus(1);
+
         service.ajouter(newUser);
 
-
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        SceneManager.switchTo(stage,"/UserUtils/SigninUser.fxml");
-
+        // Optional: Redirect or show confirmation label
         System.out.println("User created successfully");
     }
 
     @FXML
     private void switchToSignIn(ActionEvent event) {
-        Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        SceneManager.switchTo(primaryStage, "/UserUtils/SigninUser.fxml");
+        try {
+            // Get the current stage (primaryStage)
+            Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Load the new FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UserUtils/SigninUser.fxml"));
+            Pane pane = loader.load();
+
+            // Create a new scene with the loaded pane and set it on the stage
+            Scene scene = new Scene(pane);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    @FXML
+    private void onBackClick(ActionEvent event) {
+        // Handle back navigation
+    }
 }

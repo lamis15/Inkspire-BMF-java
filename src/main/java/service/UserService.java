@@ -1,13 +1,12 @@
 package service;
 
 import entities.User;
-import org.mindrot.jbcrypt.BCrypt;
 import utils.DataSource;
 
 import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
-import org.mindrot.jbcrypt.BCrypt;
+
 
 
 public class UserService implements IService<User> {
@@ -62,14 +61,13 @@ public class UserService implements IService<User> {
 
     @Override
     public boolean modifier(User user) {
-        String query = "UPDATE user SET first_name = ?, last_name = ?, email = ?, password = ?, picture = ? WHERE id = ?";
+        String query = "UPDATE user SET first_name = ?, last_name = ?, email = ?, password = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, user.getFirstName());
             statement.setString(2, user.getLastName());
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getPassword());
-            statement.setString(5, user.getPicture());
-            statement.setInt(6, user.getId());
+            statement.setInt(5, user.getId());
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
@@ -83,7 +81,6 @@ public class UserService implements IService<User> {
         }
         return false;
     }
-
 
 
     @Override
@@ -117,55 +114,44 @@ public class UserService implements IService<User> {
                 user.setFirstName(rs.getString("first_name"));
                 user.setEmail(rs.getString("email"));
                 user.setRole(rs.getInt("role"));
-
                 users.add(user);
             }
         return users;
     }
 
+public User checkUser(String email, String password) {
+    String query = "SELECT * FROM user WHERE email = ? AND password = ?";
 
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+        statement.setString(1, email);
+        statement.setString(2, password);
 
-    public User checkUser(String email, String password) {
-        String query = "SELECT * FROM user WHERE email = ?";
+        try (ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                User user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setFirstName(resultSet.getString("first_name"));
+                user.setLastName(resultSet.getString("last_name"));
+                user.setAddress(resultSet.getString("address")); // ✅ fixed typo
+                user.setEmail(resultSet.getString("email"));
+                user.setPassword(resultSet.getString("password"));
+                user.setBio(resultSet.getString("bio"));
+                user.setTokens(resultSet.getInt("tokens"));
+                user.setPicture(resultSet.getString("picture"));
+                user.setGoogleAuthenticatorSecret(resultSet.getString("google_authenticator_secret"));
+                user.setRole(resultSet.getInt("role"));
+                user.setStatus(resultSet.getInt("status"));
+                user.setPhoneNumber(resultSet.getInt("phone_number")); // phone is varchar, not int
 
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, email);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    String hashedPassword = resultSet.getString("password");
-
-                    if (BCrypt.checkpw(password, hashedPassword)) {
-                        User user = new User();
-                        user.setId(resultSet.getInt("id"));
-                        user.setFirstName(resultSet.getString("first_name"));
-                        user.setLastName(resultSet.getString("last_name"));
-                        user.setAddress(resultSet.getString("address"));
-                        user.setEmail(resultSet.getString("email"));
-                        user.setPassword(hashedPassword); // Optional: you can skip setting it
-                        user.setBio(resultSet.getString("bio"));
-                        user.setTokens(resultSet.getInt("tokens"));
-                        user.setPicture(resultSet.getString("picture"));
-                        user.setGoogleAuthenticatorSecret(resultSet.getString("google_authenticator_secret"));
-                        user.setRole(resultSet.getInt("role"));
-                        user.setStatus(resultSet.getInt("status"));
-                        user.setPhoneNumber(resultSet.getInt("phone_number"));
-
-                        return user;
-                    } else {
-                        // Password incorrect
-                        return null;
-                    }
-                }
+                return user;
             }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to check user: " + e.getMessage());
         }
 
-        return null;
+    } catch (SQLException e) {
+        throw new RuntimeException("Failed to check user: " + e.getMessage());
     }
-
+    return null ;
+}
 
 
     public boolean emailExists(String email) throws SQLException {

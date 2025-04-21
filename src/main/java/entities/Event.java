@@ -11,17 +11,24 @@ public class Event {
     private double latitude;
     private double longitude;
     private String image;
-    private int categoryId;  // Fixed field name
+    private int categoryId;
 
     public Event() {
     }
-
     public Event(Event event) {
-        // Implement copy constructor if needed
+        this.id = event.id;
+        this.title = event.title;
+        this.starting_date = event.starting_date;
+        this.ending_date = event.ending_date;
+        this.location = event.location;
+        this.latitude = event.latitude;
+        this.longitude = event.longitude;
+        this.image = event.image;
+        this.categoryId = event.categoryId;
     }
 
-    public Event(String title, LocalDate starting_date, LocalDate ending_date,
-                 String location, double latitude, double longitude, String image) {
+
+    public Event(String title, LocalDate starting_date, LocalDate ending_date, String location, double latitude, double longitude, String image) {
         this.title = title;
         this.starting_date = starting_date;
         this.ending_date = ending_date;
@@ -31,8 +38,7 @@ public class Event {
         this.image = image;
     }
 
-    public Event(int id, String title, LocalDate starting_date, LocalDate ending_date,
-                 String location, double latitude, double longitude, String image) {
+    public Event(int id, String title, LocalDate starting_date, LocalDate ending_date, String location, double latitude, double longitude, String image) {
         this.id = id;
         this.title = title;
         this.starting_date = starting_date;
@@ -42,8 +48,7 @@ public class Event {
         this.longitude = longitude;
         this.image = image;
     }
-
-    // Getters and Setters
+    // Getters et Setters
     public int getId() {
         return id;
     }
@@ -59,6 +64,7 @@ public class Event {
     public void setTitle(String title) {
         this.title = title;
     }
+
 
     public LocalDate getStartingDate() {
         return starting_date;
@@ -84,6 +90,23 @@ public class Event {
         this.location = location;
     }
 
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public double getLatitude() {
         return latitude;
     }
@@ -100,48 +123,20 @@ public class Event {
         this.longitude = longitude;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    // Fixed categoryId methods
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    // Optional: String version if needed
-    public String getCategoryIdAsString() {
-        return String.valueOf(categoryId);
-    }
-
-    public void setCategoryIdFromString(String categoryId) {
-        try {
-            this.categoryId = Integer.parseInt(categoryId);
-        } catch (NumberFormatException e) {
-            this.categoryId = 0; // or handle error
-        }
-    }
-
     @Override
     public String toString() {
         return "Event{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", starting_date=" + starting_date +
-                ", ending_date=" + ending_date +
+                ", startDate=" + starting_date +
+                ", endDate=" + ending_date +
                 ", location='" + location + '\'' +
+                ", categoryId=" + categoryId +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", image='" + image + '\'' +
-                ", categoryId=" + categoryId +
                 '}';
     }
+
+
 }

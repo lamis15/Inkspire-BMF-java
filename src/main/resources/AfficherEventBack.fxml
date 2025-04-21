@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox fx:id="rootVBox" spacing="10" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.Event.AfficherEventBack">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Ajouter un événement" onAction="#onAddClick" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+        <Button text="Calendrier" onAction="#onCalendarClick" style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+    </HBox>
+
+    <FlowPane fx:id="cardsContainer" hgap="10" vgap="10"/>
+</VBox>

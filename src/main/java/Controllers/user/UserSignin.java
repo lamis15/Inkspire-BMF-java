@@ -1,6 +1,5 @@
 package Controllers.user;
 
-import entities.SceneManager;
 import entities.Session;
 import entities.User;
 import javafx.beans.binding.Bindings;
@@ -46,6 +45,18 @@ public class UserSignin {
                 emailError.setText("");
             }
         });
+
+        // Binding: Sign In enabled only when email is valid & password not empty
+        BooleanBinding formValid = Bindings.createBooleanBinding(() ->
+                        !emailField.getText().trim().isEmpty() &&
+                                emailError.getText().isEmpty() &&
+                                !passwordField.getText().trim().isEmpty(),
+                emailField.textProperty(),
+                emailError.textProperty(),
+                passwordField.textProperty()
+        );
+
+        signInButton.disableProperty().bind(formValid.not());
     }
 
     @FXML
@@ -54,22 +65,24 @@ public class UserSignin {
         String password = passwordField.getText().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-
-            emailError.setStyle("-fx-text-fill: red;");
-            emailError.setText("Email is required * ");
-
-            passwordError.setStyle("-fx-text-fill: red;");
-            passwordError.setText("Password is required * ");
-
-
+            // Optional: Show error messages for empty fields
+            emailError.setText("Email is required");
+            passwordError.setText("Password is required");
         } else if (service.checkUser(email, password) != null) {
             User loggedInUser = service.checkUser(email, password);
             Session.setCurrentUser(loggedInUser);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            SceneManager.switchTo(stage,"/Base_Window.fxml");
+
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/Base_Window.fxml"));
+                Scene scene = new Scene(root);
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             // Handle invalid login
-            emailError.setStyle("-fx-text-fill: red ; ") ;
             emailError.setText("Invalid email or password");
             passwordError.setText("");
         }
@@ -77,8 +90,28 @@ public class UserSignin {
 
     @FXML
     private void switchToSignUp(ActionEvent event) {
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        SceneManager.switchTo(stage,"/UserUtils/SignupUser.fxml");
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/UserUtils/SignupUser.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    @FXML
+    private void onBackClick(ActionEvent event) {
+        try {
+            // Replace with appropriate back navigation
+            Parent root = FXMLLoader.load(getClass().getResource("/MainMenu.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

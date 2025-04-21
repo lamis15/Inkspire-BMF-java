@@ -6,7 +6,7 @@ public class Bid {
     private String time;
     private int auctionId;
     private int userId;
-    public Bid(){
+    Bid(){
     }
     public Bid(double amount, String time, int auctionId, int userId){
         this.amount = amount;

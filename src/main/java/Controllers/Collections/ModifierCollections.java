@@ -2,6 +2,7 @@ package Controllers.Collections;
 
 import entities.Artwork;
 import entities.Collections;
+import javafx.scene.layout.Pane;
 import enums.CollectionStatus;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,7 +15,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import service.ArtworkService;
