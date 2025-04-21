@@ -2,12 +2,16 @@ package Controllers.Auction;
 
 import entities.Artwork;
 import entities.Auction;
+import entities.SceneManager;
 import entities.Session;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import service.AuctionService;
 
 
@@ -44,7 +48,7 @@ public class AjouterAuction {
         }
     }
     @FXML
-    public void onAddAuction() {
+    public void onAddAuction(ActionEvent event) {
         clearErrorLabels();
 
         boolean isValid = true;
@@ -96,6 +100,8 @@ public class AjouterAuction {
                     selectedArtwork.getId()
             );
             auctionService.ajouter(auction);
+            //Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            //SceneManager.switchTo(primaryStage,"/AuctionUtils/Auction/AfficherAuction.fxml");
             System.out.println("Auction added!");
         } catch (Exception e) {
             e.printStackTrace();
