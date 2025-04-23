@@ -1,177 +1,198 @@
 package Controllers.Event;
 
 import entities.Event;
-import javafx.event.ActionEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.stage.Stage;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.YearMonth;
+import javafx.scene.control.Alert;
+import javafx.scene.web.WebView;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import netscape.javascript.JSObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
 
 public class CalendarViewController {
-    @FXML
-    private GridPane calendarGrid;
 
     @FXML
-    private Label monthYearLabel;
-
-    @FXML
-    private Button prevMonthButton;
-
-    @FXML
-    private Button nextMonthButton;
-
-    @FXML
-    private Button backButton;
-
-    @FXML
-    private Button todayButton;
+    private WebView calendarWebView;
 
     private List<Event> eventList;
-    private YearMonth currentYearMonth;
 
     public void setEventList(List<Event> eventList) {
         this.eventList = eventList;
-        currentYearMonth = YearMonth.now();
-        updateCalendar();
+        initializeCalendar();
     }
 
-    private void updateCalendar() {
-        calendarGrid.getChildren().clear();
-        monthYearLabel.setText(currentYearMonth.getMonth() + " " + currentYearMonth.getYear());
+    private void initializeCalendar() {
+        try {
+            // Validate eventList
+            if (eventList == null || eventList.isEmpty()) {
+                throw new IllegalStateException("Event list is null or empty");
+            }
 
-        // Add day headers
-        String[] days = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-        for (int i = 0; i < 7; i++) {
-            Label dayLabel = new Label(days[i]);
-            dayLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #333;");
-            dayLabel.setAlignment(Pos.CENTER);
-            dayLabel.setPrefSize(60, 40);
-            calendarGrid.add(dayLabel, i, 0);
-        }
+            // Create ObjectMapper and register JavaTimeModule
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // Serialize dates as ISO strings
 
-        // Get first day of the month and length of the month
-        LocalDate firstOfMonth = currentYearMonth.atDay(1);
-        int dayOfWeek = firstOfMonth.getDayOfWeek().getValue() - 1; // 0 = Monday
-        int daysInMonth = currentYearMonth.lengthOfMonth();
-
-        // Collect start dates of events in the current month
-        List<LocalDate> eventStartDates = eventList.stream()
-                .map(Event::getStartingDate)
-                .filter(date -> date.getYear() == currentYearMonth.getYear() &&
-                        date.getMonth() == currentYearMonth.getMonth())
-                .collect(Collectors.toList());
-
-        // Fill the calendar
-        int row = 1;
-        int col = dayOfWeek;
-        for (int day = 1; day <= daysInMonth; day++) {
-            LocalDate date = currentYearMonth.atDay(day);
-            Label dayLabel = new Label(String.valueOf(day));
-            dayLabel.setAlignment(Pos.CENTER);
-            dayLabel.setPrefSize(60, 60);
-            dayLabel.getStyleClass().add("calendar-cell");
-
-            // Highlight start dates
-            if (eventStartDates.contains(date)) {
-                dayLabel.getStyleClass().add("event-cell");
-                // Add tooltip with event titles
-                List<String> eventTitles = eventList.stream()
-                        .filter(event -> event.getStartingDate().equals(date))
-                        .map(Event::getTitle)
-                        .collect(Collectors.toList());
-                if (!eventTitles.isEmpty()) {
-                    Tooltip tooltip = new Tooltip(String.join("\n", eventTitles));
-                    Tooltip.install(dayLabel, tooltip);
+            // Transform eventList to FullCalendar-compatible JSON (only start date)
+            List<Map<String, Object>> fullCalendarEvents = eventList.stream().map(event -> {
+                if (event.getStartingDate() == null) {
+                    throw new IllegalArgumentException("Event '" + event.getTitle() + "' has null starting_date");
                 }
-                // Add click handler to show events
-                dayLabel.setOnMouseClicked((MouseEvent mouseEvent) -> showEventsForDate(date));
-            }
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", event.getId());
+                map.put("title", event.getTitle() != null ? event.getTitle() : "Untitled");
+                map.put("start", event.getStartingDate().toString());
+                map.put("location", event.getLocation() != null ? event.getLocation() : "N/A");
+                map.put("backgroundColor", "#ff0000"); // Red background for events
+                // Include additional fields for display in dialog
+                map.put("endingDate", event.getEndingDate() != null ? event.getEndingDate().toString() : "N/A");
+                map.put("latitude", event.getLatitude());
+                map.put("longitude", event.getLongitude());
+                map.put("image", event.getImage() != null ? event.getImage() : "N/A");
+                map.put("categoryId", event.getCategoryId());
+                return map;
+            }).collect(Collectors.toList());
 
-            calendarGrid.add(dayLabel, col, row);
-            col++;
-            if (col == 7) {
-                col = 0;
-                row++;
-            }
+            // Convert to JSON
+            String eventsJson = mapper.writeValueAsString(fullCalendarEvents);
+
+            // Debug: Print JSON to verify format
+            System.out.println("Events JSON: " + eventsJson);
+
+            // Load the HTML content with FullCalendar
+            String htmlContent = generateHtmlContent(eventsJson);
+
+            // Log WebView errors
+            calendarWebView.getEngine().setOnError(event -> {
+                System.err.println("WebView JavaScript Error: " + event.getMessage());
+                showErrorAlert("WebView Error", "JavaScript error in calendar: " + event.getMessage());
+            });
+
+            // Set up JavaScript bridge
+            calendarWebView.getEngine().loadContent(htmlContent);
+            calendarWebView.getEngine().setOnStatusChanged(event -> {
+                if (event.getData().equals("DOMContentLoaded")) {
+                    JSObject window = (JSObject) calendarWebView.getEngine().executeScript("window");
+                    window.setMember("javaBridge", new JavaBridge());
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showErrorAlert("Failed to Load Calendar", "An error occurred while loading the calendar: " + e.getMessage());
         }
     }
 
-    private void showEventsForDate(LocalDate date) {
-        // Filter events starting on the selected date
-        List<Event> eventsOnDate = eventList.stream()
-                .filter(event -> event.getStartingDate().equals(date))
-                .collect(Collectors.toList());
-
-        // Create a dialog to show events
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Events starting on " + date);
-        alert.setHeaderText(null);
-
-        if (eventsOnDate.isEmpty()) {
-            alert.setContentText("No events start on this date.");
-        } else {
-            VBox eventListVBox = new VBox(5);
-            for (Event event : eventsOnDate) {
-                Label eventLabel = new Label(event.getTitle() + " (" + event.getStartingDate() + " to " + event.getEndingDate() + ")");
-                eventListVBox.getChildren().add(eventLabel);
-            }
-            alert.getDialogPane().setContent(eventListVBox);
+    // JavaScript bridge to handle event clicks
+    public class JavaBridge {
+        public void showEventDetails(int eventId, String title, String start, String endingDate, String location,
+                                     double latitude, double longitude, String image, int categoryId) {
+            Platform.runLater(() -> {
+                String details = String.format(
+                        "ID: %d\nTitle: %s\nStart Date: %s\nEnd Date: %s\nLocation: %s\nLatitude: %.6f\nLongitude: %.6f\nImage: %s\nCategory ID: %d",
+                        eventId, title, start, endingDate, location, latitude, longitude, image, categoryId
+                );
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Event Details");
+                alert.setHeaderText("Event: " + title);
+                alert.setContentText(details);
+                alert.showAndWait();
+            });
         }
+    }
 
+    private void showErrorAlert(String header, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(header);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
-    @FXML
-    private void onPreviousMonth() {
-        currentYearMonth = currentYearMonth.minusMonths(1);
-        updateCalendar();
-    }
-
-    @FXML
-    private void onNextMonth() {
-        currentYearMonth = currentYearMonth.plusMonths(1);
-        updateCalendar();
-    }
-
-    @FXML
-    private void onTodayButtonClick() {
-        currentYearMonth = YearMonth.now();
-        updateCalendar();
-    }
-
-    @FXML
-    private void onBackButtonClick(ActionEvent event) {
-        try {
-            System.out.println("Loading AfficherEvent.fxml from: " + getClass().getResource("/AfficherEvent.fxml"));
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEvent.fxml"));
-            if (loader.getLocation() == null) {
-                throw new IOException("Cannot find AfficherEvent.fxml");
-            }
-            Parent afficherEventView = loader.load();
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            Scene scene = new Scene(afficherEventView);
-            stage.setScene(scene);
-            stage.setTitle("Event List");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to load event list");
-            alert.setContentText("Could not find AfficherEvent.fxml. Please check the file path.");
-            alert.showAndWait();
-        }
+    private String generateHtmlContent(String eventsJson) {
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='utf-8' />
+            <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet' />
+            <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+            <!-- FontAwesome for event icon -->
+            <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css' rel='stylesheet' />
+            <style>
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+                    font-size: 16px;
+                }
+                #calendar {
+                    max-width: 900px;
+                    margin: 40px auto;
+                    padding: 20px;
+                }
+                .fc-event {
+                    padding: 5px 10px;
+                    font-size: 14px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+                .fc-event:hover {
+                    opacity: 0.8;
+                }
+                .fc-event .fc-event-title::before {
+                    content: "\\f073"; /* FontAwesome calendar icon */
+                    font-family: "Font Awesome 6 Free";
+                    font-weight: 900;
+                    margin-right: 8px;
+                    color: #ffffff;
+                }
+            </style>
+        </head>
+        <body>
+            <div id='calendar'></div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    try {
+                        var calendarEl = document.getElementById('calendar');
+                        var calendar = new FullCalendar.Calendar(calendarEl, {
+                            initialView: 'dayGridMonth',
+                            events: %s,
+                            eventContent: function(arg) {
+                                let titleEl = document.createElement('span');
+                                titleEl.innerHTML = '<i class="fas fa-calendar"></i> ' + arg.event.title;
+                                return { domNodes: [titleEl] };
+                            },
+                            eventClick: function(info) {
+                                window.javaBridge.showEventDetails(
+                                    info.event.id,
+                                    info.event.title,
+                                    info.event.startStr,
+                                    info.event.extendedProps.endingDate || 'N/A',
+                                    info.event.extendedProps.location || 'N/A',
+                                    info.event.extendedProps.latitude || 0,
+                                    info.event.extendedProps.longitude || 0,
+                                    info.event.extendedProps.image || 'N/A',
+                                    info.event.extendedProps.categoryId || 0
+                                );
+                            }
+                        });
+                        calendar.render();
+                        window.status = 'DOMContentLoaded';
+                    } catch (e) {
+                        console.error('FullCalendar Error: ' + e.message);
+                    }
+                });
+            </script>
+        </body>
+        </html>
+        """.formatted(eventsJson);
     }
 }
