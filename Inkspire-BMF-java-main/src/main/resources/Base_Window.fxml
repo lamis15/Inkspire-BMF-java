@@ -22,6 +22,12 @@
                         <Image url="@assets/icons/user.png" />
                     </image>
                 </ImageView>
+                <!-- Messages icon in top right -->
+                <ImageView fx:id="messagesIcon" fitHeight="30.0" fitWidth="30.0" layoutX="145.0" layoutY="20.0" onMouseClicked="#goMessages" preserveRatio="true" styleClass="clickable-icon">
+                    <image>
+                        <Image url="@assets/icons/conversation.png" />
+                    </image>
+                </ImageView>
                 <VBox alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
                     <children>
                         <ImageView fitHeight="80.0" fitWidth="150.0" preserveRatio="true">

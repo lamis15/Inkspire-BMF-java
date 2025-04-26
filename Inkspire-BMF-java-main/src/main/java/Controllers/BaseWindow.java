@@ -71,6 +71,11 @@ public class BaseWindow {
     void goUser(MouseEvent event) {
         SceneSwitch.switchScene(mainRouter, "/UserUtils/ModifierUser.fxml");
     }
+    
+    @FXML
+    void goMessages(MouseEvent event) {
+        SceneSwitch.switchScene(mainRouter, "/messages/Messages.fxml");
+    }
 
     @FXML
     void goArtwork(ActionEvent actionEvent) {
