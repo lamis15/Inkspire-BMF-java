@@ -64,6 +64,9 @@ public class CollectionDetails implements javafx.fxml.Initializable {
     private Label ownerNameLabel;
 
     @FXML
+    private Label creationDateLabel;
+
+    @FXML
     private Label progressLabel;
 
     @FXML
@@ -131,6 +134,15 @@ public class CollectionDetails implements javafx.fxml.Initializable {
             ownerNameLabel.setText("Created by: " + ownerName);
         } else {
             ownerNameLabel.setText("Created by: Unknown");
+        }
+
+        // Set creation date if available
+        if (collection.getCreationDate() != null) {
+            String formattedDate = collection.getCreationDate().toLocalDate().toString() + " at " + 
+                                  collection.getCreationDate().toLocalTime().toString().substring(0, 5);
+            creationDateLabel.setText("Created on: " + formattedDate);
+        } else {
+            creationDateLabel.setText("Created on: Unknown date");
         }
 
         // Set up progress bar for current amount vs goal

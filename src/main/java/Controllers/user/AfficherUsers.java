@@ -64,8 +64,6 @@ public class AfficherUsers {
 
         return card;
     }
-    
-
 
     private String getRoleString(int role) {
         return switch (role) {
@@ -75,9 +73,6 @@ public class AfficherUsers {
         };
     }
 
-    public void onAddClick(ActionEvent actionEvent) {
-
-    }
 
     public void onModifyClick(ActionEvent actionEvent) {
         SceneSwitch.switchScene(rootVBox, "/UserUtils/ModifierUser.fxml" );
