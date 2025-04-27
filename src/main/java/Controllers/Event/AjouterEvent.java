@@ -131,8 +131,6 @@ public class AjouterEvent implements Initializable {
                     return;
                 }
 
-                String categoryId = String.valueOf(selectedCategory.getId());
-
                 Event newEvent = new Event(
                         titleField.getText(),
                         startDatePicker.getValue(),
@@ -140,23 +138,17 @@ public class AjouterEvent implements Initializable {
                         locationField.getText(),
                         latitude,
                         longitude,
-                        categoryId
+                        selectedImageFile != null ? "file:" + selectedImageFile.getAbsolutePath().replace("\\", "/") : "file:/default.png"
                 );
-
-                if (selectedImageFile != null) {
-                    String imagePath = "file:" + selectedImageFile.getAbsolutePath().replace("\\", "/");
-                    newEvent.setImage(imagePath);
-                } else {
-                    newEvent.setImage("file:/default.png");
-                }
+                newEvent.setCategoryId(selectedCategory.getId());
 
                 eventService.ajouter(newEvent);
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
 
                 // Redirect to AfficherEvent
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEvent.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEventBack.fxml"));
                 if (loader.getLocation() == null) {
-                    throw new IOException("Cannot find AfficherEvent.fxml");
+                    throw new IOException("Cannot find AfficherEventBack.fxml");
                 }
                 Parent newPane = loader.load();
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -257,7 +249,7 @@ public class AjouterEvent implements Initializable {
     @FXML
     void onBackClick(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEvent.fxml"));
             if (loader.getLocation() == null) {
                 throw new IOException("Cannot find AfficherEvent.fxml");
             }

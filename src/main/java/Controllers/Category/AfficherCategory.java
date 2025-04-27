@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -19,6 +18,10 @@ import utils.SceneSwitch;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 
 public class AfficherCategory extends SceneSwitch {
 
@@ -65,6 +68,16 @@ public class AfficherCategory extends SceneSwitch {
         Label statusLabel = new Label("Statut: " + category.getStatut());
         statusLabel.setTextFill(category.getStatut().equals("Actif") ? Color.GREEN : Color.RED);
 
+        // Ajouter le nombre d'événements
+        int eventCount;
+        try {
+            eventCount = categoryService.getEventCountForCategory(category.getId());
+        } catch (SQLException e) {
+            eventCount = 0;
+        }
+        Label eventCountLabel = new Label("Événements: " + eventCount);
+        eventCountLabel.setStyle("-fx-font-size: 14px;");
+
         HBox buttonsBox = new HBox(10);
         buttonsBox.setAlignment(Pos.CENTER);
 
@@ -78,13 +91,13 @@ public class AfficherCategory extends SceneSwitch {
 
         buttonsBox.getChildren().addAll(editBtn, deleteBtn);
 
-        card.getChildren().addAll(nameLabel, descLabel, statusLabel, buttonsBox);
+        card.getChildren().addAll(nameLabel, descLabel, statusLabel, eventCountLabel, buttonsBox);
         return card;
     }
 
     @FXML
     private void handleAdd(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutCategory.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/CategoryUtils/AjoutCategory.fxml"));
         Parent root = loader.load();
 
         Stage stage = new Stage();
@@ -92,13 +105,12 @@ public class AfficherCategory extends SceneSwitch {
         stage.setScene(new Scene(root));
         stage.showAndWait();
 
-        // Rafraîchir la liste après ajout
         loadCategoryCards();
     }
 
     private void handleEdit(Category category) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierCategory.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CategoryUtils/ModifierCategory.fxml"));
             VBox modifierRoot = loader.load();
 
             ModifierCategory controller = loader.getController();
@@ -138,6 +150,71 @@ public class AfficherCategory extends SceneSwitch {
         });
     }
 
+    @FXML
+    private void handleStatistics(ActionEvent event) {
+        try {
+            Stage statsStage = new Stage();
+            statsStage.setTitle("Statistiques des catégories");
+
+            // Créer les axes
+            CategoryAxis xAxis = new CategoryAxis();
+            NumberAxis yAxis = new NumberAxis();
+            xAxis.setLabel("Catégorie");
+            yAxis.setLabel("Nombre d'événements");
+
+            // Créer le graphique
+            BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+            barChart.setTitle("Nombre d'événements par catégorie");
+            barChart.setLegendVisible(false); // Masquer la légende car chaque barre a une couleur unique
+
+            // Liste de couleurs prédéfinies
+            String[] colors = {
+                    "#FF6347", // Tomato
+                    "#4682B4", // SteelBlue
+                    "#9ACD32", // YellowGreen
+                    "#FFD700", // Gold
+                    "#6A5ACD", // SlateBlue
+                    "#FF4500", // OrangeRed
+                    "#20B2AA", // LightSeaGreen
+                    "#9932CC"  // DarkOrchid
+            };
+
+            // Ajouter les données
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName("Événements");
+
+            List<Category> categories = categoryService.afficher();
+            for (int i = 0; i < categories.size(); i++) {
+                Category category = categories.get(i);
+                int eventCount = categoryService.getEventCountForCategory(category.getId());
+                XYChart.Data<String, Number> data = new XYChart.Data<>(category.getName(), eventCount);
+                final int colorIndex = i % colors.length; // Capture a final variable
+                data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                    if (newNode != null) {
+                        newNode.setStyle("-fx-bar-fill: " + colors[colorIndex] + ";");
+                    }
+                });
+                series.getData().add(data);
+            }
+
+            barChart.getData().add(series);
+
+            // Ajouter du style global au graphique
+            barChart.setStyle("-fx-background-color: #f4f4f4;");
+
+            // Créer la scène
+            VBox statsVBox = new VBox(10);
+            statsVBox.setPadding(new Insets(20));
+            statsVBox.getChildren().add(barChart);
+
+            Scene statsScene = new Scene(statsVBox, 600, 400);
+            statsStage.setScene(statsScene);
+            statsStage.show();
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger les statistiques: " + e.getMessage());
+        }
+    }
+
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -147,7 +224,6 @@ public class AfficherCategory extends SceneSwitch {
     }
 
     public void onAddClick(ActionEvent actionEvent) {
-
-        SceneSwitch.switchScene(rootVBox, "/AjoutCategory.fxml");
+        SceneSwitch.switchScene(rootVBox, "/CategoryUtils/AjoutCategory.fxml");
     }
 }

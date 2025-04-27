@@ -44,15 +44,7 @@ public class AfficherAllDonations implements Initializable {
     @FXML
     private Label collectionsCountLabel;
     @FXML
-    private TableView<Donation> donationsTable;
-    @FXML
-    private TableColumn<Donation, String> dateColumn;
-    @FXML
-    private TableColumn<Donation, String> donorColumn;
-    @FXML
-    private TableColumn<Donation, String> collectionColumn;
-    @FXML
-    private TableColumn<Donation, String> amountColumn;
+    private ListView<Donation> donationsListView;
     // No actions column in admin view
 
     private final DonationService donationService = new DonationService();
@@ -64,61 +56,41 @@ public class AfficherAllDonations implements Initializable {
         // Check if user is admin
         User currentUser = Session.getCurrentUser();
         isAdmin = currentUser != null && currentUser.getRole() == 1;
-        
+
         // Set page title
         pageTitle.setText("All Donations");
-        
-        setupTableColumns();
+
+        setupListViewCellFactory();
         loadDonations();
         updateStatistics();
     }
 
-    private void setupTableColumns() {
-        // Format date column
-        dateColumn.setCellValueFactory(cellData -> {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            return new SimpleStringProperty(cellData.getValue().getDate().format(formatter));
-        });
-
-        // Set donor column to show user name
-        donorColumn.setCellValueFactory(cellData -> {
-            User donor = cellData.getValue().getUser();
-            return new SimpleStringProperty(donor != null ? 
-                donor.getFirstName() + " " + donor.getLastName() : "Unknown");
-        });
-
-        // Setup collection column with clickable links
-        setupCollectionColumn();
-
-        // Format amount column with TND
-        amountColumn.setCellValueFactory(cellData -> {
-            DecimalFormat df = new DecimalFormat("0.00");
-            return new SimpleStringProperty(df.format(cellData.getValue().getAmount()) + " TND");
-        });
-
-        // No actions column in admin view
-    }
-
-    private void setupCollectionColumn() {
-        collectionColumn.setCellValueFactory(cellData -> {
-            Collections collection = cellData.getValue().getCollections();
-            return new SimpleStringProperty(collection != null ? collection.getTitle() : "Unknown");
-        });
-
-        collectionColumn.setCellFactory(col -> new TableCell<Donation, String>() {
+    private void setupListViewCellFactory() {
+        donationsListView.setCellFactory(lv -> new ListCell<Donation>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
+            protected void updateItem(Donation donation, boolean empty) {
+                super.updateItem(donation, empty);
+                if (empty || donation == null) {
                     setText(null);
-                    setStyle("");
+                    setGraphic(null);
                 } else {
-                    setText(item);
-                    setStyle("-fx-text-fill: #4D81F7; -fx-cursor: hand;");
-                    setOnMouseClicked(event -> {
-                        Donation donation = getTableView().getItems().get(getIndex());
-                        navigateToCollectionDetails(donation.getCollections());
-                    });
+                    Label dateLabel = new Label(donation.getDate() != null ? donation.getDate().toString() : "-");
+                    Label donorLabel = new Label(donation.getUser() != null ? (donation.getUser().getFirstName() + " " + donation.getUser().getLastName()) : "Unknown Donor");
+                    Label collectionLabel = new Label(donation.getCollections() != null ? donation.getCollections().getTitle() : "Unknown Collection");
+                    Label amountLabel = new Label(String.format("%.2f TND", donation.getAmount()));
+                    dateLabel.setMaxWidth(Double.MAX_VALUE);
+                    donorLabel.setMaxWidth(Double.MAX_VALUE);
+                    collectionLabel.setMaxWidth(Double.MAX_VALUE);
+                    amountLabel.setMaxWidth(Double.MAX_VALUE);
+                    HBox.setHgrow(dateLabel, javafx.scene.layout.Priority.ALWAYS);
+                    HBox.setHgrow(donorLabel, javafx.scene.layout.Priority.ALWAYS);
+                    HBox.setHgrow(collectionLabel, javafx.scene.layout.Priority.ALWAYS);
+                    HBox.setHgrow(amountLabel, javafx.scene.layout.Priority.ALWAYS);
+                    HBox rowBox = new HBox(dateLabel, donorLabel, collectionLabel, amountLabel);
+                    rowBox.setSpacing(2);
+                    rowBox.getStyleClass().add("listview-row");
+                    setText(null);
+                    setGraphic(rowBox);
                 }
             }
         });
@@ -130,7 +102,7 @@ public class AfficherAllDonations implements Initializable {
         try {
             // Load all donations for admin
             donations = donationService.recuperer();
-            donationsTable.setItems(FXCollections.observableArrayList(donations));
+            donationsListView.setItems(FXCollections.observableArrayList(donations));
         } catch (SQLException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -144,14 +116,14 @@ public class AfficherAllDonations implements Initializable {
         if (donations != null) {
             // Update total donations count
             totalDonationsLabel.setText(String.valueOf(donations.size()));
-            
+
             // Calculate and update total donation amount
             double totalAmount = donations.stream()
                     .mapToDouble(Donation::getAmount)
                     .sum();
             DecimalFormat df = new DecimalFormat("0.00");
             totalAmountLabel.setText(df.format(totalAmount) + " TND");
-            
+
             // Calculate and update unique collections count
             Set<Integer> uniqueCollections = donations.stream()
                     .map(d -> d.getCollections().getId())
@@ -164,13 +136,13 @@ public class AfficherAllDonations implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CollectionDetails.fxml"));
             Parent root = loader.load();
-            
+
             // Pass the collection to the controller
             Controllers.Collections.CollectionDetails controller = loader.getController();
             controller.setCollection(collection);
-            
+
             // Find the mainRouter and load the view
-            Pane mainRouter = (Pane) donationsTable.getScene().getRoot().lookup("#mainRouter");
+            Pane mainRouter = (Pane) donationsListView.getScene().getRoot().lookup("#mainRouter");
             if (mainRouter != null) {
                 mainRouter.getChildren().clear();
                 mainRouter.getChildren().add(root);

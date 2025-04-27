@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.Bid.AjouterBid"
+            prefHeight="300.0" prefWidth="400.0">
+
+    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #fdfdfd; -fx-background-radius: 12;">
+        <Label text="Enter Bid Amount" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="bidAmountField" promptText="Enter your bid" prefWidth="200"/>
+        <Button fx:id="placeBidButton" text="Place Bid" onAction="#handlePlaceBid"/>
+    </VBox>
+</AnchorPane>

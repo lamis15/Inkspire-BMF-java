@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<VBox fx:id="rootVBox" spacing="15" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.Event.AfficherEvent" style="-fx-background-color: #f5f5f5;">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header with Search, Sort, Calendar, and Category Buttons -->
+    <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: #ffffff; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+        <!-- Search Field -->
+        <HBox spacing="5" alignment="CENTER_LEFT" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #cccccc; -fx-padding: 8;">
+            <ImageView fitHeight="20" fitWidth="20">
+                <Image url="/assets/images/search.jpg"/>
+            </ImageView>
+            <TextField fx:id="searchField" promptText="Rechercher par titre..." onAction="#onSearch" prefWidth="250"
+                       style="-fx-background-radius: 5; -fx-border-color: transparent; -fx-padding: 8;"/>
+        </HBox>
+
+        <!-- Sort ComboBox -->
+        <ComboBox fx:id="sortComboBox" onAction="#onSort">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Date de début"/>
+                    <String fx:value="Titre A-Z"/>
+                    <String fx:value="Titre Z-A"/>
+                </FXCollections>
+            </items>
+        </ComboBox>
+
+        <!-- Calendar Button -->
+        <Button text="Calendrier" onAction="#onCalendarButtonClick"
+                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15; -fx-font-size: 14; -fx-cursor: hand;">
+            <graphic>
+                <ImageView fitHeight="20" fitWidth="20">
+                    <Image url="/assets/images/cal.jpg"/>
+                </ImageView>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <!-- Scrollable Event Cards -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+        <content>
+            <FlowPane fx:id="cardsContainer" hgap="15" vgap="15" alignment="CENTER"
+                      style="-fx-padding: 20; -fx-background-color: #f5f5f5;"/>
+        </content>
+    </ScrollPane>
+</VBox>

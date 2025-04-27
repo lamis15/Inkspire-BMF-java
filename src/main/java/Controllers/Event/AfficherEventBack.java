@@ -85,17 +85,22 @@ public class AfficherEventBack extends SceneSwitch {
 
     @FXML
     private void onAddClick(ActionEvent event) throws IOException {
-        switchScene(rootVBox, "/AjouterEvent.fxml");
+        switchScene(rootVBox, "/EventUtils/AjouterEvent.fxml");
     }
 
     @FXML
     private void onCalendarClick(ActionEvent event) throws IOException {
-        switchScene(rootVBox, "/Calendrier.fxml");
+        switchScene(rootVBox, "/EventUtils/Calendrier.fxml");
+    }
+
+    @FXML
+    private void onCategoryClick(ActionEvent event) throws IOException {
+        switchScene(rootVBox, "/CategoryUtils/AfficherCategory.fxml");
     }
 
     private void handleModifyEvent(Event event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/ModifierEvent.fxml"));
             VBox modifierRoot = loader.load();
 
             ModifierEvent controller = loader.getController();

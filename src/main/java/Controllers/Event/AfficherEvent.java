@@ -5,14 +5,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import utils.SceneSwitch;
+import javafx.scene.control.TextField;
 import service.EventService;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -35,12 +32,14 @@ public class AfficherEvent {
     private TextField searchField;
 
     private final EventService service = new EventService();
+
     private List<Event> eventList;
 
     @FXML
     public void initialize() {
         try {
             eventList = service.recuperer();
+            System.out.println("Retrieved " + (eventList != null ? eventList.size() : 0) + " events");
             showEvents(eventList);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,7 +50,7 @@ public class AfficherEvent {
         cardsContainer.getChildren().clear();
         try {
             for (Event c : list) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventDetails.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/EventDetails.fxml"));
                 Node eventCard = loader.load();
                 EventDetails controller = loader.getController();
                 controller.setEvent(c);
@@ -69,6 +68,40 @@ public class AfficherEvent {
                 .filter(event -> event.getTitle().toLowerCase().contains(searchText))
                 .collect(Collectors.toList());
         showEvents(filteredEvents);
+    }
+
+    @FXML
+    private void onCalendarButtonClick(ActionEvent event) {
+        try {
+            // Load Calendrier.fxml
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/Calendrier.fxml"));
+            Node calendarRoot = loader.load();
+
+            // Get the controller and pass the eventList
+            CalendarViewController controller = loader.getController();
+            if (eventList != null && !eventList.isEmpty()) {
+                controller.setEventList(eventList);
+            } else {
+                System.err.println("Event list is null or empty");
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
+                alert.setTitle("Aucun événement");
+                alert.setHeaderText(null);
+                alert.setContentText("Aucun événement disponible pour afficher dans le calendrier.");
+                alert.showAndWait();
+                return;
+            }
+
+            // Set the new root directly
+            rootVBox.getChildren().setAll(calendarRoot);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText(null);
+            alert.setContentText("Erreur lors du chargement du calendrier : " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML
@@ -91,38 +124,5 @@ public class AfficherEvent {
         }
 
         showEvents(sortedList);
-    }
-
-    @FXML
-    private void onCalendarButtonClick(ActionEvent event) {
-        try {
-            // Debug: Print resource path
-            System.out.println("Loading Calendrier.fxml from: " + getClass().getResource("/Calendrier.fxml"));
-
-            // Load the CalendarView FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Calendrier.fxml"));
-            if (loader.getLocation() == null) {
-                throw new IOException("Cannot find Calendrier.fxml");
-            }
-            Parent calendarView = loader.load();
-
-            // Get the CalendarViewController and pass the eventList
-            CalendarViewController controller = loader.getController();
-            controller.setEventList(eventList);
-
-            // Get the stage from the event source
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(calendarView);
-            stage.setScene(scene);
-            stage.setTitle("Event Calendar");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to load calendar");
-            alert.setContentText("Could not find Calendrier.fxml. Please check the file path.");
-            alert.showAndWait();
-        }
     }
 }

@@ -4,6 +4,7 @@ import entities.Event;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,11 +25,15 @@ public class CalendarViewController {
 
     public void setEventList(List<Event> eventList) {
         this.eventList = eventList;
+        System.out.println("Event list set with " + (eventList != null ? eventList.size() : 0) + " events");
         initializeCalendar();
     }
 
     private void initializeCalendar() {
         try {
+            // Test WebView with simple HTML (uncomment to test, then comment out)
+            // calendarWebView.getEngine().loadContent("<html><body><h1>Test WebView</h1><p>If you see this, the WebView is working.</p></body></html>");
+
             // Validate eventList
             if (eventList == null || eventList.isEmpty()) {
                 throw new IllegalStateException("Event list is null or empty");
@@ -37,9 +42,9 @@ public class CalendarViewController {
             // Create ObjectMapper and register JavaTimeModule
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // Serialize dates as ISO strings
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-            // Transform eventList to FullCalendar-compatible JSON (only start date)
+            // Transform eventList to FullCalendar-compatible JSON
             List<Map<String, Object>> fullCalendarEvents = eventList.stream().map(event -> {
                 if (event.getStartingDate() == null) {
                     throw new IllegalArgumentException("Event '" + event.getTitle() + "' has null starting_date");
@@ -49,8 +54,7 @@ public class CalendarViewController {
                 map.put("title", event.getTitle() != null ? event.getTitle() : "Untitled");
                 map.put("start", event.getStartingDate().toString());
                 map.put("location", event.getLocation() != null ? event.getLocation() : "N/A");
-                map.put("backgroundColor", "#ff0000"); // Red background for events
-                // Include additional fields for display in dialog
+                map.put("backgroundColor", "#ff0000");
                 map.put("endingDate", event.getEndingDate() != null ? event.getEndingDate().toString() : "N/A");
                 map.put("latitude", event.getLatitude());
                 map.put("longitude", event.getLongitude());
@@ -61,27 +65,44 @@ public class CalendarViewController {
 
             // Convert to JSON
             String eventsJson = mapper.writeValueAsString(fullCalendarEvents);
-
-            // Debug: Print JSON to verify format
             System.out.println("Events JSON: " + eventsJson);
 
             // Load the HTML content with FullCalendar
             String htmlContent = generateHtmlContent(eventsJson);
 
             // Log WebView errors
-            calendarWebView.getEngine().setOnError(event -> {
+            WebEngine engine = calendarWebView.getEngine();
+            engine.setOnError(event -> {
                 System.err.println("WebView JavaScript Error: " + event.getMessage());
                 showErrorAlert("WebView Error", "JavaScript error in calendar: " + event.getMessage());
             });
 
-            // Set up JavaScript bridge
-            calendarWebView.getEngine().loadContent(htmlContent);
-            calendarWebView.getEngine().setOnStatusChanged(event -> {
+            // Debug resource loading and JavaScript execution
+            engine.setOnStatusChanged(event -> {
+                System.out.println("WebView status changed: " + event.getData());
                 if (event.getData().equals("DOMContentLoaded")) {
-                    JSObject window = (JSObject) calendarWebView.getEngine().executeScript("window");
+                    JSObject window = (JSObject) engine.executeScript("window");
                     window.setMember("javaBridge", new JavaBridge());
+                    System.out.println("JavaScript bridge initialized");
                 }
             });
+
+            // Add JavaScript console logging
+            engine.setOnAlert(event -> System.out.println("JavaScript Alert: " + event.getData()));
+            engine.setJavaScriptEnabled(true);
+            engine.executeScript("""
+                window.console = {
+                    log: function(msg) { window.alert('console.log: ' + msg); },
+                    error: function(msg) { window.alert('console.error: ' + msg); }
+                };
+            """);
+
+            // Debug: Log when HTML content is loaded
+            System.out.println("Loading HTML content into WebView");
+            engine.loadContent(htmlContent);
+
+            // Ensure WebView is visible
+            calendarWebView.setStyle("-fx-background-color: white;");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +110,6 @@ public class CalendarViewController {
         }
     }
 
-    // JavaScript bridge to handle event clicks
     public class JavaBridge {
         public void showEventDetails(int eventId, String title, String start, String endingDate, String location,
                                      double latitude, double longitude, String image, int categoryId) {
@@ -123,36 +143,18 @@ public class CalendarViewController {
             <meta charset='utf-8' />
             <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet' />
             <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
-            <!-- FontAwesome for event icon -->
-            <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css' rel='stylesheet' />
             <style>
                 html, body {
                     margin: 0;
                     padding: 0;
-                    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+                    font-family: Arial, sans-serif;
                     font-size: 16px;
                 }
                 #calendar {
                     max-width: 900px;
                     margin: 40px auto;
                     padding: 20px;
-                }
-                .fc-event {
-                    padding: 5px 10px;
-                    font-size: 14px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    transition: background-color 0.3s;
-                }
-                .fc-event:hover {
-                    opacity: 0.8;
-                }
-                .fc-event .fc-event-title::before {
-                    content: "\\f073"; /* FontAwesome calendar icon */
-                    font-family: "Font Awesome 6 Free";
-                    font-weight: 900;
-                    margin-right: 8px;
-                    color: #ffffff;
+                    background-color: white;
                 }
             </style>
         </head>
@@ -161,16 +163,17 @@ public class CalendarViewController {
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     try {
+                        console.log('DOM content loaded');
                         var calendarEl = document.getElementById('calendar');
+                        if (!calendarEl) {
+                            console.error('Calendar element not found');
+                            return;
+                        }
                         var calendar = new FullCalendar.Calendar(calendarEl, {
                             initialView: 'dayGridMonth',
                             events: %s,
-                            eventContent: function(arg) {
-                                let titleEl = document.createElement('span');
-                                titleEl.innerHTML = '<i class="fas fa-calendar"></i> ' + arg.event.title;
-                                return { domNodes: [titleEl] };
-                            },
                             eventClick: function(info) {
+                                console.log('Event clicked: ' + info.event.title);
                                 window.javaBridge.showEventDetails(
                                     info.event.id,
                                     info.event.title,
@@ -185,6 +188,7 @@ public class CalendarViewController {
                             }
                         });
                         calendar.render();
+                        console.log('Calendar rendered');
                         window.status = 'DOMContentLoaded';
                     } catch (e) {
                         console.error('FullCalendar Error: ' + e.message);

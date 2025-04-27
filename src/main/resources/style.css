@@ -34,6 +34,173 @@
     -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.1), 10, 0, 0, 5);
 }
 
+/* Message Styling */
+.message-item {
+    -fx-padding: 4px;
+    padding: 4px;
+}
+
+.left-avatar-container {
+    -fx-padding: 0 0 0 0;
+    padding: 0;
+}
+
+.message-item .message-content-container {
+    -fx-background-color: -blue-light;
+    background-color: -blue-light;
+    -fx-background-radius: 10px;
+    -fx-padding: 6px;
+    padding: 6px;
+    -fx-max-width: 300px;
+    max-width: 300px;
+}
+
+/* Sent messages (right-aligned) */
+.message-item.sent {
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.message-item.sent .message-content-container {
+    -fx-background-color: -primary-blue;
+    background-color: -primary-blue;
+    -fx-text-fill: -text-on-dark;
+    color: -text-on-dark;
+}
+
+.message-item.sent .username-label,
+.message-item.sent .timestamp-label,
+.message-item.sent .message-content-label {
+    -fx-text-fill: -text-on-dark;
+    color: -text-on-dark;
+}
+
+/* Avatar positioning */
+.message-item.sent #userAvatar {
+    -fx-opacity: 0;
+    opacity: 0;
+    -fx-max-width: 0;
+    max-width: 0;
+    -fx-pref-width: 0;
+    width: 0;
+    -fx-padding: 0;
+    padding: 0;
+    visibility: hidden;
+}
+
+.message-item.received #userAvatarRight {
+    -fx-opacity: 0;
+    opacity: 0;
+    -fx-max-width: 0;
+    max-width: 0;
+    -fx-pref-width: 0;
+    width: 0;
+    -fx-padding: 0;
+    padding: 0;
+    visibility: hidden;
+}
+
+/* Received messages (left-aligned) */
+.message-item.received {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 4px 0 4px 0;
+    padding: 4px 0 4px 0;
+}
+
+/* ListView Modern Styles */
+
+.listview-header {
+    -fx-background-color: -mint-dark;
+    background-color: -mint-dark;
+    -fx-border-radius: 12 12 0 0;
+    border-radius: 12px 12px 0 0;
+    -fx-background-radius: 12 12 0 0;
+    background-radius: 12px 12px 0 0;
+    -fx-padding: 8 0 8 0;
+    padding: 8px 0;
+    -fx-spacing: 0;
+    spacing: 0;
+}
+
+.listview-header-cell {
+    -fx-font-size: 15px;
+    font-size: 15px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-text-fill: -text-on-dark;
+    color: -text-on-dark;
+    -fx-alignment: CENTER_LEFT;
+    alignment: CENTER_LEFT;
+    -fx-padding: 0 12 0 12;
+    padding: 0 12px;
+}
+
+
+.list-view {
+    -fx-background-color: -mint-light;
+    background-color: -mint-light;
+    -fx-border-color: -mint-dark;
+    border-color: -mint-dark;
+    -fx-border-radius: 12;
+    border-radius: 12px;
+    -fx-background-radius: 12;
+    -fx-padding: 8;
+    padding: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.06), 8, 0, 0, 3);
+}
+
+.list-view:focused {
+    -fx-border-color: -primary-blue;
+    border-color: -primary-blue;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-padding: 16 12 16 12;
+    padding: 16px 12px;
+    -fx-font-size: 16px;
+    font-size: 16px;
+    -fx-font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    -fx-text-fill: -text-dark;
+    color: -text-dark;
+    -fx-border-radius: 8;
+    border-radius: 8px;
+    -fx-background-radius: 8;
+    background-radius: 8px;
+    -fx-effect: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.list-cell:filled:selected, .list-cell:filled:selected:hover {
+    -fx-background-color: -primary-blue;
+    background-color: -primary-blue;
+    -fx-text-fill: -text-on-dark;
+    color: -text-on-dark;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: -blue-light;
+    background-color: -blue-light;
+}
+
+.list-cell:empty {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+
+.list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: -mint-dark;
+    background-color: -mint-dark;
+    -fx-background-radius: 8;
+    background-radius: 8px;
+}
+
+.list-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -primary-mint;
+    background-color: -primary-mint;
+}
+
 /* Card Styles with Modern Glassmorphism */
 .card {
     -fx-background-color: -mint-light;
@@ -907,3 +1074,4 @@
 
     -fx-effect: dropshadow(gaussian, rgba(126, 250, 213, 0.3), 2, 0, 0, 0);
 }
+
