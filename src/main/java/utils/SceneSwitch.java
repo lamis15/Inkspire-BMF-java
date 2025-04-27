@@ -15,7 +15,7 @@ public class SceneSwitch {
             FXMLLoader loader = new FXMLLoader(SceneSwitch.class.getResource(fxmlPath));
             Parent root = loader.load();
             container.getChildren().setAll(root);
-            
+
             // Set anchor constraints to make the view fill the container
             if (container instanceof AnchorPane && root instanceof Parent) {
                 AnchorPane.setTopAnchor(root, 0.0);
