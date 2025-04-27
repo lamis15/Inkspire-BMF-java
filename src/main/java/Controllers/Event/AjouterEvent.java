@@ -11,8 +11,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import netscape.javascript.JSObject;
 import service.CategoryService;
 import service.EventService;
 
@@ -34,15 +37,70 @@ public class AjouterEvent implements Initializable {
     @FXML private Label imagePathLabel;
     @FXML private Button backButton;
     @FXML private ComboBox<Category> categoryComboBox;
+    @FXML private WebView mapView;
 
     private File selectedImageFile;
     private final EventService eventService = new EventService();
     private final CategoryService categoryService = new CategoryService();
+    private WebEngine webEngine;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadCategories();
         setupDateValidation();
+        setupMap();
+    }
+
+    private void setupMap() {
+        webEngine = mapView.getEngine();
+
+        // Configurer un user-agent moderne pour éviter les problèmes de compatibilité
+        webEngine.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+
+        // Activer JavaScript explicitement
+        webEngine.setJavaScriptEnabled(true);
+
+        // Ajouter un écouteur d'erreurs
+        webEngine.setOnError(event -> {
+            System.err.println("WebView error: " + event.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur WebView", "Erreur dans le WebView : " + event.getMessage());
+        });
+
+        URL resourceUrl = getClass().getResource("/EventUtils/map.html");
+        if (resourceUrl == null) {
+            System.err.println("Error: map.html not found in resources!");
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Fichier map.html introuvable dans les ressources.");
+            return;
+        }
+        String mapUrl = resourceUrl.toExternalForm();
+        System.out.println("Loading map from: " + mapUrl);
+        webEngine.load(mapUrl);
+
+        webEngine.getLoadWorker().stateProperty().addListener((obs, old, newVal) -> {
+            if (newVal == javafx.concurrent.Worker.State.SUCCEEDED) {
+                System.out.println("WebView loaded successfully");
+                try {
+                    JSObject window = (JSObject) webEngine.executeScript("window");
+                    window.setMember("javaObj", new JavaBridge());
+                    System.out.println("JavaBridge initialized successfully");
+                } catch (Exception e) {
+                    System.err.println("Error initializing JavaBridge: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'initialisation de JavaBridge : " + e.getMessage());
+                }
+            } else if (newVal == javafx.concurrent.Worker.State.FAILED) {
+                System.err.println("WebView failed to load: " + webEngine.getLoadWorker().getException());
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Échec du chargement de la carte : " + webEngine.getLoadWorker().getException());
+            }
+        });
+    }
+
+    public class JavaBridge {
+        public void updateCoordinates(double lat, double lng, String city) {
+            System.out.println("Received coordinates: lat=" + lat + ", lng=" + lng + ", city=" + city);
+            latitudeField.setText(String.format("%.6f", lat));
+            longitudeField.setText(String.format("%.6f", lng));
+            locationField.setText(city);
+        }
     }
 
     private void loadCategories() {

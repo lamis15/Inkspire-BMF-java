@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
 <?import javafx.geometry.Insets?>
 
 <VBox fx:id="rootVBox" spacing="15" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
@@ -40,6 +41,12 @@
     <HBox spacing="10">
         <Label text="Longitude :" style="-fx-font-weight: bold;"/>
         <TextField fx:id="longitudeField" promptText="Entrez la longitude"/>
+    </HBox>
+
+    <!-- Ajout du WebView pour afficher la carte -->
+    <HBox spacing="10">
+        <Label text="Carte :" style="-fx-font-weight: bold;"/>
+        <WebView fx:id="mapView" prefHeight="600" prefWidth="600"/>
     </HBox>
 
     <HBox spacing="10">
