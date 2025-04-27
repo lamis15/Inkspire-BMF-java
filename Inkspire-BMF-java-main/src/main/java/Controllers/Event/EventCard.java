@@ -13,104 +13,83 @@ import utils.SceneSwitch;
 
 import java.io.IOException;
 
-public class EventCard extends VBox {
+public class EventCard {
     @FXML
-    private Label startingDateLabel; // Déclarer la variable pour la date de début
-
+    private VBox root; // Add a field to hold the root VBox
     @FXML
-    private Label endingDateLabel;   // Déclarer la variable pour la date de fin
-
+    private Label startingDateLabel;
     @FXML
-    private Label latitudeLabel;     // Déclarer la variable pour la latitude
-
+    private Label endingDateLabel;
     @FXML
-    private Label longitudeLabel;    // Déclarer la variable pour la longitude
-
+    private Label latitudeLabel;
     @FXML
-    private Label categoryLabel;     // Déclarer la variable pour l'ID de catégorie
-
+    private Label longitudeLabel;
+    @FXML
+    private Label categoryLabel;
     @FXML
     private ImageView eventImage;
-
     @FXML
     private Label titleLabel;
-
     @FXML
     private Label locationLabel;
-
-    @FXML
-    private Label dateLabel;
-
     @FXML
     private Button voirDetailsButton;
 
     private Event event;
-    private Event imageView;
+    private Pane container;
+
 
     public EventCard() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventCard.fxml"));
-        fxmlLoader.setRoot(this);
-        fxmlLoader.setController(this);
-
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventUtils/EventCard.fxml"));
+        fxmlLoader.setController(this); // Set this instance as the controller
         try {
-            fxmlLoader.load();
+            fxmlLoader.load(); // Load the FXML, which will create the VBox
         } catch (IOException exception) {
-            throw new RuntimeException(exception);
+            throw new RuntimeException("Failed to load EventCard.fxml: " + exception.getMessage(), exception);
         }
     }
-    @FXML
+
+    public VBox getRoot() {
+        return root; // Provide access to the root VBox
+    }
+
+    public void setContainer(Pane container) {
+        this.container = container;
+    }
+
     public void setEvent(Event event) {
         this.event = event;
         titleLabel.setText(event.getTitle());
         locationLabel.setText("Lieu: " + event.getLocation());
         startingDateLabel.setText("Start Date: " + event.getStartingDate().toString());
         endingDateLabel.setText("End Date: " + event.getEndingDate().toString());
-        latitudeLabel.setText("Latitude: " + event.getLatitude());
-        longitudeLabel.setText("Longitude: " + event.getLongitude());
-        categoryLabel.setText("Category ID: " + event.getCategoryId());
+        latitudeLabel.setText("Latitude: " + String.valueOf(event.getLatitude()));
+        longitudeLabel.setText("Longitude: " + String.valueOf(event.getLongitude()));
+        categoryLabel.setText("Category ID: " + String.valueOf(event.getCategoryId()));
 
+        // Load event image
         if (event.getImage() != null && !event.getImage().isEmpty()) {
-            try {
-                // Vérifier si le chemin de l'image est valide et charger l'image
-                Image image = new Image("file:" + event.getImage());
-                eventImage.setImage(image);
-            } catch (Exception e) {
-                System.out.println("Image loading failed: " + e.getMessage());
+            String imagePath = event.getImage().startsWith("file:") ? event.getImage() : "file:" + event.getImage();
+            System.out.println("Attempting to load image: " + imagePath); // Debug
+            Image image = new Image(imagePath, true); // Load asynchronously
+            if (image.isError()) {
+                System.out.println("Image loading failed for " + event.getImage() + ": " + image.getException().getMessage());
                 eventImage.setImage(new Image("/images/default-event.jpg"));
+            } else {
+                eventImage.setImage(image);
             }
         } else {
+            System.out.println("No image provided for event: " + event.getTitle());
             eventImage.setImage(new Image("/images/default-event.jpg"));
         }
-
     }
 
-
-    Pane container;
     @FXML
     private void handleVoirDetails() {
-        SceneSwitch.switchScene(container,"/EventDetails.fxml" );
-    }
-
-    public void setData(Event c) {
-        this.titleLabel.setText(c.getTitle());  // Afficher le titre de l'événement
-        this.startingDateLabel.setText("Start Date: " + c.getStartingDate().toString()); // Afficher la date de début
-        this.endingDateLabel.setText("End Date: " + c.getEndingDate().toString()); // Afficher la date de fin
-        this.locationLabel.setText("Location: " + c.getLocation()); // Afficher le lieu
-        this.latitudeLabel.setText("Latitude: " + c.getLatitude()); // Afficher la latitude
-        this.longitudeLabel.setText("Longitude: " + c.getLongitude()); // Afficher la longitude
-        this.categoryLabel.setText("Category ID: " + c.getCategoryId()); // Afficher l'ID de la catégorie
-
-        // Si l'image n'est pas vide ou nulle, l'afficher
-        if (c.getImage() != null && !c.getImage().isEmpty()) {
-            try {
-                Image image = new Image(c.getImage());  // Charger l'image depuis l'URL ou le chemin
-                this.eventImage.setImage(image); // Mettre l'image dans l'interface
-            } catch (Exception e) {
-                System.out.println("Image loading failed: " + e.getMessage());
-            }
+        if (container != null) {
+            SceneSwitch.switchScene(container, "/EventUtils/EventDetails.fxml");
         } else {
-            this.eventImage.setImage(null); // Si l'image est vide ou nulle, ne rien afficher
+            System.err.println("Container is not set for scene switching");
         }
     }
-
 }

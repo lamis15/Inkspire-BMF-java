@@ -44,16 +44,9 @@ public class BaseWindow {
     void goEvents(ActionEvent event) {
         User currentUser = entities.Session.getCurrentUser();
         if (currentUser != null && currentUser.getRole() == 1) {
-            SceneSwitch.switchScene(mainRouter, "/AfficherEventBack.fxml");
+            SceneSwitch.switchScene(mainRouter, "/EventUtils/AfficherEventBack.fxml");
         } else {
-            SceneSwitch.switchScene(mainRouter, "/AfficherEvent.fxml");
-        }
-    }
-    @FXML
-    void goCategory(ActionEvent event) {
-        User currentUser = entities.Session.getCurrentUser();
-        if (currentUser != null && currentUser.getRole() == 1) {
-            SceneSwitch.switchScene(mainRouter, "/AfficherCategory.fxml");
+            SceneSwitch.switchScene(mainRouter, "/EventUtils/AfficherEvent.fxml");
         }
     }
     @FXML
