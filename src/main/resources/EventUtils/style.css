@@ -1,6 +1,39 @@
 /* Modern Elegant Dashboard Design System */
 
 /* Color Palette - Only using specified colors and their derivatives */
+.details-button:hover {
+    -fx-background-color: #4a73e8;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, 0, 2);
+}
+
+.back-button:hover {
+    -fx-background-color: #5a6268;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, 0, 2);
+}
+
+.card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+}
+
+.icon {
+    -fx-font-size: 14px;
+}
+
+.title {
+    -fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Segoe UI'; -fx-text-fill: #333;
+}
+
+.subtitle {
+    -fx-font-size: 12px; -fx-font-family: 'Segoe UI'; -fx-text-fill: #777;
+}
+
+.section-title {
+    -fx-font-size: 14px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: #333;
+}
 .root {
     /* Primary Colors */
     -primary-dark: #020741;  /* Dark Navy */

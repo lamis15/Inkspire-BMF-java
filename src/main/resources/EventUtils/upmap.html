@@ -29,14 +29,15 @@
         console.log("Map loaded successfully");
     });
 
-    let cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20
+    let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+        tileSize: 256,
+        zoomOffset: 0
     }).on('tileload', function() {
-        console.log("CartoDB tile loaded");
+        console.log("OSM tile loaded");
     }).on('tileerror', function(error) {
-        console.error("Failed to load CartoDB tile: ", error);
+        console.error("Failed to load OSM tile: ", error);
     });
 
     let stamenLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png', {
@@ -48,9 +49,9 @@
         console.error("Failed to load Stamen tile: ", error);
     });
 
-    cartoLayer.addTo(map).on('tileerror', function(error) {
-        console.error("Failed to load CartoDB tiles, switching to Stamen: ", error);
-        map.removeLayer(cartoLayer);
+    osmLayer.addTo(map).on('tileerror', function(error) {
+        console.error("Failed to load OSM tiles, switching to Stamen: ", error);
+        map.removeLayer(osmLayer);
         stamenLayer.addTo(map);
         console.log("Switched to Stamen Terrain tiles");
     });
@@ -82,8 +83,41 @@
         }
     }
 
+    map.on('click', function(e) {
+        try {
+            console.log("Map clicked at: " + e.latlng);
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&zoom=10&addressdetails=1`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok: " + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let city = data.address.city || data.address.town || data.address.village || data.address.county || "Lieu inconnu";
+                    console.log("Geocoding result: " + city);
+                    if (window.javaObj && typeof window.javaObj.updateCoordinates === 'function') {
+                        window.javaObj.updateCoordinates(e.latlng.lat, e.latlng.lng, city);
+                    }
+                })
+                .catch(error => {
+                    console.error("Geocoding error: " + error.message);
+                    if (window.javaObj && typeof window.javaObj.updateCoordinates === 'function') {
+                        window.javaObj.updateCoordinates(e.latlng.lat, e.latlng.lng, "Erreur de géocodage");
+                    }
+                });
+        } catch (error) {
+            console.error("Error in map click handler: " + error.message);
+        }
+    });
+
     console.log("Map initialization complete");
 </script>
 </body>
 </html>
-```

@@ -6,11 +6,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import utils.SceneSwitch;
-import javafx.scene.control.TextField;
 import service.EventService;
+import utils.SceneSwitch;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class AfficherEvent {
     private FlowPane cardsContainer;
 
     @FXML
-    private VBox rootVBox;
+    private VBox mainRouter;
 
     @FXML
     private TextField searchField;
@@ -37,6 +38,7 @@ public class AfficherEvent {
 
     @FXML
     public void initialize() {
+        System.out.println("AfficherEvent initialize, mainRouter: " + mainRouter); // Debug
         try {
             eventList = service.recuperer();
             System.out.println("Retrieved " + (eventList != null ? eventList.size() : 0) + " events");
@@ -48,16 +50,12 @@ public class AfficherEvent {
 
     private void showEvents(List<Event> list) {
         cardsContainer.getChildren().clear();
-        try {
-            for (Event c : list) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/EventDetails.fxml"));
-                Node eventCard = loader.load();
-                EventDetails controller = loader.getController();
-                controller.setEvent(c);
-                cardsContainer.getChildren().add(eventCard);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        System.out.println("showEvents, mainRouter: " + mainRouter); // Debug
+        for (Event event : list) {
+            EventCard card = new EventCard();
+            card.setEvent(event);
+            card.setContainer(mainRouter);
+            cardsContainer.getChildren().add(card.getRoot());
         }
     }
 
@@ -73,11 +71,8 @@ public class AfficherEvent {
     @FXML
     private void onCalendarButtonClick(ActionEvent event) {
         try {
-            // Load Calendrier.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/Calendrier.fxml"));
             Node calendarRoot = loader.load();
-
-            // Get the controller and pass the eventList
             CalendarViewController controller = loader.getController();
             if (eventList != null && !eventList.isEmpty()) {
                 controller.setEventList(eventList);
@@ -90,10 +85,7 @@ public class AfficherEvent {
                 alert.showAndWait();
                 return;
             }
-
-            // Set the new root directly
-            rootVBox.getChildren().setAll(calendarRoot);
-
+            mainRouter.getChildren().setAll(calendarRoot);
         } catch (IOException e) {
             e.printStackTrace();
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);

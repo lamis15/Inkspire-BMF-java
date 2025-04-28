@@ -68,7 +68,7 @@ public class AjouterEvent implements Initializable {
         // Ajouter un écouteur d'erreurs général
         webEngine.setOnError(event -> showAlert(Alert.AlertType.ERROR, "Erreur WebView", "Erreur dans le WebView : " + event.getMessage()));
 
-        URL resourceUrl = getClass().getResource("/EventUtils/map.html");
+        URL resourceUrl = getClass().getResource("/EventUtils/mapBack.html");
         if (resourceUrl == null) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Fichier map.html introuvable dans les ressources.");
             return;
@@ -194,8 +194,19 @@ public class AjouterEvent implements Initializable {
     void ajouterEvent(ActionEvent event) {
         if (validateInputs()) {
             try {
-                double latitude = 0.0;
-                double longitude = 0.0;
+                // Retrieve and parse latitude and longitude from text fields
+                String latText = latitudeField.getText() != null ? latitudeField.getText().trim() : "";
+                String lngText = longitudeField.getText() != null ? longitudeField.getText().trim() : "";
+                double latitude;
+                double longitude;
+
+                try {
+                    latitude = Double.parseDouble(latText.replace(',', '.'));
+                    longitude = Double.parseDouble(lngText.replace(',', '.'));
+                } catch (NumberFormatException e) {
+                    showAlert(Alert.AlertType.WARNING, "Entrée invalide", "Veuillez sélectionner un lieu valide sur la carte.");
+                    return;
+                }
 
                 Category selectedCategory = categoryComboBox.getValue();
                 if (selectedCategory == null) {
@@ -238,12 +249,15 @@ public class AjouterEvent implements Initializable {
     private boolean validateInputs() {
         String title = titleField.getText().trim();
         String location = locationField.getText().trim();
+        String latText = latitudeField.getText() != null ? latitudeField.getText().trim() : "";
+        String lngText = longitudeField.getText() != null ? longitudeField.getText().trim() : "";
 
         if (title.isEmpty() || location.isEmpty() ||
                 startDatePicker.getValue() == null ||
                 endDatePicker.getValue() == null ||
-                categoryComboBox.getValue() == null) {
-            showAlert(Alert.AlertType.WARNING, "Champs manquants", "Veuillez remplir tous les champs obligatoires.");
+                categoryComboBox.getValue() == null ||
+                latText.isEmpty() || lngText.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Champs manquants", "Veuillez remplir tous les champs obligatoires, y compris la sélection d'un lieu sur la carte.");
             return false;
         }
 
@@ -259,6 +273,19 @@ public class AjouterEvent implements Initializable {
 
         if (location.length() < 3) {
             showAlert(Alert.AlertType.WARNING, "Emplacement invalide", "L'emplacement doit contenir au moins 3 caractères.");
+            return false;
+        }
+
+        // Validate latitude and longitude
+        try {
+            double latitude = Double.parseDouble(latText.replace(',', '.'));
+            double longitude = Double.parseDouble(lngText.replace(',', '.'));
+            if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+                showAlert(Alert.AlertType.WARNING, "Coordonnées invalides", "Les coordonnées doivent être dans des plages valides (latitude: -90 à 90, longitude: -180 à 180).");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.WARNING, "Coordonnées invalides", "Les coordonnées doivent être des nombres valides.");
             return false;
         }
 
