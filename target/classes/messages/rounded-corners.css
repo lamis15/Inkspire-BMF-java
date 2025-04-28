@@ -1,0 +1,84 @@
+/* Rounded Corners CSS - Override all other styles */
+
+/* Main container */
+.chat-main-container {
+    -fx-background-radius: 25px;
+    background-radius: 25px;
+    -fx-border-radius: 25px;
+    border-radius: 25px;
+}
+
+/* Split pane */
+.chat-split-pane {
+    -fx-background-radius: 25px;
+    background-radius: 25px;
+}
+
+/* Left side - Channel list container */
+.channel-list-container {
+    -fx-background-radius: 25px 0 0 25px !important;
+    background-radius: 25px 0 0 25px !important;
+    -fx-border-radius: 25px 0 0 25px !important;
+    border-radius: 25px 0 0 25px !important;
+}
+
+/* Channel header */
+.channel-header {
+    -fx-background-radius: 25px 0 0 0 !important;
+    background-radius: 25px 0 0 0 !important;
+    -fx-border-radius: 25px 0 0 0 !important;
+    border-radius: 25px 0 0 0 !important;
+}
+
+/* Right side - Chat container */
+.chat-container {
+    -fx-background-radius: 0 25px 25px 0 !important;
+    background-radius: 0 25px 25px 0 !important;
+    -fx-border-radius: 0 25px 25px 0 !important;
+    border-radius: 0 25px 25px 0 !important;
+}
+
+/* Chat box */
+.chat-box {
+    -fx-background-radius: 0 25px 25px 0 !important;
+    background-radius: 0 25px 25px 0 !important;
+    -fx-border-radius: 0 25px 25px 0 !important;
+    border-radius: 0 25px 25px 0 !important;
+}
+
+/* Chat header */
+.chat-header {
+    -fx-background-radius: 0 25px 0 0 !important;
+    background-radius: 0 25px 0 0 !important;
+    -fx-border-radius: 0 25px 0 0 !important;
+    border-radius: 0 25px 0 0 !important;
+}
+
+/* Force rounded corners on all sides */
+.force-rounded-left {
+    -fx-background-radius: 25px 0 0 25px !important;
+    background-radius: 25px 0 0 25px !important;
+    -fx-border-radius: 25px 0 0 25px !important;
+    border-radius: 25px 0 0 25px !important;
+}
+
+.force-rounded-right {
+    -fx-background-radius: 0 25px 25px 0 !important;
+    background-radius: 0 25px 25px 0 !important;
+    -fx-border-radius: 0 25px 25px 0 !important;
+    border-radius: 0 25px 25px 0 !important;
+}
+
+.force-rounded-top-left {
+    -fx-background-radius: 25px 0 0 0 !important;
+    background-radius: 25px 0 0 0 !important;
+    -fx-border-radius: 25px 0 0 0 !important;
+    border-radius: 25px 0 0 0 !important;
+}
+
+.force-rounded-top-right {
+    -fx-background-radius: 0 25px 0 0 !important;
+    background-radius: 0 25px 0 0 !important;
+    -fx-border-radius: 0 25px 0 0 !important;
+    border-radius: 0 25px 0 0 !important;
+}

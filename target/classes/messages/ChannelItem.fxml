@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import java.lang.String?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+   <stylesheets>
+      <String fx:value="/messages/chat-style.css" />
+      <String fx:value="/messages/sent-message.css" />
+      <String fx:value="/messages/bubble-style.css" />
+   </stylesheets>
+   <children>
+      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="60.0" styleClass="channel-item">
+         <children>
+            <StackPane minWidth="-Infinity" maxWidth="-Infinity" prefWidth="35.0">
+               <children>
+                  <Circle fx:id="userAvatar" radius="15.0" style="-fx-stroke-width: 0;" styleClass="user-avatar">
+                     <fill>
+                        <LinearGradient endX="1.0" endY="1.0">
+                           <stops>
+                              <Stop color="#4D81F7" />
+                              <Stop color="#020741" offset="1.0" />
+                           </stops>
+                        </LinearGradient>
+                     </fill>
+                     <effect>
+                        <DropShadow height="5.0" radius="2.0" width="5.0" />
+                     </effect>
+                  </Circle>
+                  <Circle fx:id="statusIndicator" radius="4.0" style="-fx-fill: #7EFAD5; -fx-stroke: white; -fx-stroke-width: 1.0;" styleClass="status-indicator" translateX="10.0" translateY="10.0" />
+               </children>
+            </StackPane>
+            <VBox prefHeight="50.0" HBox.hgrow="ALWAYS" styleClass="channel-info">
+               <children>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <Label fx:id="usernameLabel" style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: white;" styleClass="username-label" text="Username">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="timeLabel" style="-fx-font-size: 10px; -fx-text-fill: #b3b3b3;" styleClass="time-label" text="12:34">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <Label fx:id="lastMessageLabel" style="-fx-font-size: 11px; -fx-text-fill: #d9d9d9;" styleClass="last-message-label" text="No messages yet" wrapText="true" maxWidth="120.0">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets top="2.0" />
+                           </VBox.margin>
+                        </Label>
+                        <StackPane fx:id="unreadContainer" prefHeight="16.0" prefWidth="16.0">
+                           <children>
+                              <Circle fx:id="unreadIndicator" radius="6.0" style="-fx-fill: #7EFAD5;" styleClass="unread-indicator" />
+                              <Label fx:id="unreadCount" style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #020741;" styleClass="unread-count" text="2">
+                                 <font>
+                                    <Font name="System Bold" size="9.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </StackPane>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="2.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+         </padding>
+      </HBox>
+   </children>
+</StackPane>
