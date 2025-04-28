@@ -11,7 +11,30 @@ public class CategoryService {
     private final Connection conn;
 
     public CategoryService() {
-        conn = DataSource.getInstance().getConnection();  // Changé de getCnx() à getConnection()
+        conn = DataSource.getInstance().getConnection();
+    }
+
+    public List<Category> getCategoriesForEvent(int eventId) throws SQLException {
+        System.out.println("DEBUG: Querying categories for event " + eventId);
+
+        String sql = "SELECT c.* FROM category c " +
+                "JOIN event_category ec ON c.id = ec.category_id " +
+                "WHERE ec.event_id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, eventId);
+            ResultSet rs = stmt.executeQuery();
+
+            List<Category> categories = new ArrayList<>();
+            while (rs.next()) {
+                Category cat = new Category();
+                cat.setId(rs.getInt("id"));
+                cat.setName(rs.getString("name"));
+                categories.add(cat);
+                System.out.println("DEBUG: Found category: " + cat.getName());
+            }
+            return categories;
+        }
     }
 
     public void ajouter(Category category) throws SQLException {
@@ -36,8 +59,22 @@ public class CategoryService {
     }
 
     public void supprimer(int id) throws SQLException {
-        String query = "DELETE FROM category WHERE id=?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
+        // Supprimer les associations dans event_category
+        String queryDeleteEventCategory = "DELETE FROM event_category WHERE category_id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(queryDeleteEventCategory)) {
+            pst.setInt(1, id);
+            pst.executeUpdate();
+        }
+
+        // Supprimer les événements qui n'ont plus de catégories associées (optionnel)
+        String queryDeleteOrphanEvents = "DELETE FROM event WHERE id NOT IN (SELECT event_id FROM event_category)";
+        try (PreparedStatement pst = conn.prepareStatement(queryDeleteOrphanEvents)) {
+            pst.executeUpdate();
+        }
+
+        // Supprimer la catégorie
+        String queryDeleteCategory = "DELETE FROM category WHERE id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(queryDeleteCategory)) {
             pst.setInt(1, id);
             pst.executeUpdate();
         }
@@ -50,10 +87,10 @@ public class CategoryService {
              ResultSet rs = st.executeQuery(query)) {
             while (rs.next()) {
                 Category category = new Category(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("description"),
-                    rs.getString("statut")
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getString("statut")
                 );
                 categories.add(category);
             }
@@ -65,17 +102,30 @@ public class CategoryService {
         String query = "SELECT * FROM category WHERE id = ?";
         try (PreparedStatement pst = conn.prepareStatement(query)) {
             pst.setInt(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
+            try (ResultSet rs = pst.executeQuery()) { // Fixed: Removed 'E' and non-breaking space
                 if (rs.next()) {
                     return new Category(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getString("statut")
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("description"),
+                            rs.getString("statut")
                     );
                 }
             }
         }
         return null;
+    }
+
+    public int getEventCountForCategory(int categoryId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM event_category WHERE category_id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setInt(1, categoryId);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
     }
 }

@@ -9,7 +9,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="Controllers.Event.EventDetails"
-      stylesheets="@style.css"
+      stylesheets="@../style.css"
       spacing="10"
       styleClass="card"
       prefWidth="360" maxWidth="360"> <!-- Important pour aligner 2 cards par ligne -->

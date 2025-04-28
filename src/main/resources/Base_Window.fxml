@@ -41,7 +41,6 @@
                         <Button fx:id="buttonCollections" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCollections" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Collections" />
                         <Button fx:id="buttonDonations" maxWidth="Infinity" mnemonicParsing="false" onAction="#goDonations" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Donations" />
                         <Button fx:id="buttonEvents" maxWidth="Infinity" mnemonicParsing="false" onAction="#goEvents" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Events" />
-                        <Button fx:id="buttonCategory" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCategory" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Category" />
 
                         <Button fx:id="buttonAuction" maxWidth="Infinity" mnemonicParsing="false" onAction="#goAuction" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Auction" />
                   <Button fx:id="buttonAuction11" maxWidth="Infinity" mnemonicParsing="false" onAction="#goArtwork" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Artwork" />

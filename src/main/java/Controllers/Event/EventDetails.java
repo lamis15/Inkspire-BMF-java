@@ -1,29 +1,20 @@
 package Controllers.Event;
 
 
-import entities.Category;
 import entities.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import service.CategoryService;
 import service.EventService;
 import utils.SceneSwitch;
 
-import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class EventDetails implements javafx.fxml.Initializable {
@@ -61,8 +52,6 @@ public class EventDetails implements javafx.fxml.Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize the controller
-        System.out.println("Initializing EventDetails controller");
 
         // Configure the FlowPane for proper display of artworks
         categoryContainer.setHgap(15);
@@ -71,7 +60,6 @@ public class EventDetails implements javafx.fxml.Initializable {
     }
 
     public void setEvent(Event event) {
-        System.out.println("Setting collection: " + event.getId() + " - " + event.getTitle());
         this.event = event;
 
         // Set collection details
@@ -97,8 +85,7 @@ public class EventDetails implements javafx.fxml.Initializable {
         Node node = backButton.getScene().getRoot().lookup("#mainRouter");
 
         if (node instanceof Pane) {
-            SceneSwitch.switchScene((Pane) node, "/AfficherEvent.fxml");
-            System.out.println("Successfully navigated back to events view");
+            SceneSwitch.switchScene((Pane) node, "/EventUtils/AfficherEvent.fxml");
         } else {
             System.out.println("Could not find mainRouter for navigation");
         }

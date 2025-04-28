@@ -16,9 +16,17 @@ public class Event {
     public Event() {
     }
     public Event(Event event) {
-
-
+        this.id = event.id;
+        this.title = event.title;
+        this.starting_date = event.starting_date;
+        this.ending_date = event.ending_date;
+        this.location = event.location;
+        this.latitude = event.latitude;
+        this.longitude = event.longitude;
+        this.image = event.image;
+        this.categoryId = event.categoryId;
     }
+
 
     public Event(String title, LocalDate starting_date, LocalDate ending_date, String location, double latitude, double longitude, String image) {
         this.title = title;
@@ -80,12 +88,6 @@ public class Event {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-    public double getLattitude() {
-        return latitude;
-    }
-    public void setLattitude(double latitude) {
-        this.latitude = latitude;
     }
 
 
