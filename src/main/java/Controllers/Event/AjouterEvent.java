@@ -49,42 +49,46 @@ public class AjouterEvent implements Initializable {
         loadCategories();
         setupDateValidation();
         setupMap();
-
-        // Rendre les champs latitude, longitude, et location en lecture seule
-        latitudeField.setEditable(false);
-        longitudeField.setEditable(false);
-        locationField.setEditable(false);
     }
 
     private void setupMap() {
         webEngine = mapView.getEngine();
 
-        // Configurer un user-agent moderne
+        // Configurer un user-agent moderne pour éviter les problèmes de compatibilité
         webEngine.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
-        // Activer JavaScript
+        // Activer JavaScript explicitement
         webEngine.setJavaScriptEnabled(true);
 
-        // Ajouter un écouteur d'erreurs général
-        webEngine.setOnError(event -> showAlert(Alert.AlertType.ERROR, "Erreur WebView", "Erreur dans le WebView : " + event.getMessage()));
+        // Ajouter un écouteur d'erreurs
+        webEngine.setOnError(event -> {
+            System.err.println("WebView error: " + event.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur WebView", "Erreur dans le WebView : " + event.getMessage());
+        });
 
-        URL resourceUrl = getClass().getResource("/EventUtils/mapBack.html");
+        URL resourceUrl = getClass().getResource("/EventUtils/map.html");
         if (resourceUrl == null) {
+            System.err.println("Error: map.html not found in resources!");
             showAlert(Alert.AlertType.ERROR, "Erreur", "Fichier map.html introuvable dans les ressources.");
             return;
         }
         String mapUrl = resourceUrl.toExternalForm();
+        System.out.println("Loading map from: " + mapUrl);
         webEngine.load(mapUrl);
 
         webEngine.getLoadWorker().stateProperty().addListener((obs, old, newVal) -> {
             if (newVal == javafx.concurrent.Worker.State.SUCCEEDED) {
+                System.out.println("WebView loaded successfully");
                 try {
                     JSObject window = (JSObject) webEngine.executeScript("window");
                     window.setMember("javaObj", new JavaBridge());
+                    System.out.println("JavaBridge initialized successfully");
                 } catch (Exception e) {
+                    System.err.println("Error initializing JavaBridge: " + e.getMessage());
                     showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'initialisation de JavaBridge : " + e.getMessage());
                 }
             } else if (newVal == javafx.concurrent.Worker.State.FAILED) {
+                System.err.println("WebView failed to load: " + webEngine.getLoadWorker().getException());
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Échec du chargement de la carte : " + webEngine.getLoadWorker().getException());
             }
         });
@@ -92,46 +96,10 @@ public class AjouterEvent implements Initializable {
 
     public class JavaBridge {
         public void updateCoordinates(double lat, double lng, String city) {
-            // Vérifier que les champs ne sont pas null
-            if (latitudeField == null || longitudeField == null || locationField == null) {
-                return;
-            }
-
-            // Vérifier les valeurs avant de les assigner
-            if (Double.isNaN(lat) || Double.isInfinite(lat)) {
-                lat = 0.0;
-            }
-            if (Double.isNaN(lng) || Double.isInfinite(lng)) {
-                lng = 0.0;
-            }
-            if (city == null || city.trim().isEmpty()) {
-                city = "Tunis";
-            }
-
-            // Mettre à jour les champs
+            System.out.println("Received coordinates: lat=" + lat + ", lng=" + lng + ", city=" + city);
             latitudeField.setText(String.format("%.6f", lat));
             longitudeField.setText(String.format("%.6f", lng));
             locationField.setText(city);
-
-            // Ajouter une indication visuelle (par exemple, fond vert pendant 1 seconde)
-            String highlightStyle = "-fx-background-color: lightgreen;";
-            latitudeField.setStyle(highlightStyle);
-            longitudeField.setStyle(highlightStyle);
-            locationField.setStyle(highlightStyle);
-
-            // Revenir à la couleur par défaut après 1 seconde
-            new Thread(() -> {
-                try {
-                    Thread.sleep(1000);
-                    javafx.application.Platform.runLater(() -> {
-                        latitudeField.setStyle("");
-                        longitudeField.setStyle("");
-                        locationField.setStyle("");
-                    });
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
         }
     }
 
@@ -194,18 +162,25 @@ public class AjouterEvent implements Initializable {
     void ajouterEvent(ActionEvent event) {
         if (validateInputs()) {
             try {
-                // Retrieve and parse latitude and longitude from text fields
-                String latText = latitudeField.getText() != null ? latitudeField.getText().trim() : "";
-                String lngText = longitudeField.getText() != null ? longitudeField.getText().trim() : "";
-                double latitude;
-                double longitude;
+                double latitude = 0.0;
+                double longitude = 0.0;
 
-                try {
-                    latitude = Double.parseDouble(latText.replace(',', '.'));
-                    longitude = Double.parseDouble(lngText.replace(',', '.'));
-                } catch (NumberFormatException e) {
-                    showAlert(Alert.AlertType.WARNING, "Entrée invalide", "Veuillez sélectionner un lieu valide sur la carte.");
-                    return;
+                if (!latitudeField.getText().isEmpty()) {
+                    try {
+                        latitude = Double.parseDouble(latitudeField.getText());
+                    } catch (NumberFormatException e) {
+                        showAlert(Alert.AlertType.ERROR, "Erreur", "Latitude invalide !");
+                        return;
+                    }
+                }
+
+                if (!longitudeField.getText().isEmpty()) {
+                    try {
+                        longitude = Double.parseDouble(longitudeField.getText());
+                    } catch (NumberFormatException e) {
+                        showAlert(Alert.AlertType.ERROR, "Erreur", "Longitude invalide !");
+                        return;
+                    }
                 }
 
                 Category selectedCategory = categoryComboBox.getValue();
@@ -249,15 +224,12 @@ public class AjouterEvent implements Initializable {
     private boolean validateInputs() {
         String title = titleField.getText().trim();
         String location = locationField.getText().trim();
-        String latText = latitudeField.getText() != null ? latitudeField.getText().trim() : "";
-        String lngText = longitudeField.getText() != null ? longitudeField.getText().trim() : "";
 
         if (title.isEmpty() || location.isEmpty() ||
                 startDatePicker.getValue() == null ||
                 endDatePicker.getValue() == null ||
-                categoryComboBox.getValue() == null ||
-                latText.isEmpty() || lngText.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Champs manquants", "Veuillez remplir tous les champs obligatoires, y compris la sélection d'un lieu sur la carte.");
+                categoryComboBox.getValue() == null) {
+            showAlert(Alert.AlertType.WARNING, "Champs manquants", "Veuillez remplir tous les champs obligatoires.");
             return false;
         }
 
@@ -273,19 +245,6 @@ public class AjouterEvent implements Initializable {
 
         if (location.length() < 3) {
             showAlert(Alert.AlertType.WARNING, "Emplacement invalide", "L'emplacement doit contenir au moins 3 caractères.");
-            return false;
-        }
-
-        // Validate latitude and longitude
-        try {
-            double latitude = Double.parseDouble(latText.replace(',', '.'));
-            double longitude = Double.parseDouble(lngText.replace(',', '.'));
-            if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-                showAlert(Alert.AlertType.WARNING, "Coordonnées invalides", "Les coordonnées doivent être dans des plages valides (latitude: -90 à 90, longitude: -180 à 180).");
-                return false;
-            }
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Coordonnées invalides", "Les coordonnées doivent être des nombres valides.");
             return false;
         }
 
@@ -307,6 +266,33 @@ public class AjouterEvent implements Initializable {
             showAlert(Alert.AlertType.WARNING, "Dates incohérentes", "La date de début ne peut pas être après la date de fin.");
             return false;
         }
+
+        if (!latitudeField.getText().isEmpty()) {
+            try {
+                double lat = Double.parseDouble(latitudeField.getText());
+                if (lat < -90 || lat > 90) {
+                    showAlert(Alert.AlertType.ERROR, "Latitude invalide", "La latitude doit être entre -90 et 90.");
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Latitude invalide", "Veuillez entrer un nombre valide pour la latitude.");
+                return false;
+            }
+        }
+
+        if (!longitudeField.getText().isEmpty()) {
+            try {
+                double lon = Double.parseDouble(longitudeField.getText());
+                if (lon < -180 || lon > 180) {
+                    showAlert(Alert.AlertType.ERROR, "Longitude invalide", "La longitude doit être entre -180 et 180.");
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Longitude invalide", "Veuillez entrer un nombre valide pour la longitude.");
+                return false;
+            }
+        }
+
         return true;
     }
 

@@ -88,7 +88,10 @@ public class AfficherEventBack extends SceneSwitch {
         switchScene(rootVBox, "/EventUtils/AjouterEvent.fxml");
     }
 
-
+    @FXML
+    private void onCalendarClick(ActionEvent event) throws IOException {
+        switchScene(rootVBox, "/EventUtils/Calendrier.fxml");
+    }
 
     @FXML
     private void onCategoryClick(ActionEvent event) throws IOException {

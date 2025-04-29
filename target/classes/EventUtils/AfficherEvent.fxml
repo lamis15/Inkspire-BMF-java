@@ -8,7 +8,7 @@
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
 
-<VBox fx:id="mainRouter" spacing="15" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<VBox fx:id="rootVBox" spacing="15" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="Controllers.Event.AfficherEvent" style="-fx-background-color: #f5f5f5;">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>

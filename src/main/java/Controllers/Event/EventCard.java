@@ -15,50 +15,63 @@ import java.io.IOException;
 
 public class EventCard {
     @FXML
-    private VBox root;
+    private VBox root; // Add a field to hold the root VBox
     @FXML
     private Label startingDateLabel;
     @FXML
-    private Label locationLabel;
+    private Label endingDateLabel;
+    @FXML
+    private Label latitudeLabel;
+    @FXML
+    private Label longitudeLabel;
+    @FXML
+    private Label categoryLabel;
     @FXML
     private ImageView eventImage;
     @FXML
     private Label titleLabel;
+    @FXML
+    private Label locationLabel;
     @FXML
     private Button voirDetailsButton;
 
     private Event event;
     private Pane container;
 
+
     public EventCard() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventUtils/EventCard.fxml"));
-        fxmlLoader.setController(this);
+        fxmlLoader.setController(this); // Set this instance as the controller
         try {
-            fxmlLoader.load();
+            fxmlLoader.load(); // Load the FXML, which will create the VBox
         } catch (IOException exception) {
             throw new RuntimeException("Failed to load EventCard.fxml: " + exception.getMessage(), exception);
         }
     }
 
     public VBox getRoot() {
-        return root;
+        return root; // Provide access to the root VBox
     }
 
     public void setContainer(Pane container) {
         this.container = container;
-        System.out.println("Container set for EventCard: " + container); // Debug
     }
 
     public void setEvent(Event event) {
         this.event = event;
         titleLabel.setText(event.getTitle());
-        startingDateLabel.setText("Start Date: " + event.getStartingDate().toString());
         locationLabel.setText("Lieu: " + event.getLocation());
+        startingDateLabel.setText("Start Date: " + event.getStartingDate().toString());
+        endingDateLabel.setText("End Date: " + event.getEndingDate().toString());
+        latitudeLabel.setText("Latitude: " + String.valueOf(event.getLatitude()));
+        longitudeLabel.setText("Longitude: " + String.valueOf(event.getLongitude()));
+        categoryLabel.setText("Category ID: " + String.valueOf(event.getCategoryId()));
 
+        // Load event image
         if (event.getImage() != null && !event.getImage().isEmpty()) {
             String imagePath = event.getImage().startsWith("file:") ? event.getImage() : "file:" + event.getImage();
-            System.out.println("Attempting to load image: " + imagePath);
-            Image image = new Image(imagePath, true);
+            System.out.println("Attempting to load image: " + imagePath); // Debug
+            Image image = new Image(imagePath, true); // Load asynchronously
             if (image.isError()) {
                 System.out.println("Image loading failed for " + event.getImage() + ": " + image.getException().getMessage());
                 eventImage.setImage(new Image("/images/default-event.jpg"));
@@ -73,19 +86,10 @@ public class EventCard {
 
     @FXML
     private void handleVoirDetails() {
-        System.out.println("handleVoirDetails called for event: " + (event != null ? event.getTitle() : "null"));
-        if (container == null) {
+        if (container != null) {
+            SceneSwitch.switchScene(container, "/EventUtils/EventDetails.fxml");
+        } else {
             System.err.println("Container is not set for scene switching");
-            return;
-        }
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/EventDetails.fxml"));
-            Pane detailsPane = loader.load();
-            EventDetails controller = loader.getController();
-            controller.setEvent(event);
-            container.getChildren().setAll(detailsPane); // Direct replacement
-        } catch (IOException e) {
-            System.err.println("Failed to load EventDetails.fxml: " + e.getMessage());
         }
     }
 }

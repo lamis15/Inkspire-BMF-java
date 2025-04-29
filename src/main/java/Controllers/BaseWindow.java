@@ -1,17 +1,20 @@
 package Controllers;
 
+import Controllers.Chat.GeminiChatLauncher;
 import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import utils.SceneSwitch;
 
 import javafx.scene.image.Image;
 import javafx.scene.control.Label;
 
 import java.io.File;
+import java.io.IOException;
 
 public class BaseWindow {
 
@@ -24,6 +27,9 @@ public class BaseWindow {
     
     @FXML
     private ImageView userIcon;
+    
+    @FXML
+    private ImageView messagesIcon;
 
     @FXML
     void goCollections(ActionEvent event) {
@@ -67,7 +73,43 @@ public class BaseWindow {
     
     @FXML
     void goMessages(MouseEvent event) {
-        SceneSwitch.switchScene(mainRouter, "/messages/Messages.fxml");
+        // Instead of directly switching to Messages.fxml, show the dropdown menu
+        try {
+            // Get the current stage from the event source
+            Stage stage = (Stage) ((ImageView) event.getSource()).getScene().getWindow();
+            
+            // Create a context menu at the position of the messages icon
+            javafx.scene.control.ContextMenu contextMenu = new javafx.scene.control.ContextMenu();
+            
+            // Create menu items
+            javafx.scene.control.MenuItem messagesItem = new javafx.scene.control.MenuItem("Chat (Messages)");
+            messagesItem.setOnAction(e -> {
+                SceneSwitch.switchScene(mainRouter, "/messages/Messages.fxml");
+            });
+            
+            javafx.scene.control.MenuItem chatbotItem = new javafx.scene.control.MenuItem("Art Assistant");
+            chatbotItem.setOnAction(e -> {
+                try {
+                    GeminiChatLauncher.openChatDialog(stage);
+                } catch (IOException ex) {
+                    System.err.println("Failed to open chatbot dialog: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            });
+            
+            // Add items to context menu
+            contextMenu.getItems().addAll(messagesItem, chatbotItem);
+            
+            // Show the context menu below the messages icon
+            contextMenu.show(messagesIcon, javafx.geometry.Side.BOTTOM, 0, 0);
+            
+        } catch (Exception e) {
+            System.err.println("Error showing chat options: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Fallback to original behavior if there's an error
+            SceneSwitch.switchScene(mainRouter, "/messages/Messages.fxml");
+        }
     }
 
     @FXML

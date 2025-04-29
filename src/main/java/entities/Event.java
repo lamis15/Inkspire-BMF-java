@@ -15,7 +15,6 @@ public class Event {
 
     public Event() {
     }
-
     public Event(Event event) {
         this.id = event.id;
         this.title = event.title;
@@ -27,6 +26,7 @@ public class Event {
         this.image = event.image;
         this.categoryId = event.categoryId;
     }
+
 
     public Event(String title, LocalDate starting_date, LocalDate ending_date, String location, double latitude, double longitude, String image) {
         this.title = title;
@@ -48,10 +48,9 @@ public class Event {
         this.longitude = longitude;
         this.image = image;
     }
-
-    // Getters and Setters
+    // Getters et Setters
     public int getId() {
-        return id != null ? id : 0;
+        return id;
     }
 
     public void setId(int id) {
@@ -65,6 +64,7 @@ public class Event {
     public void setTitle(String title) {
         this.title = title;
     }
+
 
     public LocalDate getStartingDate() {
         return starting_date;
@@ -89,6 +89,7 @@ public class Event {
     public void setLocation(String location) {
         this.location = location;
     }
+
 
     public int getCategoryId() {
         return categoryId;
@@ -122,14 +123,6 @@ public class Event {
         this.longitude = longitude;
     }
 
-    public String getStatus() {
-        if (ending_date == null) {
-            return "Unknown";
-        }
-        LocalDate today = LocalDate.now();
-        return ending_date.isBefore(today) ? "Inactive" : "Active";
-    }
-
     @Override
     public String toString() {
         return "Event{" +
@@ -142,7 +135,8 @@ public class Event {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", image='" + image + '\'' +
-                ", status='" + getStatus() + '\'' +
                 '}';
     }
+
+
 }
