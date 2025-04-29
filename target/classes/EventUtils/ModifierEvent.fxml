@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="Controllers.Event.ModifierEvent"
       spacing="15">
     <padding>
-        <Insets top="10" right="15" bottom="10" left="15"/>
+        <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
-
 
     <Label text="Modifier l'Événement" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
@@ -38,10 +38,15 @@
         <TextField fx:id="imageField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Button text="Annuler" onAction="#cancelEdit"
-            style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
-    <Button text="Enregistrer" onAction="#saveChanges"
-            style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+    <HBox spacing="10">
+        <Label text="Carte :" style="-fx-font-weight: bold;"/>
+        <WebView fx:id="mapView" prefHeight="400" prefWidth="600"/>
+    </HBox>
 
-
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Enregistrer" onAction="#saveChanges"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+        <Button text="Annuler" onAction="#cancelEdit"
+                style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+    </HBox>
 </VBox>
