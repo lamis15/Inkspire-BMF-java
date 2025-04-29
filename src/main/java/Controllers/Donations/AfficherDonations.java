@@ -6,13 +6,11 @@ import entities.Donation;
 import service.CollectionsService;
 import entities.Session;
 import entities.User;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -22,10 +20,9 @@ import service.DonationService;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -46,9 +43,25 @@ public class AfficherDonations implements Initializable {
     @FXML
     private ListView<Donation> donationsListView; // New ListView for donations
 
+    @FXML
+    private TextField searchField;
+    
+    @FXML
+    private ComboBox<String> sortComboBox;
+
     private final DonationService donationService = new DonationService();
     private List<Donation> donations;
     private boolean isAdmin = false;
+    
+    // Sort options
+    private static final String SORT_DATE_NEWEST = "Newest";
+    private static final String SORT_DATE_OLDEST = "Oldest";
+    private static final String SORT_AMOUNT_HIGHEST = "Amount ↑";
+    private static final String SORT_AMOUNT_LOWEST = "Amount ↓";
+    private static final String SORT_COLLECTION_ASC = "Collection A-Z";
+    private static final String SORT_COLLECTION_DESC = "Collection Z-A";
+    private static final String SORT_DONOR_ASC = "Donor A-Z";
+    private static final String SORT_DONOR_DESC = "Donor Z-A";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -70,60 +83,119 @@ public class AfficherDonations implements Initializable {
         } else {
             pageTitle.setText("My Donations");
         }
+        
+        // Initialize sort combo box
+        initializeSortComboBox();
+        
+        // Set up search field listener for real-time filtering
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterAndSortDonations();
+        });
+        
+        // Set up sort combo box listener
+        sortComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                filterAndSortDonations();
+            }
+        });
 
         // Load donations
         loadDonations();
 
-        // Populate ListView
-        if (donations != null) {
-            donationsListView.setItems(FXCollections.observableArrayList(donations));
-            donationsListView.setCellFactory(listView -> new ListCell<Donation>() {
-                private final Button modifyButton = new Button("Modify");
-                private final Button refundButton = new Button("Refund");
-                private final HBox buttonBox = new HBox(10, modifyButton, refundButton);
-                {
-                    modifyButton.getStyleClass().addAll("action-btn", "modify-btn");
-                    refundButton.getStyleClass().addAll("action-btn", "refund-btn");
-                }
-                @Override
-                protected void updateItem(Donation donation, boolean empty) {
-                    super.updateItem(donation, empty);
-                    if (empty || donation == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        // Create Labels for each column
-                        Label dateLabel = new Label(donation.getDate() != null ? donation.getDate().toString() : "-");
-                        Label collectionLabel = new Label(donation.getCollections() != null ? donation.getCollections().getTitle() : "Unknown Collection");
-                        Label amountLabel = new Label(String.format("%.2f TND", donation.getAmount()));
-                        // Make fields expand evenly and closely
-                        dateLabel.setMaxWidth(Double.MAX_VALUE);
-                        collectionLabel.setMaxWidth(Double.MAX_VALUE);
-                        amountLabel.setMaxWidth(Double.MAX_VALUE);
-                        HBox.setHgrow(dateLabel, javafx.scene.layout.Priority.ALWAYS);
-                        HBox.setHgrow(collectionLabel, javafx.scene.layout.Priority.ALWAYS);
-                        HBox.setHgrow(amountLabel, javafx.scene.layout.Priority.ALWAYS);
-                        buttonBox.setPrefWidth(120);
-                        // Layout for row
-                        HBox rowBox = new HBox(dateLabel, collectionLabel, amountLabel, buttonBox);
-                        rowBox.setSpacing(2);
-                        rowBox.getStyleClass().add("listview-row");
-                        setText(null);
-                        setGraphic(rowBox);
-                        // Action handlers
-                        modifyButton.setOnAction(e -> onModifyDonation(donation));
-                        refundButton.setOnAction(e -> onRefundDonation(donation));
-                    }
-                }
-            });
-        }
+        // Set up ListView cell factory
+        setupListViewCellFactory();
 
         // Update statistics
         updateStatistics();
     }
+    
+    /**
+     * Initialize the sort combo box with sorting options
+     */
+    private void initializeSortComboBox() {
+        ObservableList<String> sortOptions = FXCollections.observableArrayList(
+            SORT_DATE_NEWEST,
+            SORT_DATE_OLDEST,
+            SORT_AMOUNT_HIGHEST,
+            SORT_AMOUNT_LOWEST,
+            SORT_COLLECTION_ASC,
+            SORT_COLLECTION_DESC
+        );
+        
+        // Add donor sort options only for admin view
+        if (isAdmin) {
+            sortOptions.addAll(SORT_DONOR_ASC, SORT_DONOR_DESC);
+        }
+        
+        sortComboBox.setItems(sortOptions);
+        
+        // Default sort by newest first
+        sortComboBox.setValue(SORT_DATE_NEWEST);
+    }
+    
+    /**
+     * Filter and sort donations based on search text and sort option
+     */
+    private void filterAndSortDonations() {
+        if (donations == null) {
+            return;
+        }
+        
+        // Use service to filter and sort donations
+        List<Donation> processedDonations = donationService.filterAndSortDonations(
+            donations, 
+            searchField.getText(), 
+            sortComboBox.getValue()
+        );
+        
+        // Update the ListView
+        donationsListView.setItems(FXCollections.observableArrayList(processedDonations));
+        
+        // Update statistics based on filtered results
+        updateStatistics(processedDonations);
+    }
 
-
-
+    private void setupListViewCellFactory() {
+        donationsListView.setCellFactory(listView -> new ListCell<Donation>() {
+            private final Button modifyButton = new Button("Modify");
+            private final Button refundButton = new Button("Refund");
+            private final HBox buttonBox = new HBox(10, modifyButton, refundButton);
+            {
+                modifyButton.getStyleClass().addAll("action-btn", "modify-btn");
+                refundButton.getStyleClass().addAll("action-btn", "refund-btn");
+            }
+            @Override
+            protected void updateItem(Donation donation, boolean empty) {
+                super.updateItem(donation, empty);
+                if (empty || donation == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // Create Labels for each column
+                    Label dateLabel = new Label(donation.getDate() != null ? donation.getDate().toString() : "-");
+                    Label collectionLabel = new Label(donation.getCollections() != null ? donation.getCollections().getTitle() : "Unknown Collection");
+                    Label amountLabel = new Label(String.format("%.2f TND", donation.getAmount()));
+                    // Make fields expand evenly and closely
+                    dateLabel.setMaxWidth(Double.MAX_VALUE);
+                    collectionLabel.setMaxWidth(Double.MAX_VALUE);
+                    amountLabel.setMaxWidth(Double.MAX_VALUE);
+                    HBox.setHgrow(dateLabel, javafx.scene.layout.Priority.ALWAYS);
+                    HBox.setHgrow(collectionLabel, javafx.scene.layout.Priority.ALWAYS);
+                    HBox.setHgrow(amountLabel, javafx.scene.layout.Priority.ALWAYS);
+                    buttonBox.setPrefWidth(120);
+                    // Layout for row
+                    HBox rowBox = new HBox(dateLabel, collectionLabel, amountLabel, buttonBox);
+                    rowBox.setSpacing(2);
+                    rowBox.getStyleClass().add("listview-row");
+                    setText(null);
+                    setGraphic(rowBox);
+                    // Action handlers
+                    modifyButton.setOnAction(e -> onModifyDonation(donation));
+                    refundButton.setOnAction(e -> onRefundDonation(donation));
+                }
+            }
+        });
+    }
 
     private void loadDonations() {
         try {
@@ -138,9 +210,8 @@ public class AfficherDonations implements Initializable {
                 donations = donationService.getDonationsByUserId(currentUser.getId());
             }
 
-            // Set the data to the table
-            ObservableList<Donation> donationsList = FXCollections.observableArrayList(donations);
-
+            // Apply filtering and sorting
+            filterAndSortDonations();
 
         } catch (SQLException e) {
             System.out.println("Error loading donations: " + e.getMessage());
@@ -150,10 +221,13 @@ public class AfficherDonations implements Initializable {
         }
     }
 
-
-
-    private void updateStatistics() {
-        if (donations == null || donations.isEmpty()) {
+    /**
+     * Update statistics based on the provided list of donations
+     * 
+     * @param donationsList The list of donations to calculate statistics from
+     */
+    private void updateStatistics(List<Donation> donationsList) {
+        if (donationsList == null || donationsList.isEmpty()) {
             totalDonationsLabel.setText("0");
             totalAmountLabel.setText("0 TND");
             collectionsCountLabel.setText("0");
@@ -161,22 +235,37 @@ public class AfficherDonations implements Initializable {
         }
 
         // Count total donations
-        totalDonationsLabel.setText(String.valueOf(donations.size()));
+        totalDonationsLabel.setText(String.valueOf(donationsList.size()));
 
         // Calculate total amount
-        double totalAmount = donations.stream()
+        double totalAmount = donationsList.stream()
                 .mapToDouble(Donation::getAmount)
                 .sum();
         totalAmountLabel.setText(String.format("%.2f TND", totalAmount));
 
         // Count unique collections
         Set<Integer> uniqueCollections = new HashSet<>();
-        for (Donation donation : donations) {
+        for (Donation donation : donationsList) {
             if (donation.getCollections() != null) {
                 uniqueCollections.add(donation.getCollections().getId());
             }
         }
         collectionsCountLabel.setText(String.valueOf(uniqueCollections.size()));
+    }
+    
+    /**
+     * Update statistics based on all donations
+     */
+    private void updateStatistics() {
+        // Get the current items in the ListView
+        ObservableList<Donation> currentItems = donationsListView.getItems();
+        if (currentItems != null && !currentItems.isEmpty()) {
+            updateStatistics(new ArrayList<>(currentItems));
+        } else if (donations != null) {
+            updateStatistics(donations);
+        } else {
+            updateStatistics(new ArrayList<>());
+        }
     }
 
     private void navigateToCollectionDetails(Collections collection) {
@@ -246,8 +335,8 @@ public class AfficherDonations implements Initializable {
                 String.format("%.2f TND", donation.getAmount()) + " from " +
                 donation.getCollections().getTitle() + "?");
 
-        Optional<ButtonType> result = confirmAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        confirmAlert.showAndWait();
+        if (confirmAlert.getResult() == ButtonType.OK) {
             try {
                 // Process the refund
                 boolean refundSuccess = processDonationRefund(donation);

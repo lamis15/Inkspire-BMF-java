@@ -7,6 +7,7 @@ import entities.User;
 import enums.CollectionStatus;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -28,6 +29,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -45,11 +47,26 @@ public class AfficherAllDonations implements Initializable {
     private Label collectionsCountLabel;
     @FXML
     private ListView<Donation> donationsListView;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> sortComboBox;
+
     // No actions column in admin view
 
     private final DonationService donationService = new DonationService();
     private List<Donation> donations;
     private boolean isAdmin = false;
+
+    // Sort options
+    private static final String SORT_DATE_NEWEST = "Newest";
+    private static final String SORT_DATE_OLDEST = "Oldest";
+    private static final String SORT_AMOUNT_HIGHEST = "Amount ↑";
+    private static final String SORT_AMOUNT_LOWEST = "Amount ↓";
+    private static final String SORT_COLLECTION_ASC = "Collection A-Z";
+    private static final String SORT_COLLECTION_DESC = "Collection Z-A";
+    private static final String SORT_DONOR_ASC = "Donor A-Z";
+    private static final String SORT_DONOR_DESC = "Donor Z-A";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -60,9 +77,67 @@ public class AfficherAllDonations implements Initializable {
         // Set page title
         pageTitle.setText("All Donations");
 
+        // Initialize sort combo box
+        initializeSortComboBox();
+
+        // Set up search field listener for real-time filtering
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterAndSortDonations();
+        });
+
+        // Set up sort combo box listener
+        sortComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                filterAndSortDonations();
+            }
+        });
+
         setupListViewCellFactory();
         loadDonations();
         updateStatistics();
+    }
+
+    /**
+     * Initialize the sort combo box with sorting options
+     */
+    private void initializeSortComboBox() {
+        ObservableList<String> sortOptions = FXCollections.observableArrayList(
+            SORT_DATE_NEWEST,
+            SORT_DATE_OLDEST,
+            SORT_AMOUNT_HIGHEST,
+            SORT_AMOUNT_LOWEST,
+            SORT_COLLECTION_ASC,
+            SORT_COLLECTION_DESC,
+            SORT_DONOR_ASC,
+            SORT_DONOR_DESC
+        );
+
+        sortComboBox.setItems(sortOptions);
+
+        // Default sort by newest first
+        sortComboBox.setValue(SORT_DATE_NEWEST);
+    }
+
+    /**
+     * Filter and sort donations based on search text and sort option
+     */
+    private void filterAndSortDonations() {
+        if (donations == null) {
+            return;
+        }
+
+        // Use service to filter and sort donations
+        List<Donation> processedDonations = donationService.filterAndSortDonations(
+            donations,
+            searchField.getText(),
+            sortComboBox.getValue()
+        );
+
+        // Update the ListView
+        donationsListView.setItems(FXCollections.observableArrayList(processedDonations));
+
+        // Update statistics based on filtered results
+        updateStatistics(processedDonations);
     }
 
     private void setupListViewCellFactory() {
@@ -102,7 +177,9 @@ public class AfficherAllDonations implements Initializable {
         try {
             // Load all donations for admin
             donations = donationService.recuperer();
-            donationsListView.setItems(FXCollections.observableArrayList(donations));
+
+            // Apply filtering and sorting
+            filterAndSortDonations();
         } catch (SQLException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -112,23 +189,48 @@ public class AfficherAllDonations implements Initializable {
         }
     }
 
+    /**
+     * Update statistics based on the provided list of donations
+     *
+     * @param donationsList The list of donations to calculate statistics from
+     */
+    private void updateStatistics(List<Donation> donationsList) {
+        if (donationsList == null || donationsList.isEmpty()) {
+            totalDonationsLabel.setText("0");
+            totalAmountLabel.setText("0 TND");
+            collectionsCountLabel.setText("0");
+            return;
+        }
+
+        // Update total donations count
+        totalDonationsLabel.setText(String.valueOf(donationsList.size()));
+
+        // Calculate and update total donation amount
+        double totalAmount = donationsList.stream()
+                .mapToDouble(Donation::getAmount)
+                .sum();
+        DecimalFormat df = new DecimalFormat("0.00");
+        totalAmountLabel.setText(df.format(totalAmount) + " TND");
+
+        // Calculate and update unique collections count
+        Set<Integer> uniqueCollections = donationsList.stream()
+                .map(d -> d.getCollections().getId())
+                .collect(Collectors.toSet());
+        collectionsCountLabel.setText(String.valueOf(uniqueCollections.size()));
+    }
+
+    /**
+     * Update statistics based on all donations
+     */
     private void updateStatistics() {
-        if (donations != null) {
-            // Update total donations count
-            totalDonationsLabel.setText(String.valueOf(donations.size()));
-
-            // Calculate and update total donation amount
-            double totalAmount = donations.stream()
-                    .mapToDouble(Donation::getAmount)
-                    .sum();
-            DecimalFormat df = new DecimalFormat("0.00");
-            totalAmountLabel.setText(df.format(totalAmount) + " TND");
-
-            // Calculate and update unique collections count
-            Set<Integer> uniqueCollections = donations.stream()
-                    .map(d -> d.getCollections().getId())
-                    .collect(Collectors.toSet());
-            collectionsCountLabel.setText(String.valueOf(uniqueCollections.size()));
+        // Get the current items in the ListView
+        ObservableList<Donation> currentItems = donationsListView.getItems();
+        if (currentItems != null && !currentItems.isEmpty()) {
+            updateStatistics(new ArrayList<>(currentItems));
+        } else if (donations != null) {
+            updateStatistics(donations);
+        } else {
+            updateStatistics(new ArrayList<>());
         }
     }
 

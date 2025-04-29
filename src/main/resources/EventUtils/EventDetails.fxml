@@ -54,7 +54,7 @@
 
     <FlowPane fx:id="categoryContainer" hgap="10" vgap="10" prefWidth="320" style="-fx-padding: 5;"/>
 
-    <WebView fx:id="mapView" prefWidth="320" prefHeight="150" style="-fx-border-radius: 8; -fx-background-color: #f0f0f0;"/>
+    <WebView fx:id="mapView" prefWidth="600" prefHeight="600" style="-fx-border-radius: 8; -fx-background-color: #f0f0f0;"/>
 
     <HBox spacing="10" alignment="CENTER">
         <Button fx:id="backButton" text="Retour" onAction="#onBackClick"
