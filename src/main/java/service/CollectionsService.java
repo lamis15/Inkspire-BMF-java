@@ -2,11 +2,14 @@ package service;
 
 import entities.Collections;
 import entities.User;
+import enums.CollectionStatus;
 import utils.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CollectionsService implements IService<Collections> {
 
@@ -121,6 +124,7 @@ public class CollectionsService implements IService<Collections> {
         }
         return list;
     }
+
     /**
      * Retrieve a single collection by ID with complete user details
      */
@@ -213,5 +217,146 @@ public class CollectionsService implements IService<Collections> {
 
         return null;
     }
-}
 
+    /**
+     * Filter collections based on search text
+     * 
+     * @param collections The list of collections to filter
+     * @param searchText The text to search for
+     * @return Filtered list of collections
+     */
+    public List<Collections> filterCollections(List<Collections> collections, String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            // If search text is empty, return all collections
+            return new ArrayList<>(collections);
+        }
+        
+        // Convert search text to lowercase for case-insensitive search
+        String searchLower = searchText.toLowerCase();
+        
+        // Filter collections based on title, description, owner name, status, or goal
+        return collections.stream()
+                .filter(c -> 
+                    (c.getTitle() != null && c.getTitle().toLowerCase().contains(searchLower)) ||
+                    (c.getDescription() != null && c.getDescription().toLowerCase().contains(searchLower)) ||
+                    (c.getUser() != null && 
+                        ((c.getUser().getFirstName() != null && c.getUser().getFirstName().toLowerCase().contains(searchLower)) ||
+                         (c.getUser().getLastName() != null && c.getUser().getLastName().toLowerCase().contains(searchLower)))) ||
+                    (c.getStatusValue() != null && c.getStatusValue().toLowerCase().contains(searchLower)) ||
+                    (c.getGoal() != null && c.getGoal().toString().contains(searchLower))
+                )
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Sort collections based on the specified sort option
+     * 
+     * @param collections The list of collections to sort
+     * @param sortOption The sort option to apply
+     * @return Sorted list of collections
+     */
+    public List<Collections> sortCollections(List<Collections> collections, String sortOption) {
+        if (sortOption == null || collections.isEmpty()) {
+            // Nothing to sort
+            return collections;
+        }
+        
+        List<Collections> sortedList = new ArrayList<>(collections);
+        
+        // Apply the appropriate sort based on the selected option
+        switch (sortOption) {
+            case "A-Z":
+                sortedList.sort(Comparator.comparing((Collections c) -> c.getTitle() != null ? c.getTitle().toLowerCase() : ""));
+                break;
+                
+            case "Z-A":
+                sortedList.sort(Comparator.comparing((Collections c) -> c.getTitle() != null ? c.getTitle().toLowerCase() : "").reversed());
+                break;
+                
+            case "Newest":
+                sortedList.sort(Comparator.comparing(Collections::getCreationDate).reversed());
+                break;
+                
+            case "Oldest":
+                sortedList.sort(Comparator.comparing(Collections::getCreationDate));
+                break;
+                
+            case "Goal ↑":
+                sortedList.sort(Comparator.comparing((Collections c) -> c.getGoal() != null ? c.getGoal() : 0.0).reversed());
+                break;
+                
+            case "Goal ↓":
+                sortedList.sort(Comparator.comparing((Collections c) -> c.getGoal() != null ? c.getGoal() : Double.MAX_VALUE));
+                break;
+                
+            case "Amount ↑":
+                sortedList.sort(Comparator.comparing((Collections c) -> c.getCurrentAmount() != null ? c.getCurrentAmount() : 0.0).reversed());
+                break;
+                
+            case "Amount ↓":
+                sortedList.sort(Comparator.comparing((Collections c) -> c.getCurrentAmount() != null ? c.getCurrentAmount() : Double.MAX_VALUE));
+                break;
+                
+            case "Status":
+                // Sort by status priority: REACHED > IN_PROGRESS > NO_GOAL
+                sortedList.sort((Collections c1, Collections c2) -> {
+                    if (c1.getStatus() == null) return 1;
+                    if (c2.getStatus() == null) return -1;
+                    
+                    // Define status priority
+                    int priority1 = getStatusPriority(c1.getStatus());
+                    int priority2 = getStatusPriority(c2.getStatus());
+                    
+                    return Integer.compare(priority1, priority2);
+                });
+                break;
+                
+            default:
+                // Default sort by newest first
+                sortedList.sort(Comparator.comparing(Collections::getCreationDate).reversed());
+                break;
+        }
+        
+        return sortedList;
+    }
+    
+    /**
+     * Get the priority value for a collection status
+     * @param status The collection status
+     * @return The priority value (lower is higher priority)
+     */
+    private int getStatusPriority(CollectionStatus status) {
+        if (status == CollectionStatus.REACHED) return 1;
+        if (status == CollectionStatus.IN_PROGRESS) return 2;
+        return 3; // NO_GOAL
+    }
+    
+    /**
+     * Filter and sort collections in one operation
+     * 
+     * @param collections The list of collections to process
+     * @param searchText The text to search for
+     * @param sortOption The sort option to apply
+     * @return Filtered and sorted list of collections
+     */
+    public List<Collections> filterAndSortCollections(List<Collections> collections, String searchText, String sortOption) {
+        // First filter
+        List<Collections> filtered = filterCollections(collections, searchText);
+        
+        // Then sort
+        return sortCollections(filtered, sortOption);
+    }
+    
+    /**
+     * Get collections belonging to a specific user
+     * 
+     * @param collections The list of all collections
+     * @param userId The ID of the user
+     * @return List of collections belonging to the user
+     */
+    public List<Collections> getUserCollections(List<Collections> collections, int userId) {
+        return collections.stream()
+                .filter(c -> c.getUser() != null && c.getUser().getId() == userId)
+                .collect(Collectors.toList());
+    }
+}
