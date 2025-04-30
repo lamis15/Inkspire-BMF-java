@@ -15,7 +15,6 @@ public class CategoryService {
     }
 
     public List<Category> getCategoriesForEvent(int eventId) throws SQLException {
-        System.out.println("DEBUG: Querying categories for event " + eventId);
 
         String sql = "SELECT c.* FROM category c " +
                 "JOIN event_category ec ON c.id = ec.category_id " +
@@ -31,7 +30,6 @@ public class CategoryService {
                 cat.setId(rs.getInt("id"));
                 cat.setName(rs.getString("name"));
                 categories.add(cat);
-                System.out.println("DEBUG: Found category: " + cat.getName());
             }
             return categories;
         }

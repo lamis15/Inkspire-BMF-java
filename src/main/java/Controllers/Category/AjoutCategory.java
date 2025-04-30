@@ -45,7 +45,6 @@ public class AjoutCategory implements Initializable {
 
             try {
                 categoryService.ajouter(category);
-                showAlert(Alert.AlertType.INFORMATION, "Succès", "Catégorie ajoutée avec succès");
                 closeWindow();
             } catch (SQLException e) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout: " + e.getMessage());

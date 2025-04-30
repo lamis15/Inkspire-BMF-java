@@ -44,7 +44,6 @@ public class EventService implements IService<Event> {
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     int eventId = rs.getInt(1);
-                    logger.info("Événement inséré avec ID : " + eventId);
 
                     // Vérification de l'ID de la catégorie
                     int categoryId = event.getCategoryId();
@@ -62,7 +61,6 @@ public class EventService implements IService<Event> {
                             logger.severe("Échec de l'insertion dans event_category pour event_id : " + eventId + ", category_id : " + categoryId);
                             throw new SQLException("Échec de l'insertion dans event_category.");
                         }
-                        logger.info("Catégorie associée avec succès : event_id=" + eventId + ", category_id=" + categoryId);
                     }
                 } else {
                     logger.severe("Échec de la récupération de l'ID de l'événement.");
@@ -91,7 +89,6 @@ public class EventService implements IService<Event> {
             ps.setInt(9, event.getId());
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected == 0) {
-                logger.log(Level.WARNING, "No event found with id: " + event.getId());
                 return false;
             }
         }

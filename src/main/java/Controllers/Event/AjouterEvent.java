@@ -250,10 +250,8 @@ public class AjouterEvent implements Initializable {
                 newEvent.setCategoryId(categoryId);
 
                 // Journalisation pour vérifier l'événement avant insertion
-                logger.info("Événement à ajouter : " + newEvent.toString());
 
                 eventService.ajouter(newEvent);
-                showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
 
                 // Redirection vers la page précédente
                 onBackClick();

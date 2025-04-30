@@ -5,15 +5,23 @@ import entities.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import service.CategoryService;
 import service.EventService;
@@ -26,16 +34,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 public class EventDetails implements Initializable {
     private static final Logger logger = Logger.getLogger(EventDetails.class.getName());
-    private static final String WEATHER_API_KEY = "a143888125425e125048b56591663348"; // Replace with your OpenWeatherMap API key
-    private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/3.0/onecall";
+    private static final String WEATHER_API_KEY = "60114ea7d04f0e9bb984452f09d7ff7b"; // Replace with your valid OpenWeatherMap API key
+    private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
     @FXML private Label titleLabel;
     @FXML private Label startingDateLabel;
@@ -44,7 +50,7 @@ public class EventDetails implements Initializable {
     @FXML private Label statusLabel;
     @FXML private ImageView imageView;
     @FXML private Button backButton;
-    @FXML private Button weatherButton; // New button for weather
+    @FXML private Button weatherButton;
     @FXML private FlowPane categoryContainer;
     @FXML private WebView mapView;
 
@@ -62,7 +68,6 @@ public class EventDetails implements Initializable {
         categoryContainer.setPrefWrapLength(320);
         setupMap();
 
-        // Fetch the event based on selectedEventId
         Integer eventId = CalendarViewController.getSelectedEventId();
         if (eventId != null) {
             try {
@@ -77,8 +82,6 @@ public class EventDetails implements Initializable {
             } catch (Exception e) {
                 showErrorAlert("Unexpected Error", "An unexpected error occurred: " + e.getMessage());
             }
-        } else {
-           //howErrorAlert("Navigation Error", "No event selected.");
         }
     }
 
@@ -145,14 +148,12 @@ public class EventDetails implements Initializable {
     public void setEvent(Event event) {
         this.event = event;
 
-        // Populate UI components
         titleLabel.setText(event.getTitle() != null ? event.getTitle() : "Untitled");
         locationlabel.setText(event.getLocation() != null ? event.getLocation() : "Unknown");
         startingDateLabel.setText(event.getStartingDate() != null ? event.getStartingDate().toString() : "Unknown");
         endingDateLabel.setText(event.getEndingDate() != null ? event.getEndingDate().toString() : "Unknown");
         statusLabel.setText(event.getStatus() != null ? event.getStatus() : "Unknown");
 
-        // Load image
         if (imageView == null) {
             logger.severe("imageView is null in EventDetails");
             return;
@@ -199,7 +200,6 @@ public class EventDetails implements Initializable {
             }
         }
 
-        // Load category
         try {
             categoryContainer.getChildren().clear();
             List<Category> categories = categoryService.afficher();
@@ -220,7 +220,6 @@ public class EventDetails implements Initializable {
             categoryContainer.getChildren().add(errorLabel);
         }
 
-        // Initialize map
         if (webEngine != null) {
             double lat = event.getLatitude();
             double lng = event.getLongitude();
@@ -260,66 +259,145 @@ public class EventDetails implements Initializable {
 
         double lat = event.getLatitude();
         double lng = event.getLongitude();
-        LocalDate startingDate = event.getStartingDate();
 
         if (Double.isNaN(lat) || Double.isNaN(lng) || lat == 0.0 || lng == 0.0) {
             showErrorAlert("Invalid Location", "Event location coordinates are invalid.");
             return;
         }
 
-        if (startingDate == null) {
-            showErrorAlert("Invalid Date", "Event starting date is not specified.");
-            return;
-        }
-
         try {
-            // Build the API request
-            String url = String.format("%s?lat=%f&lon=%f&exclude=current,minutely,hourly,alerts&appid=%s&units=metric",
+            String url = String.format("%s?lat=%f&lon=%f&appid=%s&units=metric",
                     WEATHER_API_URL, lat, lng, WEATHER_API_KEY);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URL(url).toURI())
                     .GET()
                     .build();
 
-            // Send the request
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
+                logger.severe("Weather API request failed with status: " + response.statusCode() + ", body: " + response.body());
                 showErrorAlert("Weather API Error", "Failed to fetch weather data: HTTP " + response.statusCode());
                 return;
             }
 
-            // Parse the JSON response
             JsonNode root = objectMapper.readTree(response.body());
-            JsonNode daily = root.get("daily");
+            JsonNode weather = root.get("weather").get(0);
+            String description = weather.get("description").asText();
+            String iconCode = weather.get("icon").asText();
+            double temp = root.get("main").get("temp").asDouble();
+            int humidity = root.get("main").get("humidity").asInt();
 
-            // Find the weather for the starting_date
-            String targetDate = startingDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
-            for (JsonNode day : daily) {
-                long dt = day.get("dt").asLong();
-                LocalDate forecastDate = LocalDate.ofEpochDay(dt / 86400);
-                if (forecastDate.equals(startingDate)) {
-                    JsonNode weather = day.get("weather").get(0);
-                    String description = weather.get("description").asText();
-                    double tempDay = day.get("temp").get("day").asDouble();
-                    int humidity = day.get("humidity").asInt();
+            // Create a new stage for the weather page
+            Stage weatherStage = new Stage();
+            weatherStage.setTitle("Weather Forecast for " + event.getLocation());
 
-                    String weatherInfo = String.format(
-                            "Weather on %s:\n" +
-                                    "Description: %s\n" +
-                                    "Temperature: %.1f°C\n" +
-                                    "Humidity: %d%%",
-                            targetDate, description, tempDay, humidity);
+            // Create the weather display layout
+            VBox weatherLayout = new VBox(20);
+            weatherLayout.setStyle(
+                    "-fx-padding: 20;" +
+                            "-fx-alignment: center;"
+            );
 
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Weather Forecast");
-                    alert.setHeaderText("Weather for " + event.getLocation());
-                    alert.setContentText(weatherInfo);
-                    alert.showAndWait();
-                    return;
-                }
+            // Set background image based on weather description
+            String backgroundImagePath;
+            if (description.toLowerCase().contains("cloud")) {
+                backgroundImagePath = "/assets/images/event/cloudy.jpg"; // Cloudy background
+            } else if (description.toLowerCase().contains("clear")) {
+                backgroundImagePath = "/assets/images/event/sunny.jpg"; // Sunny background
+            } else if (description.toLowerCase().contains("rain")) {
+                backgroundImagePath = "/assets/images/event/rainy.jpg"; // Rainy background
+            } else {
+                backgroundImagePath = "/assets/images/event/default.jpg"; // Default background
             }
 
-            showErrorAlert("Weather Not Available", "No weather data available for " + targetDate);
+            // Load the background image
+            URL backgroundUrl = this.getClass().getResource(backgroundImagePath);
+            if (backgroundUrl == null) {
+                logger.warning("Background image not found: " + backgroundImagePath + ". Falling back to gradient.");
+                weatherLayout.setStyle(weatherLayout.getStyle() +
+                        "-fx-background-color: linear-gradient(to bottom, #87CEEB, #E0FFFF);");
+            } else {
+                Image backgroundImage = new Image(backgroundUrl.toExternalForm());
+                BackgroundImage background = new BackgroundImage(
+                        backgroundImage,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true)
+                );
+                weatherLayout.setBackground(new Background(background));
+            }
+
+            // Title
+            Label titleLabel = new Label("Weather in " + event.getLocation());
+            titleLabel.setStyle(
+                    "-fx-font-size: 24px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-text-fill: #2F4F4F;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.7);" +
+                            "-fx-padding: 10;" +
+                            "-fx-background-radius: 10;"
+            );
+
+            // Weather icon
+            String iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png";
+            ImageView weatherIcon = new ImageView(new Image(iconUrl));
+            weatherIcon.setFitHeight(80);
+            weatherIcon.setFitWidth(80);
+
+            // Weather description
+            Label descriptionLabel = new Label(description.toUpperCase());
+            descriptionLabel.setStyle(
+                    "-fx-font-size: 18px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-text-fill: #4682B4;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.8);" +
+                            "-fx-padding: 10;" +
+                            "-fx-background-radius: 10;"
+            );
+
+            // Temperature
+            Label tempLabel = new Label(String.format("Temperature: %.1f°C", temp));
+            tempLabel.setStyle(
+                    "-fx-font-size: 16px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-text-fill: #2F4F4F;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.7);" +
+                            "-fx-padding: 5;" +
+                            "-fx-background-radius: 5;"
+            );
+
+            // Humidity
+            Label humidityLabel = new Label(String.format("Humidity: %d%%", humidity));
+            humidityLabel.setStyle(
+                    "-fx-font-size: 16px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-text-fill: #2F4F4F;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.7);" +
+                            "-fx-padding: 5;" +
+                            "-fx-background-radius: 5;"
+            );
+
+            // Close button
+            Button closeButton = new Button("Close");
+            closeButton.setStyle(
+                    "-fx-background-color: #4682B4;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-font-size: 14px;" +
+                            "-fx-padding: 10 20;" +
+                            "-fx-background-radius: 5;"
+            );
+            closeButton.setOnAction(e -> weatherStage.close());
+
+            // Add all elements to the layout
+            weatherLayout.getChildren().addAll(titleLabel, weatherIcon, descriptionLabel, tempLabel, humidityLabel, closeButton);
+
+            // Create the scene and set it to the stage
+            Scene weatherScene = new Scene(weatherLayout, 400, 400); // Increased height to accommodate icon
+            weatherStage.setScene(weatherScene);
+            weatherStage.show();
         } catch (Exception e) {
             logger.severe("Error fetching weather: " + e.getMessage());
             showErrorAlert("Weather Error", "Failed to fetch weather data: " + e.getMessage());
@@ -328,7 +406,7 @@ public class EventDetails implements Initializable {
 
     @FXML
     private void onBackClick() {
-        Node node = backButton.getScene().getRoot().lookup("#mainRouter"); // Fixed typo
+        Node node = backButton.getScene().getRoot().lookup("#mainRouter");
         if (node instanceof Pane) {
             SceneSwitch.switchScene((Pane) node, "/EventUtils/AfficherEvent.fxml");
         } else {
