@@ -1,0 +1,136 @@
+/* Chat Container Styles */
+.chat-container {
+    -fx-background-color: white;
+    background-color: white;
+    -fx-background-radius: 25;
+    border-radius: 25px;
+}
+
+/* Chat List View Styles */
+.list-view {
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 5;
+    padding: 5px;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-padding: 5 0;
+    padding: 5px 0;
+}
+
+/* Message Input Styles */
+.text-area {
+    -fx-background-radius: 20;
+    border-radius: 20px;
+    -fx-border-radius: 20;
+    -fx-border-color: #dddddd;
+    border-color: #dddddd;
+    -fx-border-width: 1;
+    border-width: 1px;
+    -fx-padding: 8;
+    padding: 8px;
+}
+
+.text-area .content {
+    -fx-background-color: white;
+    background-color: white;
+    -fx-background-radius: 20;
+}
+
+.text-area:focused {
+    -fx-border-color: #4D81F7;
+    border-color: #4D81F7;
+}
+
+/* Send Button Styles */
+.send-button {
+    -fx-background-color: #4D81F7;
+    background-color: #4D81F7;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    -fx-background-color: #3a6ad8;
+    background-color: #3a6ad8;
+}
+
+.send-button:pressed {
+    -fx-background-color: #2a5ac8;
+    background-color: #2a5ac8;
+}
+
+/* User Message Styles */
+.user-message {
+    -fx-background-color: #4D81F7;
+    background-color: #4D81F7;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+    padding: 10px;
+}
+
+.user-message-text {
+    -fx-fill: white;
+    fill: white;
+    -fx-font-size: 14px;
+    font-size: 14px;
+}
+
+/* AI Message Styles */
+.ai-message {
+    -fx-background-color: #f0f0f0;
+    background-color: #f0f0f0;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+    padding: 10px;
+}
+
+.ai-message-text {
+    -fx-fill: #333333;
+    fill: #333333;
+    -fx-font-size: 14px;
+    font-size: 14px;
+}
+
+/* Time Label Styles */
+.time-label {
+    -fx-text-fill: #7a7a7a;
+    -fx-font-size: 10px;
+    font-size: 10px;
+}
+
+/* Header Styles */
+.chat-header {
+    -fx-background-color: #020741;
+    background-color: #020741;
+    -fx-background-radius: 25 25 0 0;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    font-size: 16px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+.status-label {
+    -fx-text-fill: #7efad5;
+    -fx-font-size: 12px;
+    font-size: 12px;
+}
+
+/* Typing Indicator Styles */
+.typing-indicator {
+    -fx-background-color: #f0f0f0;
+    background-color: #f0f0f0;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+    padding: 10px;
+    -fx-text-fill: #666;
+}
