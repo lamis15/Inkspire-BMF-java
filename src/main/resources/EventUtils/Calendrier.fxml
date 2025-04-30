@@ -3,5 +3,5 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="Controllers.Event.CalendarViewController">
-    <WebView fx:id="calendarWebView" prefHeight="600" prefWidth="800"/>
+    <WebView fx:id="calendarWebView" prefHeight="800" prefWidth="800"/>
 </VBox>

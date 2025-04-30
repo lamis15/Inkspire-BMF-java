@@ -5,6 +5,7 @@ import entities.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -17,15 +18,24 @@ import netscape.javascript.JSObject;
 import service.CategoryService;
 import service.EventService;
 import utils.SceneSwitch;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 public class EventDetails implements Initializable {
     private static final Logger logger = Logger.getLogger(EventDetails.class.getName());
+    private static final String WEATHER_API_KEY = "a143888125425e125048b56591663348"; // Replace with your OpenWeatherMap API key
+    private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/3.0/onecall";
 
     @FXML private Label titleLabel;
     @FXML private Label startingDateLabel;
@@ -34,6 +44,7 @@ public class EventDetails implements Initializable {
     @FXML private Label statusLabel;
     @FXML private ImageView imageView;
     @FXML private Button backButton;
+    @FXML private Button weatherButton; // New button for weather
     @FXML private FlowPane categoryContainer;
     @FXML private WebView mapView;
 
@@ -41,14 +52,34 @@ public class EventDetails implements Initializable {
     private final CategoryService categoryService = new CategoryService();
     private Event event;
     private WebEngine webEngine;
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         categoryContainer.setHgap(15);
         categoryContainer.setVgap(15);
         categoryContainer.setPrefWrapLength(320);
-        logger.info("imageView initialized: " + (imageView != null));
         setupMap();
+
+        // Fetch the event based on selectedEventId
+        Integer eventId = CalendarViewController.getSelectedEventId();
+        if (eventId != null) {
+            try {
+                Event selectedEvent = eventService.getEventById(eventId);
+                if (selectedEvent != null) {
+                    setEvent(selectedEvent);
+                } else {
+                    showErrorAlert("Event Not Found", "The selected event could not be found.");
+                }
+            } catch (SQLException e) {
+                showErrorAlert("Database Error", "Failed to load event details: " + e.getMessage());
+            } catch (Exception e) {
+                showErrorAlert("Unexpected Error", "An unexpected error occurred: " + e.getMessage());
+            }
+        } else {
+           //howErrorAlert("Navigation Error", "No event selected.");
+        }
     }
 
     private void setupMap() {
@@ -65,13 +96,11 @@ public class EventDetails implements Initializable {
             return;
         }
         String mapUrl = resourceUrl.toExternalForm();
-        logger.info("Loading map URL: " + mapUrl);
         webEngine.load(mapUrl);
 
         webEngine.getLoadWorker().stateProperty().addListener((obs, old, newVal) -> {
             if (newVal == javafx.concurrent.Worker.State.SUCCEEDED) {
                 try {
-                    // Inject JavaScript console log handler
                     String consoleLogScript = """
                             window.console.log = function(message) {
                                 if (window.javaObj && typeof window.javaObj.logConsole === 'function') {
@@ -89,7 +118,6 @@ public class EventDetails implements Initializable {
                     JSObject window = (JSObject) webEngine.executeScript("window");
                     window.setMember("javaObj", new JavaBridge());
 
-                    // Disable all map interactions
                     webEngine.executeScript(
                             "map.dragging.disable(); " +
                                     "map.touchZoom.disable(); " +
@@ -111,24 +139,18 @@ public class EventDetails implements Initializable {
 
     public class JavaBridge {
         public void logConsole(String message) {
-            logger.info("WebView Console: " + message);
         }
     }
 
     public void setEvent(Event event) {
         this.event = event;
 
-        // Set basic event details (read-only)
+        // Populate UI components
         titleLabel.setText(event.getTitle() != null ? event.getTitle() : "Untitled");
         locationlabel.setText(event.getLocation() != null ? event.getLocation() : "Unknown");
         startingDateLabel.setText(event.getStartingDate() != null ? event.getStartingDate().toString() : "Unknown");
         endingDateLabel.setText(event.getEndingDate() != null ? event.getEndingDate().toString() : "Unknown");
-        statusLabel.setText(event.getStatus());
-
-        // Log event details for debugging
-        logger.info("Event details: id=" + event.getId() + ", title=" + event.getTitle() +
-                ", location=" + event.getLocation() + ", lat=" + event.getLatitude() +
-                ", lng=" + event.getLongitude());
+        statusLabel.setText(event.getStatus() != null ? event.getStatus() : "Unknown");
 
         // Load image
         if (imageView == null) {
@@ -138,42 +160,46 @@ public class EventDetails implements Initializable {
         String defaultImagePath = "/images/default-event.jpg";
         try {
             String imagePath = event.getImage();
-            logger.info("Raw image path from event: " + imagePath);
+
+            Image image;
             if (imagePath != null && !imagePath.isEmpty()) {
-                // Handle paths from AjouterEvent
                 if (!imagePath.startsWith("file:") && !imagePath.startsWith("http")) {
                     String resourcePath = "/images/events/" + imagePath;
-                    URL imageUrl = getClass().getResource(resourcePath);
+                    URL imageUrl = this.getClass().getResource(resourcePath);
                     if (imageUrl != null) {
                         imagePath = imageUrl.toExternalForm();
                     } else {
                         imagePath = "file:" + System.getProperty("user.dir") + "/src/main/resources/images/events/" + imagePath;
                     }
                 }
-                logger.info("Processed image path: " + imagePath);
-                Image image = new Image(imagePath, true);
-                if (image.isError()) {
-                    logger.severe("Failed to load image: " + imagePath + ", error: " + image.getException().getMessage());
-                    imageView.setImage(new Image(getClass().getResource(defaultImagePath) != null
-                            ? getClass().getResource(defaultImagePath).toExternalForm()
-                            : "file:src/main/resources/images/default-event.jpg"));
-                } else {
-                    imageView.setImage(image);
-                }
+                image = new Image(imagePath, true);
             } else {
                 logger.info("No image provided for event: " + event.getTitle());
-                imageView.setImage(new Image(getClass().getResource(defaultImagePath) != null
-                        ? getClass().getResource(defaultImagePath).toExternalForm()
-                        : "file:src/main/resources/images/default-event.jpg"));
+                image = null;
+            }
+
+            if (image != null && !image.isError()) {
+                imageView.setImage(image);
+            } else {
+                URL defaultImageUrl = this.getClass().getResource(defaultImagePath);
+                if (defaultImageUrl != null) {
+                    imageView.setImage(new Image(defaultImageUrl.toExternalForm()));
+                } else {
+                    logger.severe("Default image not found: " + defaultImagePath);
+                    imageView.setImage(new Image("file:src/main/resources/images/default-event.jpg"));
+                }
             }
         } catch (Exception e) {
             logger.severe("Error loading image: " + e.getMessage());
-            imageView.setImage(new Image(getClass().getResource(defaultImagePath) != null
-                    ? getClass().getResource(defaultImagePath).toExternalForm()
-                    : "file:src/main/resources/images/default-event.jpg"));
+            URL defaultImageUrl = this.getClass().getResource(defaultImagePath);
+            if (defaultImageUrl != null) {
+                imageView.setImage(new Image(defaultImageUrl.toExternalForm()));
+            } else {
+                imageView.setImage(new Image("file:src/main/resources/images/default-event.jpg"));
+            }
         }
 
-        // Populate categories (read-only)
+        // Load category
         try {
             categoryContainer.getChildren().clear();
             List<Category> categories = categoryService.afficher();
@@ -185,6 +211,7 @@ public class EventDetails implements Initializable {
                         Label categoryLabel = new Label(cat.getName());
                         categoryLabel.setStyle("-fx-font-size: 12px; -fx-font-family: 'Segoe UI'; -fx-text-fill: #5B87FF; -fx-background-color: #e8f0fe; -fx-padding: 5; -fx-background-radius: 5;");
                         categoryContainer.getChildren().add(categoryLabel);
+                        logger.info("Category added: " + cat.getName());
                     });
         } catch (SQLException e) {
             logger.severe("Error loading categories: " + e.getMessage());
@@ -193,7 +220,7 @@ public class EventDetails implements Initializable {
             categoryContainer.getChildren().add(errorLabel);
         }
 
-        // Initialize map with event coordinates (read-only)
+        // Initialize map
         if (webEngine != null) {
             double lat = event.getLatitude();
             double lng = event.getLongitude();
@@ -201,38 +228,120 @@ public class EventDetails implements Initializable {
                 String escapedLocation = event.getLocation() != null ?
                         event.getLocation().replace("'", "\\'") : "Lieu inconnu";
                 String script = String.format(java.util.Locale.US, "setMarker(%f, %f, '%s');", lat, lng, escapedLocation);
-                logger.info("Executing setMarker script in EventDetails: " + script);
 
                 new Thread(() -> {
                     try {
-                        Thread.sleep(1500); // Delay to ensure map is fully loaded
+                        Thread.sleep(1500);
                         javafx.application.Platform.runLater(() -> {
                             try {
                                 webEngine.executeScript(script);
-                                logger.info("setMarker script executed successfully in EventDetails");
                             } catch (Exception e) {
-                                logger.severe("Error setting map marker in EventDetails: " + e.getMessage());
+                                logger.severe("Error setting map marker: " + e.getMessage());
                             }
                         });
                     } catch (InterruptedException e) {
-                        logger.severe("setMarker thread interrupted in EventDetails: " + e.getMessage());
+                        logger.severe("setMarker thread interrupted: " + e.getMessage());
                     }
                 }).start();
             } else {
-                logger.warning("Invalid or missing coordinates in EventDetails: lat=" + lat + ", lng=" + lng);
+                logger.warning("Invalid or missing coordinates: lat=" + lat + ", lng=" + lng);
             }
         } else {
-            logger.severe("WebEngine not initialized for map in EventDetails");
+            logger.severe("WebEngine not initialized for map");
+        }
+    }
+
+    @FXML
+    private void onWeatherClick() {
+        if (event == null) {
+            showErrorAlert("No Event", "No event data available to fetch weather.");
+            return;
+        }
+
+        double lat = event.getLatitude();
+        double lng = event.getLongitude();
+        LocalDate startingDate = event.getStartingDate();
+
+        if (Double.isNaN(lat) || Double.isNaN(lng) || lat == 0.0 || lng == 0.0) {
+            showErrorAlert("Invalid Location", "Event location coordinates are invalid.");
+            return;
+        }
+
+        if (startingDate == null) {
+            showErrorAlert("Invalid Date", "Event starting date is not specified.");
+            return;
+        }
+
+        try {
+            // Build the API request
+            String url = String.format("%s?lat=%f&lon=%f&exclude=current,minutely,hourly,alerts&appid=%s&units=metric",
+                    WEATHER_API_URL, lat, lng, WEATHER_API_KEY);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URL(url).toURI())
+                    .GET()
+                    .build();
+
+            // Send the request
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                showErrorAlert("Weather API Error", "Failed to fetch weather data: HTTP " + response.statusCode());
+                return;
+            }
+
+            // Parse the JSON response
+            JsonNode root = objectMapper.readTree(response.body());
+            JsonNode daily = root.get("daily");
+
+            // Find the weather for the starting_date
+            String targetDate = startingDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            for (JsonNode day : daily) {
+                long dt = day.get("dt").asLong();
+                LocalDate forecastDate = LocalDate.ofEpochDay(dt / 86400);
+                if (forecastDate.equals(startingDate)) {
+                    JsonNode weather = day.get("weather").get(0);
+                    String description = weather.get("description").asText();
+                    double tempDay = day.get("temp").get("day").asDouble();
+                    int humidity = day.get("humidity").asInt();
+
+                    String weatherInfo = String.format(
+                            "Weather on %s:\n" +
+                                    "Description: %s\n" +
+                                    "Temperature: %.1f°C\n" +
+                                    "Humidity: %d%%",
+                            targetDate, description, tempDay, humidity);
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Weather Forecast");
+                    alert.setHeaderText("Weather for " + event.getLocation());
+                    alert.setContentText(weatherInfo);
+                    alert.showAndWait();
+                    return;
+                }
+            }
+
+            showErrorAlert("Weather Not Available", "No weather data available for " + targetDate);
+        } catch (Exception e) {
+            logger.severe("Error fetching weather: " + e.getMessage());
+            showErrorAlert("Weather Error", "Failed to fetch weather data: " + e.getMessage());
         }
     }
 
     @FXML
     private void onBackClick() {
-        Node node = backButton.getScene().getRoot().lookup("#mainRouter");
+        Node node = backButton.getScene().getRoot().lookup("#mainRouter"); // Fixed typo
         if (node instanceof Pane) {
             SceneSwitch.switchScene((Pane) node, "/EventUtils/AfficherEvent.fxml");
         } else {
             logger.severe("Could not find mainRouter for navigation");
+            showErrorAlert("Navigation Error", "Could not find mainRouter for navigation.");
         }
+    }
+
+    private void showErrorAlert(String header, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

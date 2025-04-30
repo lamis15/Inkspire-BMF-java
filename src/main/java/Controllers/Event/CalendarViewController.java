@@ -10,11 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import netscape.javascript.JSObject;
+import service.EventService;
+import utils.SceneSwitch;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 
 public class CalendarViewController {
 
@@ -22,29 +26,34 @@ public class CalendarViewController {
     private WebView calendarWebView;
 
     private List<Event> eventList;
+    private final EventService eventService = new EventService();
+    private static Integer selectedEventId; // Static field to store eventId
+
+    // Getter for selectedEventId
+    public static Integer getSelectedEventId() {
+        return selectedEventId;
+    }
+
+    // Setter for selectedEventId
+    public static void setSelectedEventId(Integer eventId) {
+        selectedEventId = eventId;
+    }
 
     public void setEventList(List<Event> eventList) {
         this.eventList = eventList;
-        System.out.println("Event list set with " + (eventList != null ? eventList.size() : 0) + " events");
         initializeCalendar();
     }
 
     private void initializeCalendar() {
         try {
-            // Test WebView with simple HTML (uncomment to test, then comment out)
-            // calendarWebView.getEngine().loadContent("<html><body><h1>Test WebView</h1><p>If you see this, the WebView is working.</p></body></html>");
-
-            // Validate eventList
             if (eventList == null || eventList.isEmpty()) {
                 throw new IllegalStateException("Event list is null or empty");
             }
 
-            // Create ObjectMapper and register JavaTimeModule
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
             mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-            // Transform eventList to FullCalendar-compatible JSON
             List<Map<String, Object>> fullCalendarEvents = eventList.stream().map(event -> {
                 if (event.getStartingDate() == null) {
                     throw new IllegalArgumentException("Event '" + event.getTitle() + "' has null starting_date");
@@ -63,31 +72,23 @@ public class CalendarViewController {
                 return map;
             }).collect(Collectors.toList());
 
-            // Convert to JSON
             String eventsJson = mapper.writeValueAsString(fullCalendarEvents);
-            System.out.println("Events JSON: " + eventsJson);
 
-            // Load the HTML content with FullCalendar
             String htmlContent = generateHtmlContent(eventsJson);
 
-            // Log WebView errors
             WebEngine engine = calendarWebView.getEngine();
             engine.setOnError(event -> {
                 System.err.println("WebView JavaScript Error: " + event.getMessage());
                 showErrorAlert("WebView Error", "JavaScript error in calendar: " + event.getMessage());
             });
 
-            // Debug resource loading and JavaScript execution
             engine.setOnStatusChanged(event -> {
-                System.out.println("WebView status changed: " + event.getData());
                 if (event.getData().equals("DOMContentLoaded")) {
                     JSObject window = (JSObject) engine.executeScript("window");
                     window.setMember("javaBridge", new JavaBridge());
-                    System.out.println("JavaScript bridge initialized");
                 }
             });
 
-            // Add JavaScript console logging
             engine.setOnAlert(event -> System.out.println("JavaScript Alert: " + event.getData()));
             engine.setJavaScriptEnabled(true);
             engine.executeScript("""
@@ -97,11 +98,8 @@ public class CalendarViewController {
                 };
             """);
 
-            // Debug: Log when HTML content is loaded
-            System.out.println("Loading HTML content into WebView");
             engine.loadContent(htmlContent);
 
-            // Ensure WebView is visible
             calendarWebView.setStyle("-fx-background-color: white;");
 
         } catch (Exception e) {
@@ -114,15 +112,28 @@ public class CalendarViewController {
         public void showEventDetails(int eventId, String title, String start, String endingDate, String location,
                                      double latitude, double longitude, String image, int categoryId) {
             Platform.runLater(() -> {
-                String details = String.format(
-                        "ID: %d\nTitle: %s\nStart Date: %s\nEnd Date: %s\nLocation: %s\nLatitude: %.6f\nLongitude: %.6f\nImage: %s\nCategory ID: %d",
-                        eventId, title, start, endingDate, location, latitude, longitude, image, categoryId
-                );
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Event Details");
-                alert.setHeaderText("Event: " + title);
-                alert.setContentText(details);
-                alert.showAndWait();
+                try {
+                    // Validate eventId
+                    Event selectedEvent = eventService.getEventById(eventId);
+                    if (selectedEvent == null) {
+                        showErrorAlert("Event Not Found", "The selected event could not be found.");
+                        return;
+                    }
+
+                    // Store eventId in static field
+                    setSelectedEventId(eventId);
+
+                    // Navigate to EventDetails page
+                    Node node = calendarWebView.getScene().getRoot().lookup("#mainRouter");
+                    if (node instanceof Pane) {
+                        SceneSwitch.switchScene((Pane) node, "/EventUtils/EventDetails.fxml");
+                    } else {
+                        showErrorAlert("Navigation Error", "Could not find mainRouter for navigation.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    showErrorAlert("Navigation Error", "Failed to open event details: " + e.getMessage());
+                }
             });
         }
     }

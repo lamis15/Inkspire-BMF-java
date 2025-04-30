@@ -12,12 +12,13 @@
 <?import java.lang.String?>
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="Controllers.Event.EventDetails"
-      prefWidth="360" maxWidth="380" prefHeight="600"
-      spacing="12" alignment="TOP_CENTER"
+      prefWidth="1400" maxWidth="1400" prefHeight="1400"
+      spacing="12" alignment="CENTER"
       style="-fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa); -fx-background-radius: 12; -fx-border-color: #e0e0e0; -fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0.3, 0, 4);">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
+    <Button fx:id="weatherButton" text="Check Weather" onAction="#onWeatherClick"/>
 
     <ImageView fx:id="imageView" fitHeight="180" fitWidth="320" preserveRatio="true"
                style="-fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"/>
