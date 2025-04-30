@@ -321,7 +321,7 @@ public class AjouterEvent implements Initializable {
     @FXML
     void onBackClick(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEventBack.fxml"));
             if (loader.getLocation() == null) {
                 throw new IOException("Cannot find AfficherEvent.fxml");
             }

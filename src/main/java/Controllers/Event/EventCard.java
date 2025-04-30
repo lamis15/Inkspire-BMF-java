@@ -46,7 +46,6 @@ public class EventCard {
 
     public void setContainer(Pane container) {
         this.container = container;
-        System.out.println("Container set for EventCard: " + container); // Debug
     }
 
     public void setEvent(Event event) {
@@ -57,7 +56,6 @@ public class EventCard {
 
         if (event.getImage() != null && !event.getImage().isEmpty()) {
             String imagePath = event.getImage().startsWith("file:") ? event.getImage() : "file:" + event.getImage();
-            System.out.println("Attempting to load image: " + imagePath);
             Image image = new Image(imagePath, true);
             if (image.isError()) {
                 System.out.println("Image loading failed for " + event.getImage() + ": " + image.getException().getMessage());
@@ -73,7 +71,6 @@ public class EventCard {
 
     @FXML
     private void handleVoirDetails() {
-        System.out.println("handleVoirDetails called for event: " + (event != null ? event.getTitle() : "null"));
         if (container == null) {
             System.err.println("Container is not set for scene switching");
             return;

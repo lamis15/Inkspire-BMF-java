@@ -9,6 +9,9 @@ import os
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 
+#python -m pip install -r requirements.txt
+#python main.py
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,

@@ -38,10 +38,8 @@ public class AfficherEvent {
 
     @FXML
     public void initialize() {
-        System.out.println("AfficherEvent initialize, mainRouter: " + mainRouter); // Debug
         try {
             eventList = service.recuperer();
-            System.out.println("Retrieved " + (eventList != null ? eventList.size() : 0) + " events");
             showEvents(eventList);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -50,7 +48,6 @@ public class AfficherEvent {
 
     private void showEvents(List<Event> list) {
         cardsContainer.getChildren().clear();
-        System.out.println("showEvents, mainRouter: " + mainRouter); // Debug
         for (Event event : list) {
             EventCard card = new EventCard();
             card.setEvent(event);
