@@ -10,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import service.CategoryService;
 import service.EventService;
+import utils.SceneSwitch;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 public class AjouterEvent implements Initializable {
     @FXML private VBox rootVBox;
@@ -43,6 +46,8 @@ public class AjouterEvent implements Initializable {
     private final EventService eventService = new EventService();
     private final CategoryService categoryService = new CategoryService();
     private WebEngine webEngine;
+    private String previousPageFXML = "/EventUtils/AfficherEventBack.fxml"; // Valeur par défaut
+    private static final Logger logger = Logger.getLogger(AjouterEvent.class.getName());
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -54,6 +59,11 @@ public class AjouterEvent implements Initializable {
         latitudeField.setEditable(false);
         longitudeField.setEditable(false);
         locationField.setEditable(false);
+    }
+
+    // Méthode pour définir la page précédente
+    public void setPreviousPageFXML(String previousPageFXML) {
+        this.previousPageFXML = previousPageFXML;
     }
 
     private void setupMap() {
@@ -155,8 +165,12 @@ public class AjouterEvent implements Initializable {
                     setText(empty || category == null ? null : category.getName());
                 }
             });
+
+            // Ajout de journal pour vérifier les catégories chargées
+            logger.info("Catégories chargées : " + categoryComboBox.getItems());
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger les catégories : " + e.getMessage());
+            logger.severe("Erreur lors du chargement des catégories : " + e.getMessage());
         }
     }
 
@@ -214,6 +228,9 @@ public class AjouterEvent implements Initializable {
                     return;
                 }
 
+                // Journalisation pour vérifier la catégorie sélectionnée
+                logger.info("Catégorie sélectionnée : " + selectedCategory.getName() + ", ID : " + selectedCategory.getId());
+
                 Event newEvent = new Event(
                         titleField.getText(),
                         startDatePicker.getValue(),
@@ -223,28 +240,57 @@ public class AjouterEvent implements Initializable {
                         longitude,
                         selectedImageFile != null ? "file:" + selectedImageFile.getAbsolutePath().replace("\\", "/") : "file:/default.png"
                 );
-                newEvent.setCategoryId(selectedCategory.getId());
+
+                // Vérification de l'ID de la catégorie
+                int categoryId = selectedCategory.getId();
+                if (categoryId <= 0) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "L'ID de la catégorie est invalide : " + categoryId);
+                    return;
+                }
+                newEvent.setCategoryId(categoryId);
+
+                // Journalisation pour vérifier l'événement avant insertion
+                logger.info("Événement à ajouter : " + newEvent.toString());
 
                 eventService.ajouter(newEvent);
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
 
-                // Redirect to AfficherEvent
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEventBack.fxml"));
-                if (loader.getLocation() == null) {
-                    throw new IOException("Cannot find AfficherEventBack.fxml");
-                }
-                Parent newPane = loader.load();
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                Scene newScene = new Scene(newPane);
-                stage.setScene(newScene);
-                stage.setTitle("Event List");
-                stage.show();
+                // Redirection vers la page précédente
+                onBackClick();
 
-            } catch (SQLException | IOException e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout ou redirection : " + e.getMessage());
+            } catch (SQLException e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout de l'événement : " + e.getMessage());
+                logger.severe("Erreur SQL lors de l'ajout de l'événement : " + e.getMessage());
             }
         }
     }
+    @FXML
+    private void onBackClick() {
+        Node node = backButton.getScene().getRoot().lookup("#mainRouter"); // Fixed typo
+        if (node instanceof Pane) {
+            SceneSwitch.switchScene((Pane) node, "/EventUtils/AfficherEventBack.fxml");
+        } else {
+            logger.severe("Could not find mainRouter for navigation");
+        }
+    }
+  /*  // Méthode de redirection réutilisable
+    private void redirectToEventList(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(previousPageFXML));
+            if (loader.getLocation() == null) {
+                throw new IOException("Cannot find " + previousPageFXML);
+            }
+            Parent newPane = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene newScene = new Scene(newPane);
+            stage.setScene(newScene);
+            stage.setTitle("Event List");
+            stage.show();
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la redirection : " + e.getMessage());
+            logger.severe("Erreur lors de la redirection : " + e.getMessage());
+        }
+    }*/
 
     private boolean validateInputs() {
         String title = titleField.getText().trim();
@@ -318,24 +364,11 @@ public class AjouterEvent implements Initializable {
         alert.showAndWait();
     }
 
-    @FXML
+   /* @FXML
     void onBackClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/AfficherEventBack.fxml"));
-            if (loader.getLocation() == null) {
-                throw new IOException("Cannot find AfficherEvent.fxml");
-            }
-            Parent newPane = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene newScene = new Scene(newPane);
-            stage.setScene(newScene);
-            stage.setTitle("Event List");
-            stage.show();
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la redirection : " + e.getMessage());
-        }
+        redirectToEventList(event); // Réutiliser la méthode de redirection
     }
-
+*/
     @FXML
     void ajouter(ActionEvent actionEvent) {
         ajouterEvent(actionEvent);
@@ -343,6 +376,6 @@ public class AjouterEvent implements Initializable {
 
     @FXML
     void annuler(ActionEvent actionEvent) {
-        onBackClick(actionEvent);
+        onBackClick();
     }
 }
