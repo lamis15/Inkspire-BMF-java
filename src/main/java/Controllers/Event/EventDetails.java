@@ -5,15 +5,23 @@ import entities.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import service.CategoryService;
 import service.EventService;
@@ -26,7 +34,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
@@ -34,7 +41,7 @@ import java.util.logging.Logger;
 public class EventDetails implements Initializable {
     private static final Logger logger = Logger.getLogger(EventDetails.class.getName());
     private static final String WEATHER_API_KEY = "60114ea7d04f0e9bb984452f09d7ff7b"; // Replace with your valid OpenWeatherMap API key
-    private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather"; // Updated to 2.5/weather endpoint
+    private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
     @FXML private Label titleLabel;
     @FXML private Label startingDateLabel;
@@ -276,21 +283,121 @@ public class EventDetails implements Initializable {
             JsonNode root = objectMapper.readTree(response.body());
             JsonNode weather = root.get("weather").get(0);
             String description = weather.get("description").asText();
+            String iconCode = weather.get("icon").asText();
             double temp = root.get("main").get("temp").asDouble();
             int humidity = root.get("main").get("humidity").asInt();
 
-            String weatherInfo = String.format(
-                    "Current Weather:\n" +
-                            "Description: %s\n" +
-                            "Temperature: %.1f°C\n" +
-                            "Humidity: %d%%",
-                    description, temp, humidity);
+            // Create a new stage for the weather page
+            Stage weatherStage = new Stage();
+            weatherStage.setTitle("Weather Forecast for " + event.getLocation());
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Weather Forecast");
-            alert.setHeaderText("Weather for " + event.getLocation());
-            alert.setContentText(weatherInfo);
-            alert.showAndWait();
+            // Create the weather display layout
+            VBox weatherLayout = new VBox(20);
+            weatherLayout.setStyle(
+                    "-fx-padding: 20;" +
+                            "-fx-alignment: center;"
+            );
+
+            // Set background image based on weather description
+            String backgroundImagePath;
+            if (description.toLowerCase().contains("cloud")) {
+                backgroundImagePath = "/assets/images/event/cloudy.jpg"; // Cloudy background
+            } else if (description.toLowerCase().contains("clear")) {
+                backgroundImagePath = "/assets/images/event/sunny.jpg"; // Sunny background
+            } else if (description.toLowerCase().contains("rain")) {
+                backgroundImagePath = "/assets/images/event/rainy.jpg"; // Rainy background
+            } else {
+                backgroundImagePath = "/assets/images/event/default.jpg"; // Default background
+            }
+
+            // Load the background image
+            URL backgroundUrl = this.getClass().getResource(backgroundImagePath);
+            if (backgroundUrl == null) {
+                logger.warning("Background image not found: " + backgroundImagePath + ". Falling back to gradient.");
+                weatherLayout.setStyle(weatherLayout.getStyle() +
+                        "-fx-background-color: linear-gradient(to bottom, #87CEEB, #E0FFFF);");
+            } else {
+                Image backgroundImage = new Image(backgroundUrl.toExternalForm());
+                BackgroundImage background = new BackgroundImage(
+                        backgroundImage,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true)
+                );
+                weatherLayout.setBackground(new Background(background));
+            }
+
+            // Title
+            Label titleLabel = new Label("Weather in " + event.getLocation());
+            titleLabel.setStyle(
+                    "-fx-font-size: 24px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-text-fill: #2F4F4F;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.7);" +
+                            "-fx-padding: 10;" +
+                            "-fx-background-radius: 10;"
+            );
+
+            // Weather icon
+            String iconUrl = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png";
+            ImageView weatherIcon = new ImageView(new Image(iconUrl));
+            weatherIcon.setFitHeight(80);
+            weatherIcon.setFitWidth(80);
+
+            // Weather description
+            Label descriptionLabel = new Label(description.toUpperCase());
+            descriptionLabel.setStyle(
+                    "-fx-font-size: 18px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-text-fill: #4682B4;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.8);" +
+                            "-fx-padding: 10;" +
+                            "-fx-background-radius: 10;"
+            );
+
+            // Temperature
+            Label tempLabel = new Label(String.format("Temperature: %.1f°C", temp));
+            tempLabel.setStyle(
+                    "-fx-font-size: 16px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-text-fill: #2F4F4F;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.7);" +
+                            "-fx-padding: 5;" +
+                            "-fx-background-radius: 5;"
+            );
+
+            // Humidity
+            Label humidityLabel = new Label(String.format("Humidity: %d%%", humidity));
+            humidityLabel.setStyle(
+                    "-fx-font-size: 16px;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-text-fill: #2F4F4F;" +
+                            "-fx-background-color: rgba(255, 255, 255, 0.7);" +
+                            "-fx-padding: 5;" +
+                            "-fx-background-radius: 5;"
+            );
+
+            // Close button
+            Button closeButton = new Button("Close");
+            closeButton.setStyle(
+                    "-fx-background-color: #4682B4;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-family: 'Segoe UI';" +
+                            "-fx-font-size: 14px;" +
+                            "-fx-padding: 10 20;" +
+                            "-fx-background-radius: 5;"
+            );
+            closeButton.setOnAction(e -> weatherStage.close());
+
+            // Add all elements to the layout
+            weatherLayout.getChildren().addAll(titleLabel, weatherIcon, descriptionLabel, tempLabel, humidityLabel, closeButton);
+
+            // Create the scene and set it to the stage
+            Scene weatherScene = new Scene(weatherLayout, 400, 400); // Increased height to accommodate icon
+            weatherStage.setScene(weatherScene);
+            weatherStage.show();
         } catch (Exception e) {
             logger.severe("Error fetching weather: " + e.getMessage());
             showErrorAlert("Weather Error", "Failed to fetch weather data: " + e.getMessage());

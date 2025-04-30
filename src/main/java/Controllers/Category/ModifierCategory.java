@@ -43,7 +43,6 @@ public class ModifierCategory implements Initializable {
 
             try {
                 categoryService.modifier(category);
-                showAlert(Alert.AlertType.INFORMATION, "Succès", "Catégorie modifiée avec succès");
                 closeWindow();
             } catch (SQLException e) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la modification: " + e.getMessage());
