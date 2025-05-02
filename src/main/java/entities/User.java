@@ -84,7 +84,18 @@ public class User {
     // Relations Getters and Setters
     public List<Artwork> getArtworks() { return artworks; }
     public void setArtworks(List<Artwork> artworks) { this.artworks = artworks; }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        User user = (User) obj;
+        return this.getId() == user.getId(); // or Objects.equals(this.id, user.id);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
     /*public List<Comment> getComments() { return comments; }
     public void setComments(List<Comment> comments) { this.comments = comments; }
 

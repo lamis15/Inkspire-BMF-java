@@ -59,7 +59,14 @@ public class ArtworkDetails {
         nameLabel.setText(artwork.getName());
         themeLabel.setText("Theme: " + artwork.getTheme());
         descriptionLabel.setText(artwork.getDescription());
-        statusLabel.setText("Status: " + (artwork.getStatus() != null && artwork.getStatus() ? "Available for Bid" : "Not for Bid"));
+        if (artwork.getStatus() != null && artwork.getStatus()) {
+            statusLabel.setText("✅ on Bid");
+            statusLabel.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
+        } else {
+            statusLabel.setText(" ❌ off Bid");
+            statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        }
+
 
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
             imageView.setImage(new Image(artwork.getPicture()));
@@ -291,9 +298,9 @@ public class ArtworkDetails {
         try {
             Map<Integer, Integer> likesMap = artworkService.getLikesPerArtwork();
             int count = likesMap.getOrDefault(artwork.getId(), 0);
-            likeCountLabel.setText(count + " Likes");
+            likeCountLabel.setText("♥ "+count  );
         } catch (SQLException e) {
-            likeCountLabel.setText("0 Likes");
+            likeCountLabel.setText("♥ 0 Likes");
             e.printStackTrace();
         }
     }
