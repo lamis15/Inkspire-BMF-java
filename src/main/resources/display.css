@@ -1,0 +1,207 @@
+
+/* Enlarged Image View */
+.imageView {
+    -fx-fit-width: 400px;
+    -fx-fit-height: 300px;
+    -fx-preserve-ratio: true;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 12, 0.2, 0, 4);
+    -fx-padding: 10;
+    -fx-alignment: center;
+}
+
+/* Artwork Info Layout */
+.artwork-info {
+    -fx-spacing: 10;
+    -fx-alignment: center;
+    -fx-padding: 10;
+}
+
+.artwork-info .title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.artwork-info .subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.artwork-info .description {
+    -fx-font-size: 14px;
+    -fx-text-fill: #636e72;
+    -fx-wrap-text: true;
+    -fx-max-width: 500px;
+    -fx-alignment: center;
+}
+
+.artwork-info .status {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #16a085;
+    -fx-padding: 5 0;
+}
+
+/* Global Styling */
+.window {
+    -fx-background-color: #f9f9f9;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* Top Navigation Bar */
+.top-nav {
+    -fx-background-color: #2c3e50;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.top-nav .title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Back Button */
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1abc9c;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #1abc9c;
+    -fx-border-radius: 5;
+    -fx-padding: 6 10;
+}
+
+/* Scroll Pane */
+.main-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+}
+
+/* Card (Artwork Details Block) */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 12px;
+    -fx-padding: 30;
+    -fx-spacing: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0.2, 0, 4);
+}
+
+/* Image Styling */
+.imageView {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.2, 0, 3);
+    -fx-border-radius: 10px;
+}
+
+/* Text Styling */
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-text-fill: #7f8c8d;
+}
+
+.description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #636e72;
+    -fx-line-spacing: 1.5;
+}
+
+/* Buttons */
+.action-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18;
+    -fx-border-radius: 6;
+}
+
+.action-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.delete-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18;
+    -fx-border-radius: 6;
+}
+
+.delete-button:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* Comment Section */
+.comment-section {
+    -fx-padding: 10;
+    -fx-background-color: #f0f4f8;
+    -fx-border-radius: 10;
+    -fx-spacing: 10;
+}
+
+.comment-section .comment {
+    -fx-padding: 10;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 6;
+    -fx-border-color: #ffffff;
+    -fx-border-width: 1;
+    -fx-spacing: 5;
+}
+
+.comment-section .comment:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+.comment-section .comment-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.comment-section .comment-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}
+
+/* Input Field */
+.text-field, .commentField {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ced6e0;
+    -fx-border-radius: 5;
+    -fx-padding: 8;
+    -fx-font-size: 13px;
+}
+
+/* Post Button */
+#addCommentButton {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-font-weight: bold;
+    -fx-border-radius: 6;
+}
+
+#addCommentButton:hover {
+    -fx-background-color: #219150;
+}
+.error {
+    -fx-text-fill: red;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}

@@ -1,48 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.AjouterArtworkController">
+<BorderPane prefHeight="700" prefWidth="800" stylesheets="@addart.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.AjouterArtworkController">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="top-nav">
+        <HBox alignment="CENTER_LEFT" spacing="10">
             <padding>
                 <Insets bottom="10" left="20" right="20" top="10" />
             </padding>
-            <Button fx:id="backButton" onAction="#goBack" styleClass="back-button" text="back" />
-            <Label styleClass="title" text="Add New Artwork" HBox.hgrow="ALWAYS" />
+            <Button fx:id="backButton" onAction="#goBack" text="back" />
+            <Label text="Add New Artwork" HBox.hgrow="ALWAYS" />
         </HBox>
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="main-scroll-pane" vbarPolicy="AS_NEEDED">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="AS_NEEDED">
             <content>
-                <VBox fx:id="rootVBox" alignment="CENTER" spacing="15" style="-fx-padding: 40;" styleClass="card">
+                <VBox fx:id="rootVBox" alignment="CENTER" spacing="15">
                     <padding>
                         <Insets bottom="20" left="20" right="20" top="20" />
                     </padding>
 
-                    <Label styleClass="title" text="Add Artwork" />
+                    <ImageView fx:id="artworkImageView" fitWidth="400" preserveRatio="true" />
 
-                    <TextField fx:id="nameField" promptText="Artwork Name" styleClass="text-input" />
-                    <TextField fx:id="themeField" promptText="Theme" styleClass="text-input" />
-                    <TextArea fx:id="descriptionArea" prefRowCount="4" promptText="Description" styleClass="text-input" wrapText="true" />
-                    <CheckBox fx:id="status" alignment="TOP_LEFT" contentDisplay="BOTTOM" prefHeight="18.0" prefWidth="698.0" style="-fx-text-fill: black;" text="Place it on a bid" textAlignment="JUSTIFY" />
+                    <Label text="Add Artwork" />
+
+                    <TextField fx:id="nameField" promptText="Artwork Name" />
+                    <Label fx:id="nameError" textFill="red" />
+
+                    <Label text="Theme:" />
+                    <Label fx:id="themeError" textFill="red" />
+                    <ComboBox fx:id="themeComboBox" prefHeight="24.0" prefWidth="698.0" promptText="Select theme">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Nature" />
+                                <String fx:value="Human Emotion" />
+                                <String fx:value="Identity" />
+                                <String fx:value="Society and Politics" />
+                                <String fx:value="Religion and Spirituality" />
+                                <String fx:value="Life and Death" />
+                                <String fx:value="Technology" />
+                                <String fx:value="Dreams and Fantasy" />
+                                <String fx:value="History and Memory" />
+                                <String fx:value="Beauty and Aesthetics" />
+                                <String fx:value="Urban Life" />
+                                <String fx:value="Conflict and Struggle" />
+                                <String fx:value="Freedom and Confinement" />
+                                <String fx:value="Culture and Heritage" />
+                                <String fx:value="Transformation" />
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+
+                    <TextArea fx:id="descriptionArea" prefRowCount="4" promptText="Description" wrapText="true" />
+                    <Label fx:id="descriptionError" textFill="red" />
+
+                    <CheckBox fx:id="status" alignment="TOP_LEFT" contentDisplay="BOTTOM" prefHeight="18.0" prefWidth="698.0" text="Place it on a bid" textAlignment="JUSTIFY" />
+
+                    <Button fx:id="generateImageButton" onAction="#onGenerateImage" text="Generate Image from Description" />
+
                     <HBox spacing="10">
-                        <Button onAction="#chooseImage" styleClass="secondary-button" text="Choose an image" />
-                        <Label fx:id="imagePathLabel" styleClass="body-text" text="No image chosen" />
+                        <Button onAction="#chooseImage" text="Choose an image" />
+                        <Label fx:id="imageError" textFill="red" />
+                        <Label fx:id="imagePathLabel" text="No image chosen" />
                     </HBox>
-
-                    <Button onAction="#addArtwork" styleClass="primary-button" text="Confirm" />
+                    <Label fx:id="blockedErrorError" textFill="red" />
+                    <Button onAction="#addArtwork" text="Confirm" />
                 </VBox>
             </content>
         </ScrollPane>

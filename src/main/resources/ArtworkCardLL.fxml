@@ -5,21 +5,27 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane onMouseClicked="#handleCardClick" prefHeight="315.0" prefWidth="345.0" styleClass="collection-card" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.ArtworkCardController">
+<AnchorPane onMouseClicked="#handleCardClick" prefHeight="340.0" prefWidth="360.0" stylesheets="@cardart.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.ArtworkCardController">
 
-    <VBox layoutX="10" layoutY="10" prefHeight="296.0" prefWidth="325.0" spacing="6">
+
+    <VBox layoutX="10" layoutY="10" prefHeight="607.0" spacing="10" styleClass="artwork-card" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="10.0">
         <padding>
-            <Insets bottom="8" left="8" right="8" top="8" />
+            <Insets bottom="10" left="12" right="12" top="10" />
         </padding>
-      <Button mnemonicParsing="false" text="Button" />
 
-        <ImageView fx:id="imageView" fitHeight="181.0" fitWidth="313.0" />
+        <ImageView fx:id="imageView" fitHeight="300" fitWidth="702.0" preserveRatio="true" styleClass="artwork-image" />
 
-        <Label fx:id="titleLabel" style="-fx-font-size: 14;" styleClass="subtitle" />
-        <Label fx:id="descriptionLabel" style="-fx-font-size: 11;" styleClass="body-text" wrapText="true" />
-        <Label fx:id="goalLabel" style="-fx-font-size: 11; -fx-text-fill: #5B87FF;" />
-        <Label fx:id="statusLabel" style="-fx-font-size: 11; -fx-text-fill: #8BFFD0;" />
+        <Label fx:id="titleLabel" styleClass="artwork-title" />
+        <Label fx:id="descriptionLabel" styleClass="artwork-description" wrapText="true" />
+        <Label fx:id="goalLabel" styleClass="artwork-goal" />
+        <Label fx:id="statusLabel" styleClass="artwork-status" />
+
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Button fx:id="likeButton" onAction="#handleLikeButtonClick" styleClass="like-button" text="♥" />
+            <Label fx:id="likeCountLabel" styleClass="like-count" />
+        </HBox>
     </VBox>
 </AnchorPane>

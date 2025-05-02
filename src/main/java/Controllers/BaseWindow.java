@@ -4,6 +4,7 @@ import Controllers.Chat.GeminiChatLauncher;
 import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -18,7 +19,8 @@ import java.io.IOException;
 
 public class BaseWindow {
 
-
+    @FXML
+    private Button buttonhome1;
     @FXML
     private Label displayName;
 
@@ -114,14 +116,29 @@ public class BaseWindow {
 
     @FXML
     void goArtwork(ActionEvent actionEvent) {
-        SceneSwitch.switchScene(mainRouter, "/ArtworkDisplay.fxml");
+
+
+
+        User currentUser = entities.Session.getCurrentUser();
+        if (currentUser != null && currentUser.getRole() == 1) {
+            SceneSwitch.switchScene(mainRouter, "/ArtworkAdmin.fxml");
+        } else {
+            SceneSwitch.switchScene(mainRouter, "/ArtworkDisplay.fxml");
+
+        }
+    }
+
+    @FXML
+    void gohome(ActionEvent actionEvent) {
+        SceneSwitch.switchScene(mainRouter, "/home.fxml");
     }
 
     @FXML
     public void initialize() {
         User currentUser = entities.Session.getCurrentUser();
-        if (currentUser != null && currentUser.getRole() == 0) {
 
+        if (currentUser != null && currentUser.getRole() == 0) {
+            buttonhome1.setVisible(true);
             displayName.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
 
             String imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
@@ -139,7 +156,10 @@ public class BaseWindow {
                     e.printStackTrace();
                 }
             }
+        }else {
+            buttonhome1.setVisible(false);
         }
+
 
     }
 

@@ -1,0 +1,118 @@
+/* style.css */
+
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-background-color: #f8f9fa;
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #222;
+    -fx-padding: 10 0 10 0;
+}
+
+.text-input, .text-area {
+    -fx-padding: 8;
+    -fx-font-size: 14px;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-background-color: white;
+}
+
+.text-input:focused, .text-area:focused {
+    -fx-border-color: #66afe9;
+    -fx-background-color: #ffffff;
+}
+
+.button {
+    -fx-font-size: 14px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-cursor: hand;
+}
+
+/* Primary Button */
+.primary-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+}
+
+.primary-button:hover {
+    -fx-background-color: #0056b3;
+}
+
+/* Secondary Button */
+.secondary-button {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #545b62;
+}
+
+/* Back Button */
+.back-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #6c757d;
+    -fx-text-fill: #6c757d;
+}
+
+.back-button:hover {
+    -fx-background-color: #e9ecef;
+}
+
+/* CheckBox */
+.check-box {
+    -fx-font-size: 14px;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-padding: 6;
+    -fx-background-radius: 5;
+    -fx-border-color: #ced4da;
+    -fx-background-color: white;
+}
+
+.combo-box:focused {
+    -fx-border-color: #66afe9;
+}
+
+/* ScrollPane */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+/* VBox Card Style */
+.card {
+    -fx-background-color: white;
+    -fx-padding: 30;
+    -fx-spacing: 15;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);
+}
+
+/* Top Navigation */
+.top-nav {
+    -fx-background-color: #f1f3f5;
+    -fx-padding: 10 20;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-style: solid;
+}
+
+/* Window */
+.window {
+    -fx-background-color: #f8f9fa;
+}
