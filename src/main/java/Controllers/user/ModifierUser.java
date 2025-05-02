@@ -10,8 +10,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -28,17 +30,24 @@ import java.sql.SQLException;
 
 public class ModifierUser {
 
-    private String ImageUrl ;
+    private String ImageUrl;
 
-    @FXML private Label FirstnameError;
-    @FXML private Label LastnameError;
-    @FXML private Label EmailError;
-    @FXML private Label passwordError;
-    @FXML private Label confirmpassword;
+    @FXML
+    private Label FirstnameError;
+    @FXML
+    private Label LastnameError;
+    @FXML
+    private Label EmailError;
+    @FXML
+    private Label passwordError;
+    @FXML
+    private Label confirmpassword;
 
-    @FXML private Button uploadImage;
+    @FXML
+    private Button uploadImage;
 
-    @FXML private ImageView usericon2;
+    @FXML
+    private ImageView usericon2;
 
     @FXML
     private TextField firstNameField;
@@ -61,6 +70,8 @@ public class ModifierUser {
     @FXML
     private Button deleteButton;
 
+    @FXML
+    private Circle profilepic;
 
 
     private final UserService service = new UserService();
@@ -70,25 +81,25 @@ public class ModifierUser {
     public void initialize() {
         currentUser = Session.getCurrentUser();
 
-        Circle clip = new Circle(usericon2.getFitWidth() / 2, usericon2.getFitHeight() / 2, usericon2.getFitWidth() / 2);
-        usericon2.setClip(clip);
+        if (currentUser != null && currentUser.getStatus() == 1) {
+            String imagePath;
 
-        if (currentUser != null && currentUser.getRole() == 0) {
+            if (currentUser.getPicture() == null || currentUser.getPicture().isEmpty() || currentUser.getPicture().equals("null")) {
+                imagePath = "C:/xampp/htdocs/images/profilePictures/user.png";
+            } else {
+                imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
+            }
 
-            String imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
-
-            if (imagePath != null && !imagePath.isEmpty()) {
-                try {
-                    File file = new File(imagePath);
-                    if (file.exists()) {
-                        Image image = new Image(file.toURI().toString());
-                        usericon2.setImage(image);
-                    } else {
-                        System.out.println("Image file not found at: " + imagePath);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            try {
+                File file = new File(imagePath);
+                if (file.exists()) {
+                    Image image = new Image(file.toURI().toString());
+                    profilepic.setFill(new ImagePattern(image));
+                } else {
+                    System.err.println("Image not found at: " + imagePath);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -243,7 +254,7 @@ public class ModifierUser {
         currentUser.setLastName(lastName);
         currentUser.setEmail(email);
 
-        if(!ImageUrl.isEmpty()){
+        if(ImageUrl != null){
             currentUser.setPicture(ImageUrl) ;
         }
 

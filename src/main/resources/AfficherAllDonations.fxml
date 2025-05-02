@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -22,7 +23,7 @@
                   <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                </padding>
             </HBox>
-            
+
             <!-- Stats Section -->
             <HBox alignment="CENTER" spacing="20.0">
                <children>
@@ -64,25 +65,30 @@
                   <Insets bottom="25.0" left="20.0" right="20.0" top="10.0" />
                </VBox.margin>
             </HBox>
-            
-            <!-- Donations Table -->
-            <TableView fx:id="donationsTable" prefHeight="400.0" prefWidth="800.0" styleClass="donations-table" VBox.vgrow="ALWAYS">
-              <columns>
-                <TableColumn fx:id="dateColumn" prefWidth="200.0" text="Date" />
-                <TableColumn fx:id="donorColumn" prefWidth="200.0" text="Donor" />
-                <TableColumn fx:id="collectionColumn" prefWidth="250.0" text="Collection" />
-                <TableColumn fx:id="amountColumn" prefWidth="150.0" text="Amount" />
-              </columns>
-              <VBox.margin>
-                <Insets bottom="20.0" left="20.0" right="20.0" />
-              </VBox.margin>
-              <placeholder>
-                <Label text="No donations found" style="-fx-text-fill: #020741;" />
-              </placeholder>
-            </TableView>
-            
+
+            <!-- Donations Header Row -->
+            <HBox alignment="CENTER_LEFT" spacing="0" styleClass="listview-header" prefWidth="800.0">
+               <children>
+                  <Label text="Date" styleClass="listview-header-cell" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                  <Label text="Donor" styleClass="listview-header-cell" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                  <Label text="Collection" styleClass="listview-header-cell" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                  <Label text="Amount" styleClass="listview-header-cell" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+               </children>
+               <VBox.margin>
+                  <Insets left="20.0" right="20.0" />
+               </VBox.margin>
+            </HBox>
+            <!-- Donations List -->
+            <ListView fx:id="donationsListView" prefHeight="400.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" />
+               </VBox.margin>
+            </ListView>
+
             <!-- No action buttons for admin view -->
          </children>
       </VBox>
    </children>
 </AnchorPane>
+
+

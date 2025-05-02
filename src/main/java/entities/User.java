@@ -14,7 +14,7 @@ public class User {
     private String password = null;
     private String bio = null;
     private Integer tokens = 0;
-    private String picture = null;
+    private String picture ;
     private String googleAuthenticatorSecret = null;
     private Integer role = 0;
     private Integer status = 0;
@@ -27,16 +27,14 @@ public class User {
 
     public User() {}
 
-    public User(String firstName, String lastName, String email, String password, Integer role, Integer status) {
+    public User(String firstName, String lastName, String email, String password, Integer role, Integer status , String picture) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.role = role;
         this.status = status;
-    }
-
-    public User(String lastName, String email, String password) {
+        this.picture = picture ;
     }
 
 
