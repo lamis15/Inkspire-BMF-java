@@ -4,6 +4,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="Controllers.Artwork.EditArtworkDialog"
@@ -23,7 +25,28 @@
     <Label text="Edit Artwork" styleClass="dialog-title"/>
 
     <TextField fx:id="nameField" promptText="Artwork Name" />
-    <TextField fx:id="themeField" promptText="Theme" />
+    <Label text="Theme:"/>
+    <ComboBox fx:id="themeComboBox" promptText="Select theme">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Nature"/>
+                <String fx:value="Human Emotion"/>
+                <String fx:value="Identity"/>
+                <String fx:value="Society and Politics"/>
+                <String fx:value="Religion and Spirituality"/>
+                <String fx:value="Life and Death"/>
+                <String fx:value="Technology"/>
+                <String fx:value="Dreams and Fantasy"/>
+                <String fx:value="History and Memory"/>
+                <String fx:value="Beauty and Aesthetics"/>
+                <String fx:value="Urban Life"/>
+                <String fx:value="Conflict and Struggle"/>
+                <String fx:value="Freedom and Confinement"/>
+                <String fx:value="Culture and Heritage"/>
+                <String fx:value="Transformation"/>
+            </FXCollections>
+        </items>
+    </ComboBox>
     <TextArea fx:id="descriptionArea" promptText="Description" wrapText="true" prefRowCount="4" />
 
     <CheckBox fx:id="statusCheckbox" text="Place it on a bid" />

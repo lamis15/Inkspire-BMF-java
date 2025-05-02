@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenStreetMap</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <style>
+        #map {
+            height: 100%;
+            width: 100%;
+            background-color: #f0f0f0;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    console.log("Initializing Leaflet map...");
+    let map = L.map('map', {
+        center: [36.8065, 10.1815], // Centré sur Tunis
+        zoom: 8,
+        zoomControl: true
+    }).on('load', function() {
+        console.log("Map loaded successfully");
+    });
+
+    let cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).on('tileload', function() {
+        console.log("CartoDB tile loaded");
+    }).on('tileerror', function(error) {
+        console.error("Failed to load CartoDB tile: ", error);
+    });
+
+    let stamenLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
+        maxZoom: 18
+    }).on('tileload', function() {
+        console.log("Stamen tile loaded");
+    }).on('tileerror', function(error) {
+        console.error("Failed to load Stamen tile: ", error);
+    });
+
+    cartoLayer.addTo(map).on('tileerror', function(error) {
+        console.error("Failed to load CartoDB tiles, switching to Stamen: ", error);
+        map.removeLayer(cartoLayer);
+        stamenLayer.addTo(map);
+        console.log("Switched to Stamen Terrain tiles");
+    });
+
+    let marker;
+
+    function setMarker(lat, lng, location) {
+        try {
+            console.log("setMarker called with lat=" + lat + ", lng=" + lng + ", location=" + location);
+            if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                console.error("Invalid coordinates: lat=" + lat + ", lng=" + lng);
+                return;
+            }
+
+            let latlng = L.latLng(lat, lng);
+            if (marker) {
+                marker.setLatLng(latlng);
+            } else {
+                marker = L.marker(latlng).addTo(map);
+            }
+
+            location = (typeof location === 'string' && location.trim()) ? location : "Lieu inconnu";
+            marker.bindPopup(location).openPopup();
+
+            map.panTo(latlng);
+            console.log("Marker set and map panned to: " + latlng);
+        } catch (error) {
+            console.error("Error in setMarker: " + error.message);
+        }
+    }
+
+    console.log("Map initialization complete");
+</script>
+</body>
+</html>
+```

@@ -6,6 +6,7 @@ public class Bid {
     private String time;
     private int auctionId;
     private int userId;
+    private String location;
     public Bid(){
     }
     public Bid(double amount, String time, int auctionId, int userId){
@@ -43,5 +44,11 @@ public class Bid {
     }
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+    public String getLocation() {
+        return location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

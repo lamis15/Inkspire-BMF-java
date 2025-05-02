@@ -2,13 +2,16 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Priority?>
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" styleClass="window" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Donations.AfficherAllDonations">
    <children>
@@ -22,6 +25,39 @@
                <padding>
                   <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                </padding>
+            </HBox>
+
+            <!-- Search and Sort Bar -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+               <padding>
+                  <Insets left="20.0" right="20.0" />
+               </padding>
+               <HBox HBox.hgrow="ALWAYS" />
+               
+               <Label text="Sort:" style="-fx-font-size: 12px; -fx-text-fill: #666666;">
+                  <HBox.margin>
+                     <Insets right="3" />
+                  </HBox.margin>
+               </Label>
+               <ComboBox fx:id="sortComboBox" 
+                         prefWidth="120" maxWidth="120"
+                         prefHeight="28"
+                         promptText="Sort"
+                         style="-fx-font-size: 12px; -fx-background-radius: 14; -fx-border-radius: 14; -fx-background-color: #4D81F7; -fx-text-fill: white; -fx-border-color: transparent; -fx-border-width: 0; -fx-padding: 0 10; -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.15), 2, 0, 0, 1);">
+                  <HBox.margin>
+                     <Insets right="8" />
+                  </HBox.margin>
+               </ComboBox>
+               
+               <TextField fx:id="searchField" 
+                         promptText="Search donations..." 
+                         prefWidth="200"
+                         prefHeight="28"
+                         style="-fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 0 10; -fx-font-size: 12px;">
+                  <HBox.margin>
+                     <Insets right="3" />
+                  </HBox.margin>
+               </TextField>
             </HBox>
 
             <!-- Stats Section -->
@@ -78,6 +114,7 @@
                   <Insets left="20.0" right="20.0" />
                </VBox.margin>
             </HBox>
+
             <!-- Donations List -->
             <ListView fx:id="donationsListView" prefHeight="400.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
                <VBox.margin>
@@ -90,5 +127,3 @@
       </VBox>
    </children>
 </AnchorPane>
-
-

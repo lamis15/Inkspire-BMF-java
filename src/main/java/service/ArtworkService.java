@@ -5,8 +5,7 @@ import entities.User;
 import utils.DataSource;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ArtworkService implements IService<Artwork> {
 
@@ -60,7 +59,21 @@ public class ArtworkService implements IService<Artwork> {
         preparedStatement.executeUpdate();
         return true;
     }
+    public void deleteArtwork(int artworkId) throws SQLException {
+        // Step 1: Delete dependent records from artwork_like table
+        String deleteLikesSql = "DELETE FROM artwork_like WHERE artwork_id = ?";
+        try (PreparedStatement psLikes = connection.prepareStatement(deleteLikesSql)) {
+            psLikes.setInt(1, artworkId);
+            psLikes.executeUpdate();
+        }
 
+        // Step 2: Delete the artwork record from the artwork table
+        String deleteArtworkSql = "DELETE FROM artwork WHERE id = ?";
+        try (PreparedStatement psArtwork = connection.prepareStatement(deleteArtworkSql)) {
+            psArtwork.setInt(1, artworkId);
+            psArtwork.executeUpdate();
+        }
+    }
     @Override
     public boolean supprimer(int id) throws SQLException {
         String sql = "DELETE FROM artwork WHERE id=?";
@@ -241,4 +254,83 @@ public class ArtworkService implements IService<Artwork> {
         System.out.println("Returning " + list.size() + " artworks for collection ID: " + collectionId);
         return list;
     }
+
+    public List<Artwork> getAllArtworks() throws SQLException {
+        String sql = "SELECT * FROM artwork";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ResultSet rs = preparedStatement.executeQuery();
+        List<Artwork> list = new ArrayList<>();
+
+        while (rs.next()) {
+            Artwork a = new Artwork();
+            a.setId(rs.getInt("id"));
+            a.setName(rs.getString("name"));
+            a.setTheme(rs.getString("theme"));
+            a.setDescription(rs.getString("description"));
+            a.setPicture(rs.getString("picture"));
+
+            // Handle status values
+            int status = rs.getInt("status");
+            if (rs.wasNull()) {
+                a.setStatus(null);
+            } else {
+                a.setStatus(status > 0);
+            }
+
+            // Set user for each artwork (optional)
+            User user = new User();
+            user.setId(rs.getInt("user_id"));
+            a.setUser(user);
+
+            list.add(a);
+        }
+
+        return list;
+    }
+
+
+
+
+    public Map<Integer, Integer> getLikesPerArtwork() throws SQLException {
+        Map<Integer, Integer> likesPerArtwork = new HashMap<>();
+        String query = "SELECT artwork_id, COUNT(*) AS like_count FROM artwork_like GROUP BY artwork_id ORDER BY like_count DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int artworkId = rs.getInt("artwork_id");
+                int likeCount = rs.getInt("like_count");
+                likesPerArtwork.put(artworkId, likeCount);
+            }
+        }
+
+        return likesPerArtwork;
+    }
+
+    public Artwork getArtworkById(int artworkId) throws SQLException {
+        Artwork artwork = null;
+        String query = "SELECT * FROM artwork WHERE id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, artworkId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    artwork = new Artwork();
+                    artwork.setId(rs.getInt("id"));
+                    artwork.setName(rs.getString("name"));
+                    artwork.setTheme(rs.getString("theme"));
+                    artwork.setDescription(rs.getString("description"));
+                    artwork.setPicture(rs.getString("picture"));
+                    artwork.setStatus(rs.getBoolean("status"));
+                    // Set other fields if needed
+                }
+            }
+        }
+
+        return artwork;
+    }
 }
+
+
+

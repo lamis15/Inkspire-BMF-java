@@ -1,11 +1,14 @@
 package service;
 
+import entities.Auction;
 import entities.Bid;
 import utils.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BidService implements IService<Bid>{
 
@@ -13,12 +16,13 @@ public class BidService implements IService<Bid>{
 
     @Override
     public boolean ajouter(Bid bid) throws SQLException {
-        String query = "INSERT INTO bid (amount, time, auction_id, user_id) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO bid (amount, time, auction_id, user_id, location) VALUES (?, ?, ?, ? ,?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setDouble(1, bid.getAmount());
             statement.setString(2, bid.getTime());
             statement.setInt(3, bid.getAuctionId());
             statement.setInt(4, bid.getUserId());
+            statement.setString(5, bid.getLocation());
             statement.executeUpdate();
             System.out.println("Bid added successfully");
             return true;
@@ -79,6 +83,7 @@ public class BidService implements IService<Bid>{
                         result.getInt("auction_id"),
                         result.getInt("user_id")
                 );
+                bid.setId(result.getInt("id"));
                 bids.add(bid);
             }
         } catch (SQLException e) {
@@ -111,6 +116,35 @@ public class BidService implements IService<Bid>{
 
         return bids;
     }
+    public Bid returnHighestBid(Auction auction) throws SQLException {
+        String query = "SELECT * FROM bid WHERE auction_id = ? ORDER BY amount DESC LIMIT 1";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setInt(1, auction.getId());
 
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Bid highestBid = new Bid();
+            highestBid.setId(rs.getInt("id"));
+            highestBid.setAuctionId(rs.getInt("auction_id"));
+            highestBid.setUserId(rs.getInt("user_id"));
+            highestBid.setAmount(rs.getDouble("amount"));
+            return highestBid;
+        }
+        return null;
+    }
+    public Map<String, Integer> countBiddersPerCountry(Auction auction) throws SQLException {
+        Map<String, Integer> stats = new HashMap<>();
+        String query = "SELECT location, COUNT(DISTINCT user_id) AS num FROM bid WHERE auction_id = ? GROUP BY location";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, auction.getId());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    stats.put(rs.getString("location"), rs.getInt("num"));
+                }
+            }
+        }
+        return stats;
+    }
 
 }

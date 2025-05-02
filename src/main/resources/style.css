@@ -1075,3 +1075,6 @@
     -fx-effect: dropshadow(gaussian, rgba(126, 250, 213, 0.3), 2, 0, 0, 0);
 }
 
+.displayName{
+    -fx-text-fill: white;
+}

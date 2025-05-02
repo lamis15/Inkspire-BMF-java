@@ -1,0 +1,51 @@
+.menu-button {
+    -fx-background-color: #3f51b5;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+.menu-button:hover {
+    -fx-background-color: #5c6bc0;
+    -fx-cursor: hand;
+}
+.menu-button:pressed {
+    -fx-background-color: #1a237e;
+}
+.scroll-pane {
+    -fx-padding: 20;
+}
+.search-field {
+    -fx-background-color: #f1f1f1;
+    -fx-border-radius: 5;
+    -fx-border-color: #5c6bc0;
+    -fx-padding: 0 10;
+    -fx-font-size: 14px;
+}
+
+.search-field .text {
+    -fx-prompt-text-fill: #888;
+}
+.add-field {
+    -fx-border-color: #ccc;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 4 8;
+    -fx-pref-height: 28px;
+}
+.add-field:focused {
+    -fx-border-color: #4285f4;
+}
+.add-button {
+    -fx-background-color: #5c6bc0; /* Custom blue color */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8px;
+    -fx-border-color: #3f51b5; /* Slightly darker blue for border */
+    -fx-border-radius: 8px;
+}
+
+.add-button:hover {
+    -fx-background-color: #3f51b5; /* Darker blue on hover */
+    -fx-border-color: #3f51b5;
+}

@@ -2,15 +2,21 @@ package service;
 
 import entities.Artwork;
 import entities.Auction;
+import entities.Session;
+import entities.User;
 import utils.DataSource;
 
 import java.sql.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.time.*;
 
 public class AuctionService implements IService<Auction> {
 
     private final Connection connection = DataSource.getInstance().getConnection();
+    private final User session = Session.getCurrentUser();
 
     @Override
     public boolean ajouter(Auction auction) throws SQLException {
@@ -120,7 +126,14 @@ public class AuctionService implements IService<Auction> {
     }
     public List<Artwork> getAvailableArtworksByUser(int userId) throws SQLException {
         List<Artwork> artworks = new ArrayList<>();
-        String query = "SELECT * FROM artwork a WHERE a.user_id = ? AND a.status = 0";
+        String query = """
+        SELECT * FROM artwork a 
+        WHERE a.user_id = ? 
+        AND NOT EXISTS (
+            SELECT 1 FROM auction au 
+            WHERE au.artwork_id = a.id
+        )
+        """;
 
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setInt(1, userId);
@@ -144,17 +157,30 @@ public class AuctionService implements IService<Auction> {
         ResultSet result = statement.executeQuery();
 
         if (result.next()) {
-            // Assuming Artwork has fields id, name, and imagePath
             artwork = new Artwork();
             artwork.setPicture(result.getString("picture"));
+            artwork.setName(result.getString("name"));
         }
         return artwork;
     }
+    public int getUserByArtworkId(int artworkId) throws SQLException {
+        int id  = 0;
+        String query = "SELECT user_id FROM artwork WHERE id = ?";
+
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, artworkId);
+        ResultSet result = statement.executeQuery();
+
+        if (result.next()) {
+            id = result.getInt("user_id");
+        }
+        return id;
+    }
+
     public Auction getAuctionById(int id) throws SQLException {
         String query = "SELECT * FROM auction WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setInt(1, id);
-
         ResultSet result = statement.executeQuery();
 
         if (result.next()) {
@@ -170,11 +196,44 @@ public class AuctionService implements IService<Auction> {
             auction.setId(result.getInt("id"));
             return auction;
         }
-
         return null;
     }
+    public boolean isMine(Auction auction) throws SQLException {
+        int currentUserId = Session.getCurrentUser().getId();
 
+        String query = """
+        SELECT COUNT(*)
+        FROM auction a
+        JOIN artwork aw ON a.artwork_id = aw.id
+        WHERE a.id = ? AND aw.user_id = ?
+    """;
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, auction.getId());
+        statement.setInt(2, currentUserId);
 
+        ResultSet result = statement.executeQuery();
+        if (result.next()) {
+            return result.getInt(1) > 0;
+        }
+        return false;
+    }
 
+    public String getRemainingTime(Auction auction) throws SQLException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime endDateTime = LocalDateTime.parse(auction.getEndDate(), formatter);
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(endDateTime)) {
+            auction.setStatus("ended");
+            this.modifier(auction);
+            return "auction "+auction.getStatus();
+        }
+        Duration duration = Duration.between(now, endDateTime);
+
+        long days = duration.toDays();
+        long hours = duration.toHours() % 24;
+        long minutes = duration.toMinutes() % 60;
+
+        return String.format("%d days,%d hours,%d minutes", days, hours, minutes);
+    }
 }
 

@@ -17,18 +17,21 @@
         <!-- Sidebar -->
         <AnchorPane prefHeight="600.0" prefWidth="200.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <Label fx:id="displayName" layoutX="46.0" layoutY="13.0" prefHeight="40.0" prefWidth="94.0" styleClass="displayName" textFill="WHITE" />
+                <Label fx:id="displayName" layoutX="57.0" layoutY="23.0" prefHeight="30.0" prefWidth="104.0" styleClass="displayName" />
+                <!-- User icon in top left -->
+
+            <Circle fx:id="profilepicture" fill="DODGERBLUE" layoutX="26.0" layoutY="39.0" onMouseClicked="#goUser" radius="20.0" stroke="BLACK" strokeType="INSIDE">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor></Circle>
+
                 <!-- Messages icon in top right -->
                 <ImageView fx:id="messagesIcon" fitHeight="30.0" fitWidth="30.0" layoutX="145.0" layoutY="20.0" onMouseClicked="#goMessages" preserveRatio="true" styleClass="clickable-icon">
                     <image>
                         <Image url="@assets/icons/conversation.png" />
                     </image>
                 </ImageView>
-            <Circle fx:id="profilepicture" fill="DODGERBLUE" layoutX="22.0" layoutY="35.0" onMouseClicked="#goUser" radius="20.0" stroke="BLACK" strokeType="INSIDE">
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor></Circle>
-                <VBox fx:id="sidebar" alignment="CENTER" layoutX="0.0" layoutY="100.0" prefHeight="424.0" prefWidth="181.0" spacing="10">
+                <VBox fx:id="sidebar" alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
                     <children>
                         <ImageView fitHeight="80.0" fitWidth="150.0" preserveRatio="true">
                             <image>
@@ -38,10 +41,10 @@
                                 <Insets bottom="20.0" />
                             </VBox.margin>
                         </ImageView>
+                        <Button fx:id="buttonhome1" maxWidth="Infinity" mnemonicParsing="false" onAction="#gohome" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Home" />
                         <Button fx:id="buttonCollections" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCollections" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Collections" />
                         <Button fx:id="buttonDonations" maxWidth="Infinity" mnemonicParsing="false" onAction="#goDonations" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Donations" />
                         <Button fx:id="buttonEvents" maxWidth="Infinity" mnemonicParsing="false" onAction="#goEvents" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Events" />
-                        <Button fx:id="buttonCategory" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCategory" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Category" />
 
                         <Button fx:id="buttonAuction" maxWidth="Infinity" mnemonicParsing="false" onAction="#goAuction" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Auction" />
                   <Button fx:id="buttonAuction11" maxWidth="Infinity" mnemonicParsing="false" onAction="#goArtwork" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Artwork" />
