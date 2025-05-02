@@ -1,40 +1,21 @@
-package Controllers.Auction;
+package Controllers.Auction.FrontOffice;
 
 import entities.Artwork;
 import entities.Auction;
-import entities.SceneManager;
 import entities.Session;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
+import javafx.scene.control.*;
 import service.AuctionService;
 
 
 import java.util.List;
 
 public class AjouterAuction {
-
-    @FXML private TextField labelField;
-    @FXML private DatePicker startDatePicker;
-
-    @FXML private DatePicker endDatePicker;
-    @FXML private TextField startPriceField;
-    @FXML private TextField endPriceField;
+    @FXML private TextField labelField, startPriceField, endPriceField;
+    @FXML private DatePicker startDatePicker, endDatePicker;
     @FXML private ComboBox<Artwork> artworkComboBox;
-
-    // Error labels
-    @FXML private Label labelError;
-    @FXML private Label startDateError;
-    @FXML private Label endDateError;
-    @FXML private Label startPriceError;
-    @FXML private Label endPriceError;
-    @FXML private Label artworkError;
-
+    @FXML private Label labelError, startDateError, endDateError, startPriceError, endPriceError, artworkError;
     private final AuctionService auctionService = new AuctionService();
 
     @FXML
@@ -57,7 +38,6 @@ public class AjouterAuction {
             labelError.setText("Label is required.");
             isValid = false;
         }
-
         if (startDatePicker.getValue() == null) {
             startDateError.setText("Start date is required.");
             isValid = false;
@@ -100,9 +80,10 @@ public class AjouterAuction {
                     selectedArtwork.getId()
             );
             auctionService.ajouter(auction);
-            //Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            //SceneManager.switchTo(primaryStage,"/AuctionUtils/Auction/AfficherAuction.fxml");
-            System.out.println("Auction added!");
+            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+            successAlert.setTitle("Auction Added");
+            successAlert.setHeaderText("Auction has been successfully added.");
+            successAlert.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
         }

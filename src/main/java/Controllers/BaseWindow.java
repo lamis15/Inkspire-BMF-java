@@ -60,11 +60,10 @@ public class BaseWindow {
     void goAuction(ActionEvent event) {
         User currentUser = entities.Session.getCurrentUser();
         if (currentUser != null && currentUser.getRole() == 1) {
-            SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/AfficherAuctionAdmin.fxml");
+            SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/BackOffice/AfficherAuction.fxml");
         } else {
-            SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/AfficherAuction.fxml");
+            SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/FrontOffice/AfficherAuction.fxml");
         }
-
     }
     
     @FXML

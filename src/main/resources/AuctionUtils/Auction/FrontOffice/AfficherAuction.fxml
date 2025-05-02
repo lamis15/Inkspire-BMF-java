@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootVBox" alignment="CENTER" stylesheets="@auction.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Auction.FrontOffice.AfficherAuction">
+        <HBox prefHeight="0.0" prefWidth="800.0" spacing="10" style="-fx-padding: 10;">
+            <Button fx:id="addBtn" prefHeight="44.0" prefWidth="115.0" styleClass="menu-button" text="+ Add Auction" />
+            <Button fx:id="myAuctionsBtn" prefHeight="25.0" prefWidth="126.0" styleClass="menu-button" text="📁 My Auctions" />
+            <Button fx:id="myBidsBtn" prefHeight="40.0" prefWidth="109.0" styleClass="menu-button" text="📁 My bids" />
+            <Region prefHeight="507.0" prefWidth="285.0" />
+            <TextField prefHeight="25.0" prefWidth="194.0" promptText="🔍 search for auctions " styleClass="search-field" />
+        </HBox>
+    <ScrollPane prefHeight="516.0" prefWidth="800.0" style="-fx-padding: 10;">
+        <content>
+            <FlowPane fx:id="cardsContainer" hgap="20" prefHeight="280.0" prefWidth="778.0" prefWrapLength="750" vgap="20">
+
+            </FlowPane>
+        </content>
+    </ScrollPane>
+</VBox>

@@ -1,4 +1,4 @@
-package Controllers.Bid;
+package Controllers.Bid.BackOffice;
 import entities.Auction;
 import entities.Bid;
 import javafx.fxml.FXML;
