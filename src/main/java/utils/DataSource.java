@@ -4,7 +4,7 @@ import java.sql.*;
 import static java.lang.Class.forName;
 
 public class DataSource {
-    final String URL = "jdbc:mysql://127.0.0.1:3306/inkspire";
+    final String URL = "jdbc:mysql://127.0.0.1:3306/inktest";
     final String USER = "root";
     final String PASS = "";
     private Connection connection;
