@@ -66,10 +66,6 @@ public class Artwork {
         if (!(o instanceof Artwork artwork)) return false;
         return Objects.equals(id, artwork.id);
     }
-    @Override
-    public String toString() {
-        return name; // or return getName();
-    }
 
     @Override
     public int hashCode() {

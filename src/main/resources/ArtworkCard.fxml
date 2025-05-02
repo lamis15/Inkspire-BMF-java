@@ -8,22 +8,22 @@
 
 <VBox xmlns="http://javafx.com/javafx/23.0.2"
       xmlns:fx="http://javafx.com/fxml"
-      styleClass="artwork-card" 
-      prefWidth="200" 
+      styleClass="artwork-card"
+      prefWidth="200"
       prefHeight="250"
       spacing="8">
-    
+
     <padding>
         <Insets top="10" right="10" bottom="10" left="10"/>
     </padding>
-    
+
     <ImageView fx:id="artworkImage" fitWidth="180" fitHeight="120" preserveRatio="true">
         <Image url="@assets/images/placeholder.png"/>
     </ImageView>
-    
+
     <Label fx:id="artworkTitle" styleClass="artwork-title" wrapText="true" style="-fx-text-fill: black;"/>
     <Label fx:id="artworkTheme" styleClass="artwork-theme" wrapText="true" style="-fx-text-fill: black;"/>
     <Label fx:id="artworkDescription" styleClass="artwork-description" wrapText="true" VBox.vgrow="ALWAYS" style="-fx-text-fill: black;"/>
-    
+
     <CheckBox fx:id="artworkSelect" text="Select" styleClass="artwork-select" style="-fx-text-fill: black;"/>
 </VBox>
