@@ -1,0 +1,60 @@
+.calendar-container {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+.nav-bar {
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 10;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.nav-button {
+    -fx-background-color: #0078d7;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 5 10;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.nav-button:hover {
+    -fx-background-color: #005bb5;
+}
+
+.month-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.calendar-grid {
+    -fx-background-color: #fafafa;
+    -fx-padding: 10;
+}
+
+.calendar-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+    -fx-text-fill: #333;
+    -fx-font-size: 14px;
+}
+
+.calendar-cell:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.event-cell {
+    -fx-background-color: #ffcccb;
+    -fx-font-weight: bold;
+}
+
+.event-cell:hover {
+    -fx-background-color: #ffb6b4;
+}

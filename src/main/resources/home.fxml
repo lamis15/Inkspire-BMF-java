@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootVBox" stylesheets="@display.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.homeController">
+
+    <!-- Add Artwork Button -->
+    <TextField fx:id="searchField" onKeyReleased="#onSearch" promptText="Search Artwork..." style="-fx-font-size: 14px; -fx-padding: 8;" />
+
+    <CheckBox fx:id="filterByLikesCheckBox" onAction="#onFilterChange" text="Sort by Likes" />
+    <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="9000">
+
+    <!-- ScrollPane to hold the artwork cards -->
+
+        <content>
+            <!-- FlowPane for displaying the artwork cards dynamically -->
+            <FlowPane fx:id="cardsContainer" hgap="20" style="-fx-background-color: transparent;" vgap="20">
+            <padding>
+
+            </padding></FlowPane>
+        </content>
+      <padding>
+
+      </padding>
+    </ScrollPane>
+    <Button fx:id="addButton" maxWidth="100" onAction="#onAddClick" style="-fx-background-radius: 50; -fx-border-radius: 50; -fx-background-color: #4D81F7; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 8 16; -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);" styleClass="add-button" />
+
+
+</VBox>

@@ -1,0 +1,78 @@
+/* Styling for sent messages */
+.message-item.sent .message-content-container {
+    -fx-background-color: #4D81F7 !important;
+    background-color: #4D81F7 !important;
+    -fx-background-radius: 18 18 3 18 !important;
+    border-radius: 18px 18px 3px 18px !important;
+    -fx-border-radius: 18 18 3 18 !important;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 1, 1) !important;
+}
+
+.message-item.sent .username-label,
+.message-item.sent .timestamp-label,
+.message-item.sent .message-content-label {
+    -fx-text-fill: white !important;
+    color: white !important;
+}
+
+/* Chat header styling */
+.chat-header {
+    -fx-background-color: linear-gradient(to right, #020741, #4D81F7) !important;
+    background-color: linear-gradient(to right, #020741, #4D81F7) !important;
+    -fx-border-color: #020741 !important;
+    border-color: #020741 !important;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2) !important;
+}
+
+.current-channel-label {
+    -fx-text-fill: white !important;
+    color: white !important;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 2, 0, 0, 1) !important;
+}
+
+.channel-status {
+    -fx-text-fill: #7EFAD5 !important;
+    color: #7EFAD5 !important;
+}
+
+/* Sidebar styling */
+.channel-list-container, .channel-sidebar {
+    -fx-background-color: #020741 !important;
+    background-color: #020741 !important;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0) !important;
+}
+
+.channel-list-view {
+    -fx-background-color: #020741 !important;
+    background-color: #020741 !important;
+}
+
+.channel-list-view .list-cell {
+    -fx-background-color: #020741 !important;
+    background-color: #020741 !important;
+}
+
+.channel-list-view .list-cell:selected {
+    -fx-background-color: #0A1F7A !important;
+    background-color: #0A1F7A !important;
+}
+
+.channel-list-view .list-cell:hover {
+    -fx-background-color: #051052 !important;
+    background-color: #051052 !important;
+}
+
+/* Send button styling */
+.send-button {
+    -fx-background-color: #4D81F7 !important;
+    background-color: #4D81F7 !important;
+    -fx-background-radius: 50 !important;
+    border-radius: 50px !important;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1) !important;
+}
+
+.send-button:hover {
+    -fx-background-color: #3A6EE4 !important;
+    background-color: #3A6EE4 !important;
+    -fx-effect: dropshadow(gaussian, rgba(126,250,213,0.4), 10, 0, 0, 0) !important;
+}

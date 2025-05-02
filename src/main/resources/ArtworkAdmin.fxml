@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="Controllers.Artwork.ArtworkAdminController">
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20" />
+    </padding>
+
+    <HBox spacing="10">
+        <TextField fx:id="searchField" onKeyReleased="#onSearch" prefHeight="25.0" prefWidth="663.0" promptText="Search by name or theme..." />
+    </HBox>
+
+    <Button onAction="#refreshArtworks" text="Refresh Artworks" />
+    <Button onAction="#showLikesStatsChart" text="Show Stats Chart" />
+
+    <ScrollPane fitToWidth="true">
+        <content>
+            <FlowPane fx:id="artworkContainer" hgap="20" prefHeight="931.0" prefWidth="782.0" prefWrapLength="1000.0" styleClass="cards-container" vgap="20">
+                <padding>
+                    <Insets bottom="10" left="10" right="10" top="10" />
+                </padding>
+            </FlowPane>
+        </content>
+    </ScrollPane>
+
+
+    <VBox fx:id="chartContainer" spacing="10" />
+</VBox>
