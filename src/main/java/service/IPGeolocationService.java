@@ -34,7 +34,6 @@ public class IPGeolocationService {
         }
         return mapper.readTree(resp.body());
     }
-
     /**
      * Fetches geolocation data for a specific IP.
      * @param ip the IP address to lookup

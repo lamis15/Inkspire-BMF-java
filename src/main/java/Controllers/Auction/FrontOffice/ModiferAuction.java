@@ -36,7 +36,7 @@ public class ModiferAuction {
         endPriceField.setText(String.valueOf(auction.getEndPrice()));
 
         try {
-            int userId = Session.getCurrentUser().getId();
+            int userId = auctionService.getUserByArtworkId(auction.getArtworkId());
             List<Artwork> artworks = auctionService.getAvailableArtworksByUser(userId);
             artworkComboBox.getItems().addAll(artworks);
 

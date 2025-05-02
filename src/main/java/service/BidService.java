@@ -6,7 +6,9 @@ import utils.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BidService implements IService<Bid>{
 
@@ -81,6 +83,7 @@ public class BidService implements IService<Bid>{
                         result.getInt("auction_id"),
                         result.getInt("user_id")
                 );
+                bid.setId(result.getInt("id"));
                 bids.add(bid);
             }
         } catch (SQLException e) {
@@ -129,6 +132,19 @@ public class BidService implements IService<Bid>{
         }
         return null;
     }
+    public Map<String, Integer> countBiddersPerCountry(Auction auction) throws SQLException {
+        Map<String, Integer> stats = new HashMap<>();
+        String query = "SELECT location, COUNT(DISTINCT user_id) AS num FROM bid WHERE auction_id = ? GROUP BY location";
 
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, auction.getId());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    stats.put(rs.getString("location"), rs.getInt("num"));
+                }
+            }
+        }
+        return stats;
+    }
 
 }

@@ -14,7 +14,7 @@
             <Button fx:id="myAuctionsBtn" prefHeight="25.0" prefWidth="126.0" styleClass="menu-button" text="📁 My Auctions" />
             <Button fx:id="myBidsBtn" prefHeight="40.0" prefWidth="109.0" styleClass="menu-button" text="📁 My bids" />
             <Region prefHeight="507.0" prefWidth="285.0" />
-            <TextField prefHeight="25.0" prefWidth="194.0" promptText="🔍 search for auctions " styleClass="search-field" />
+            <TextField fx:id="searchTextField" prefWidth="194.0" promptText="🔍 search for auctions " styleClass="search-field" />
         </HBox>
     <ScrollPane prefHeight="516.0" prefWidth="800.0" style="-fx-padding: 10;">
         <content>

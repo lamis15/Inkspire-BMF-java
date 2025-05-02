@@ -15,6 +15,7 @@ import utils.SceneSwitch;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AfficherAuction {
 
@@ -29,8 +30,10 @@ public class AfficherAuction {
 
     private final AuctionService auctionService = new AuctionService();
 
+    private List<Auction> allAuctions ;
+
     @FXML
-    public void initialize() {
+    public void initialize() throws SQLException {
 
         addBtn.setOnAction(e -> {
             SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/AjouterAuction.fxml");
@@ -44,6 +47,20 @@ public class AfficherAuction {
                 loadAuctions(true);
             } catch (SQLException | IOException ex) {
                 ex.printStackTrace();
+            }
+        });
+        allAuctions = auctionService.recuperer();
+        searchTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (allAuctions != null) {
+                String query = newVal.toLowerCase();
+                List<Auction> filtered = allAuctions.stream()
+                        .filter(a -> a.getLabel().toLowerCase().contains(query))
+                        .collect(Collectors.toList());
+                try {
+                    displayAuctions(filtered);
+                } catch (IOException | SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
         try {
@@ -76,7 +93,20 @@ public class AfficherAuction {
             }
         }
     }
+    private void displayAuctions(List<Auction> auctions) throws IOException, SQLException {
+        cardsContainer.getChildren().clear();
 
+        if (auctions.isEmpty()) {
+            cardsContainer.getChildren().add(new Label("No Auctions found."));
+            return;
+        }
+
+        for (Auction auction : auctions) {
+            String imageUrl = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
+            VBox card = createCard(auction, imageUrl);
+            cardsContainer.getChildren().add(card);
+        }
+    }
     private VBox createCard(Auction auction, String imageUrl) throws IOException, SQLException {
         VBox card = new VBox();
         card.setPrefSize(200, 300);
@@ -122,7 +152,13 @@ public class AfficherAuction {
                     throw new RuntimeException(ex);
                 }
             });
-            buttonsBox.getChildren().addAll(editBtn, deleteBtn);
+            Button chartBtn = new Button("details");
+            chartBtn.setStyle("-fx-background-color: #7c7c7c; -fx-text-fill: #333; -fx-background-radius: 6; -fx-padding: 3 10;");
+            chartBtn.setOnAction(e -> {
+                Session.setCurrentAuction(auction);
+                SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/AfficherAuctionDetail.fxml");
+            });
+            buttonsBox.getChildren().addAll(editBtn, deleteBtn ,chartBtn);
         }
         else{
             Button placeBidBtn = new Button("Place Bid");
@@ -134,7 +170,6 @@ public class AfficherAuction {
             buttonsBox.getChildren().addAll(placeBidBtn);
         }
         card.getChildren().addAll(imageWrapper, nameLabel ,bidLabel, timeLeftLabel, buttonsBox);
-
         return card;
     }
 }
