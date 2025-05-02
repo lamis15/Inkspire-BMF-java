@@ -34,6 +34,78 @@
     -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.1), 10, 0, 0, 5);
 }
 
+/* Message Styling */
+.message-item {
+    -fx-padding: 4px;
+    padding: 4px;
+}
+
+.left-avatar-container {
+    -fx-padding: 0 0 0 0;
+    padding: 0;
+}
+
+.message-item .message-content-container {
+    -fx-background-color: -blue-light;
+    background-color: -blue-light;
+    -fx-background-radius: 10px;
+    -fx-padding: 6px;
+    padding: 6px;
+    -fx-max-width: 300px;
+    max-width: 300px;
+}
+
+/* Sent messages (right-aligned) */
+.message-item.sent {
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.message-item.sent .message-content-container {
+    -fx-background-color: -primary-blue;
+    background-color: -primary-blue;
+    -fx-text-fill: -text-on-dark;
+    color: -text-on-dark;
+}
+
+.message-item.sent .username-label,
+.message-item.sent .timestamp-label,
+.message-item.sent .message-content-label {
+    -fx-text-fill: -text-on-dark;
+    color: -text-on-dark;
+}
+
+/* Avatar positioning */
+.message-item.sent #userAvatar {
+    -fx-opacity: 0;
+    opacity: 0;
+    -fx-max-width: 0;
+    max-width: 0;
+    -fx-pref-width: 0;
+    width: 0;
+    -fx-padding: 0;
+    padding: 0;
+    visibility: hidden;
+}
+
+.message-item.received #userAvatarRight {
+    -fx-opacity: 0;
+    opacity: 0;
+    -fx-max-width: 0;
+    max-width: 0;
+    -fx-pref-width: 0;
+    width: 0;
+    -fx-padding: 0;
+    padding: 0;
+    visibility: hidden;
+}
+
+/* Received messages (left-aligned) */
+.message-item.received {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 4px 0 4px 0;
+    padding: 4px 0 4px 0;
+}
+
 /* ListView Modern Styles */
 
 .listview-header {
@@ -1002,5 +1074,4 @@
 
     -fx-effect: dropshadow(gaussian, rgba(126, 250, 213, 0.3), 2, 0, 0, 0);
 }
-
 

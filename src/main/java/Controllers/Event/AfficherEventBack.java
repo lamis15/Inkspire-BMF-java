@@ -34,29 +34,21 @@ public class AfficherEventBack extends SceneSwitch {
         loadEventCards();
     }
 
-    /**
-     * Charge tous les événements depuis la base de données et les affiche dans le FlowPane.
-     */
     @FXML
     public void loadEventCards() {
         cardsContainer.getChildren().clear();
 
         try {
             List<Event> events = eventService.recuperer();
-
             for (Event event : events) {
                 cardsContainer.getChildren().add(createEventCard(event));
             }
-
         } catch (SQLException e) {
             System.err.println("Erreur lors du chargement des événements : " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * Crée une carte visuelle (HBox) pour un événement donné.
-     */
     private VBox createEventCard(Event event) {
         VBox card = new VBox();
         card.setSpacing(10);
@@ -67,17 +59,12 @@ public class AfficherEventBack extends SceneSwitch {
         card.setMinWidth(250);
         card.setMaxWidth(250);
 
-        // Titre de l'événement
         Label titleLabel = new Label(event.getTitle());
         titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-
-
-        // Lieu (autre info utile à afficher)
         Label locationLabel = new Label("Lieu: " + event.getLocation());
         locationLabel.setStyle("-fx-text-fill: #555;");
 
-        // Boutons
         HBox buttonsBox = new HBox(10);
         buttonsBox.setAlignment(Pos.CENTER);
 
@@ -91,28 +78,26 @@ public class AfficherEventBack extends SceneSwitch {
 
         buttonsBox.getChildren().addAll(modifyButton, deleteButton);
 
-        // Ajout des composants à la carte
         card.getChildren().addAll(titleLabel, locationLabel, buttonsBox);
 
         return card;
     }
 
-
-    /**
-     * Gère le clic sur le bouton d'ajout.
-     */
     @FXML
     private void onAddClick(ActionEvent event) throws IOException {
-        switchScene(rootVBox, "/AjouterEvent.fxml");
-        loadEventCards();
+        switchScene(rootVBox, "/EventUtils/AjouterEvent.fxml");
     }
 
-    /**
-     * Ouvre une nouvelle fenêtre pour modifier un événement.
-     */
+
+
+    @FXML
+    private void onCategoryClick(ActionEvent event) throws IOException {
+        switchScene(rootVBox, "/CategoryUtils/AfficherCategory.fxml");
+    }
+
     private void handleModifyEvent(Event event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/ModifierEvent.fxml"));
             VBox modifierRoot = loader.load();
 
             ModifierEvent controller = loader.getController();
@@ -130,9 +115,6 @@ public class AfficherEventBack extends SceneSwitch {
         }
     }
 
-    /**
-     * Supprime l’événement sélectionné.
-     */
     private void handleDeleteEvent(Event event) {
         try {
             eventService.supprimer(event.getId());

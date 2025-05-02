@@ -6,9 +6,10 @@ import entities.User;
 import utils.DataSource;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DonationService implements IService<Donation> {
 
@@ -189,5 +190,122 @@ public class DonationService implements IService<Donation> {
             return rs.getDouble("total");
         }
         return 0.0;
+    }
+
+    /**
+     * Filter donations based on search text
+     * 
+     * @param donations The list of donations to filter
+     * @param searchText The text to search for
+     * @return Filtered list of donations
+     */
+    public List<Donation> filterDonations(List<Donation> donations, String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            // If search text is empty, return all donations
+            return new ArrayList<>(donations);
+        }
+        
+        // Convert search text to lowercase for case-insensitive search
+        String searchLower = searchText.toLowerCase();
+        
+        // Filter donations based on amount, collection title, or donor name
+        return donations.stream()
+                .filter(d -> 
+                    (String.valueOf(d.getAmount()).contains(searchLower)) ||
+                    (d.getCollections() != null && d.getCollections().getTitle() != null && 
+                     d.getCollections().getTitle().toLowerCase().contains(searchLower)) ||
+                    (d.getUser() != null && 
+                        ((d.getUser().getFirstName() != null && d.getUser().getFirstName().toLowerCase().contains(searchLower)) ||
+                         (d.getUser().getLastName() != null && d.getUser().getLastName().toLowerCase().contains(searchLower))))
+                )
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Sort donations based on the specified sort option
+     * 
+     * @param donations The list of donations to sort
+     * @param sortOption The sort option to apply
+     * @return Sorted list of donations
+     */
+    public List<Donation> sortDonations(List<Donation> donations, String sortOption) {
+        if (sortOption == null || donations.isEmpty()) {
+            // Nothing to sort
+            return donations;
+        }
+        
+        List<Donation> sortedList = new ArrayList<>(donations);
+        
+        // Apply the appropriate sort based on the selected option
+        switch (sortOption) {
+            case "Newest":
+                sortedList.sort(Comparator.comparing((Donation d) -> d.getDate()).reversed());
+                break;
+                
+            case "Oldest":
+                sortedList.sort(Comparator.comparing((Donation d) -> d.getDate()));
+                break;
+                
+            case "Amount ↑":
+                sortedList.sort(Comparator.comparing((Donation d) -> d.getAmount()).reversed());
+                break;
+                
+            case "Amount ↓":
+                sortedList.sort(Comparator.comparing((Donation d) -> d.getAmount()));
+                break;
+                
+            case "Collection A-Z":
+                sortedList.sort(Comparator.comparing((Donation d) -> 
+                    d.getCollections() != null && d.getCollections().getTitle() != null ? 
+                    d.getCollections().getTitle().toLowerCase() : ""));
+                break;
+                
+            case "Collection Z-A":
+                sortedList.sort(Comparator.comparing((Donation d) -> 
+                    d.getCollections() != null && d.getCollections().getTitle() != null ? 
+                    d.getCollections().getTitle().toLowerCase() : "").reversed());
+                break;
+                
+            case "Donor A-Z":
+                sortedList.sort(Comparator.comparing((Donation d) -> {
+                    if (d.getUser() == null) return "";
+                    String firstName = d.getUser().getFirstName() != null ? d.getUser().getFirstName() : "";
+                    String lastName = d.getUser().getLastName() != null ? d.getUser().getLastName() : "";
+                    return (firstName + " " + lastName).toLowerCase();
+                }));
+                break;
+                
+            case "Donor Z-A":
+                sortedList.sort(Comparator.comparing((Donation d) -> {
+                    if (d.getUser() == null) return "";
+                    String firstName = d.getUser().getFirstName() != null ? d.getUser().getFirstName() : "";
+                    String lastName = d.getUser().getLastName() != null ? d.getUser().getLastName() : "";
+                    return (firstName + " " + lastName).toLowerCase();
+                }).reversed());
+                break;
+                
+            default:
+                // Default sort by newest first
+                sortedList.sort(Comparator.comparing((Donation d) -> d.getDate()).reversed());
+                break;
+        }
+        
+        return sortedList;
+    }
+    
+    /**
+     * Filter and sort donations in one operation
+     * 
+     * @param donations The list of donations to process
+     * @param searchText The text to search for
+     * @param sortOption The sort option to apply
+     * @return Filtered and sorted list of donations
+     */
+    public List<Donation> filterAndSortDonations(List<Donation> donations, String searchText, String sortOption) {
+        // First filter
+        List<Donation> filtered = filterDonations(donations, searchText);
+        
+        // Then sort
+        return sortDonations(filtered, sortOption);
     }
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.Event.ModifierEvent"
+      spacing="15">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Modifier l'Événement" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <GridPane vgap="10" hgap="10">
+        <Label text="Titre:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Date de début:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="startingDatePicker" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Date de fin:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="endingDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Lieu:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="locationField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Latitude:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="latitudeField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Longitude:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="longitudeField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Image:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="imageField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10">
+        <Label text="Carte :" style="-fx-font-weight: bold;"/>
+        <WebView fx:id="mapView" prefHeight="400" prefWidth="600"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Enregistrer" onAction="#saveChanges"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+        <Button text="Annuler" onAction="#cancelEdit"
+                style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+    </HBox>
+</VBox>

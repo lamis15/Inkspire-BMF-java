@@ -13,104 +13,76 @@ import utils.SceneSwitch;
 
 import java.io.IOException;
 
-public class EventCard extends VBox {
+public class EventCard {
     @FXML
-    private Label startingDateLabel; // Déclarer la variable pour la date de début
-
+    private VBox root;
     @FXML
-    private Label endingDateLabel;   // Déclarer la variable pour la date de fin
-
-    @FXML
-    private Label latitudeLabel;     // Déclarer la variable pour la latitude
-
-    @FXML
-    private Label longitudeLabel;    // Déclarer la variable pour la longitude
-
-    @FXML
-    private Label categoryLabel;     // Déclarer la variable pour l'ID de catégorie
-
-    @FXML
-    private ImageView eventImage;
-
-    @FXML
-    private Label titleLabel;
-
+    private Label startingDateLabel;
     @FXML
     private Label locationLabel;
-
     @FXML
-    private Label dateLabel;
-
+    private ImageView eventImage;
+    @FXML
+    private Label titleLabel;
     @FXML
     private Button voirDetailsButton;
 
     private Event event;
-    private Event imageView;
+    private Pane container;
 
     public EventCard() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventCard.fxml"));
-        fxmlLoader.setRoot(this);
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EventUtils/EventCard.fxml"));
         fxmlLoader.setController(this);
-
         try {
             fxmlLoader.load();
         } catch (IOException exception) {
-            throw new RuntimeException(exception);
+            throw new RuntimeException("Failed to load EventCard.fxml: " + exception.getMessage(), exception);
         }
     }
-    @FXML
+
+    public VBox getRoot() {
+        return root;
+    }
+
+    public void setContainer(Pane container) {
+        this.container = container;
+    }
+
     public void setEvent(Event event) {
         this.event = event;
         titleLabel.setText(event.getTitle());
-        locationLabel.setText("Lieu: " + event.getLocation());
         startingDateLabel.setText("Start Date: " + event.getStartingDate().toString());
-        endingDateLabel.setText("End Date: " + event.getEndingDate().toString());
-        latitudeLabel.setText("Latitude: " + event.getLatitude());
-        longitudeLabel.setText("Longitude: " + event.getLongitude());
-        categoryLabel.setText("Category ID: " + event.getCategoryId());
+        locationLabel.setText("Lieu: " + event.getLocation());
 
         if (event.getImage() != null && !event.getImage().isEmpty()) {
-            try {
-                // Vérifier si le chemin de l'image est valide et charger l'image
-                Image image = new Image("file:" + event.getImage());
-                eventImage.setImage(image);
-            } catch (Exception e) {
-                System.out.println("Image loading failed: " + e.getMessage());
+            String imagePath = event.getImage().startsWith("file:") ? event.getImage() : "file:" + event.getImage();
+            Image image = new Image(imagePath, true);
+            if (image.isError()) {
+                System.out.println("Image loading failed for " + event.getImage() + ": " + image.getException().getMessage());
                 eventImage.setImage(new Image("/images/default-event.jpg"));
+            } else {
+                eventImage.setImage(image);
             }
         } else {
+            System.out.println("No image provided for event: " + event.getTitle());
             eventImage.setImage(new Image("/images/default-event.jpg"));
         }
-
     }
 
-
-    Pane container;
     @FXML
     private void handleVoirDetails() {
-        SceneSwitch.switchScene(container,"/EventDetails.fxml" );
-    }
-
-    public void setData(Event c) {
-        this.titleLabel.setText(c.getTitle());  // Afficher le titre de l'événement
-        this.startingDateLabel.setText("Start Date: " + c.getStartingDate().toString()); // Afficher la date de début
-        this.endingDateLabel.setText("End Date: " + c.getEndingDate().toString()); // Afficher la date de fin
-        this.locationLabel.setText("Location: " + c.getLocation()); // Afficher le lieu
-        this.latitudeLabel.setText("Latitude: " + c.getLatitude()); // Afficher la latitude
-        this.longitudeLabel.setText("Longitude: " + c.getLongitude()); // Afficher la longitude
-        this.categoryLabel.setText("Category ID: " + c.getCategoryId()); // Afficher l'ID de la catégorie
-
-        // Si l'image n'est pas vide ou nulle, l'afficher
-        if (c.getImage() != null && !c.getImage().isEmpty()) {
-            try {
-                Image image = new Image(c.getImage());  // Charger l'image depuis l'URL ou le chemin
-                this.eventImage.setImage(image); // Mettre l'image dans l'interface
-            } catch (Exception e) {
-                System.out.println("Image loading failed: " + e.getMessage());
-            }
-        } else {
-            this.eventImage.setImage(null); // Si l'image est vide ou nulle, ne rien afficher
+        if (container == null) {
+            System.err.println("Container is not set for scene switching");
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventUtils/EventDetails.fxml"));
+            Pane detailsPane = loader.load();
+            EventDetails controller = loader.getController();
+            controller.setEvent(event);
+            container.getChildren().setAll(detailsPane); // Direct replacement
+        } catch (IOException e) {
+            System.err.println("Failed to load EventDetails.fxml: " + e.getMessage());
         }
     }
-
 }

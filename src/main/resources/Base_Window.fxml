@@ -22,6 +22,12 @@
                         <Image url="@assets/icons/user.png" />
                     </image>
                 </ImageView>
+                <!-- Messages icon in top right -->
+                <ImageView fx:id="messagesIcon" fitHeight="30.0" fitWidth="30.0" layoutX="145.0" layoutY="20.0" onMouseClicked="#goMessages" preserveRatio="true" styleClass="clickable-icon">
+                    <image>
+                        <Image url="@assets/icons/conversation.png" />
+                    </image>
+                </ImageView>
                 <VBox alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
                     <children>
                         <ImageView fitHeight="80.0" fitWidth="150.0" preserveRatio="true">
@@ -32,10 +38,11 @@
                                 <Insets bottom="20.0" />
                             </VBox.margin>
                         </ImageView>
+                        <Button fx:id="buttonhome1" maxWidth="Infinity" mnemonicParsing="false" onAction="#gohome" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Home" />
+
                         <Button fx:id="buttonCollections" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCollections" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Collections" />
                         <Button fx:id="buttonDonations" maxWidth="Infinity" mnemonicParsing="false" onAction="#goDonations" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Donations" />
                         <Button fx:id="buttonEvents" maxWidth="Infinity" mnemonicParsing="false" onAction="#goEvents" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Events" />
-                        <Button fx:id="buttonCategory" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCategory" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Category" />
 
                         <Button fx:id="buttonAuction" maxWidth="Infinity" mnemonicParsing="false" onAction="#goAuction" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Auction" />
                   <Button fx:id="buttonAuction11" maxWidth="Infinity" mnemonicParsing="false" onAction="#goArtwork" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Artwork" />
