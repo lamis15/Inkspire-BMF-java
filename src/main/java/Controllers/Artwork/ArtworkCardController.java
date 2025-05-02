@@ -15,11 +15,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import service.ArtworklikeService;
+import service.UserService;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
 public class ArtworkCardController {
+
+    @FXML
+    private Label ownerlabel;
 
     @FXML
     private ImageView imageView;
@@ -38,6 +42,7 @@ public class ArtworkCardController {
 
     @FXML
     private Button likeButton;
+
     @FXML
     private Label likeCountLabel;
 
@@ -45,34 +50,48 @@ public class ArtworkCardController {
     private User currentUser;
 
     private final ArtworklikeService likeService = new ArtworklikeService();
+    private UserService userService;
+
+    @FXML
+    public void initialize() throws SQLException {
+        userService = new UserService();
+    }
 
     public void setParentController(ArtworkDisplayController controller) {
-        // If needed for future interaction
+        // Reserved for future use
     }
 
     public void setData(Artwork artwork, User user) {
         this.artwork = artwork;
         this.currentUser = user;
 
-        // Set text content
         titleLabel.setText(artwork.getName());
+
+        try {
+            String ownerName = artwork.getUser() != null
+                    ? userService.getById(artwork.getUser().getId()).getFirstName()
+                    : "Unknown User";
+            ownerlabel.setText("👤 " + ownerName);
+        } catch (SQLException e) {
+            ownerlabel.setText("👤 Unknown User");
+            e.printStackTrace();
+        }
+
         descriptionLabel.setText(artwork.getDescription());
         goalLabel.setText(artwork.getTheme());
 
-        // Set status
         if (artwork.getStatus() != null) {
             if (artwork.getStatus()) {
                 statusLabel.setText("on bid");
-                statusLabel.setStyle("-fx-text-fill: green;"); // Green for active
+                statusLabel.setStyle("-fx-text-fill: green;");
             } else {
                 statusLabel.setText("off bid");
-                statusLabel.setStyle("-fx-text-fill: red;"); // Red for inactive
+                statusLabel.setStyle("-fx-text-fill: red;");
             }
         } else {
             statusLabel.setText("Unknown");
         }
 
-        // Load image
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
             try {
                 imageView.setImage(new Image(artwork.getPicture(), true));
@@ -81,23 +100,19 @@ public class ArtworkCardController {
             }
         }
 
-
         updateLikeButtonLabel();
-
-
         updateLikeCountLabel();
     }
 
     private void updateLikeCountLabel() {
         try {
             if (artwork != null) {
-                int likeCount = likeService.getLikeCount(artwork); // Get like count
+                int likeCount = likeService.getLikeCount(artwork);
                 likeCountLabel.setText(likeCount + " Likes");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load like count. Please try again.");
-            alert.show();
+            showAlert(Alert.AlertType.ERROR, "Failed to load like count.");
         }
     }
 
@@ -107,13 +122,9 @@ public class ArtworkCardController {
                 boolean liked = !likeService.hasUserLiked(artwork, currentUser);
                 likeButton.setText("♥");
 
-                if (liked) {
-                    // Make the heart bigger and red when liked
-                    likeButton.setStyle("-fx-font-size: 30px; -fx-text-fill: gray;");
-                } else {
-                    // Set a smaller size and gray color when unliked
-                    likeButton.setStyle("-fx-font-size: 40px; -fx-text-fill: red;");
-                }
+                likeButton.setStyle(liked
+                        ? "-fx-font-size: 30px; -fx-text-fill: gray;"
+                        : "-fx-font-size: 40px; -fx-text-fill: red;");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,39 +135,25 @@ public class ArtworkCardController {
     private void handleLikeButtonClick(ActionEvent event) {
         try {
             if (artwork != null && currentUser != null) {
-                // Toggle the like status for the artwork
                 likeService.toggleLike(artwork, currentUser);
-
-                // Update the like button text after toggling the like status
                 updateLikeButtonLabel();
-
-                // Update the like count dynamically
                 updateLikeCountLabel();
-
-                System.out.println("Like status toggled.");
             } else {
-                System.out.println("Artwork or user is not set.");
-                Alert alert = new Alert(Alert.AlertType.WARNING, "Please log in to like artworks.");
-                alert.show();
+                showAlert(Alert.AlertType.WARNING, "Please log in to like artworks.");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
     @FXML
     private void handleCardClick(MouseEvent event) {
         if (artwork == null) {
-            System.out.println("No artwork data found for the card click.");
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Unable to display artwork details. The artwork is missing.");
-            alert.show();
+            showAlert(Alert.AlertType.ERROR, "Unable to display artwork details.");
             return;
         }
 
         try {
-            System.out.println("Artwork card clicked: " + artwork.getId() + " - " + artwork.getName());
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ArtworkDetails.fxml"));
             Parent detailsView = loader.load();
 
@@ -168,27 +165,24 @@ public class ArtworkCardController {
             AnchorPane mainRouter = (AnchorPane) source.getScene().getRoot().lookup("#mainRouter");
 
             if (mainRouter != null) {
-                mainRouter.getChildren().clear();
-                mainRouter.getChildren().add(detailsView);
-
+                mainRouter.getChildren().setAll(detailsView);
                 AnchorPane.setTopAnchor(detailsView, 0.0);
                 AnchorPane.setRightAnchor(detailsView, 0.0);
                 AnchorPane.setBottomAnchor(detailsView, 0.0);
                 AnchorPane.setLeftAnchor(detailsView, 0.0);
-
-                System.out.println("Successfully loaded artwork details into mainRouter");
             } else {
-                System.out.println("Could not find mainRouter to load artwork details");
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Could not load artwork details. Please try again.");
-                alert.show();
+                showAlert(Alert.AlertType.ERROR, "Could not find main layout.");
             }
 
         } catch (IOException e) {
-            System.out.println("Error loading artwork details: " + e.getMessage());
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "An error occurred while loading artwork details. Please try again.");
-            alert.show();
+            showAlert(Alert.AlertType.ERROR, "Error loading artwork details.");
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type, message);
+        alert.show();
     }
 
     public Label getLikeCountLabel() {
