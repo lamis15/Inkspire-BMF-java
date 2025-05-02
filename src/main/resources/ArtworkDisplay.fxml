@@ -1,67 +1,57 @@
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="rootVBox"
-      prefHeight="9000"
-      prefWidth="800.0"
-      spacing="10"
-      styleClass="window"
-      stylesheets="@display.css"
-      xmlns="http://javafx.com/javafx/23.0.1"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.Artwork.ArtworkDisplayController">
+    <?import javafx.geometry.Insets?>
+    <?import javafx.scene.control.Button?>
+    <?import javafx.scene.control.ScrollPane?>
+    <?import javafx.scene.control.TextField?>
+    <?import javafx.scene.layout.FlowPane?>
+    <?import javafx.scene.layout.HBox?>
+    <?import javafx.scene.layout.VBox?>
 
-    <!-- Search Field -->
-    <TextField fx:id="searchField"
-               onKeyReleased="#onSearch"
-               promptText="Search Artwork..."
-               styleClass="search-field" />
+    <VBox fx:id="rootVBox"
+          prefHeight="9000"
+          prefWidth="800.0"
+          spacing="10"
+          styleClass="window"
+          stylesheets="@display.css"
+          xmlns="http://javafx.com/javafx/23.0.1"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="Controllers.Artwork.ArtworkDisplayController">
 
-    <!-- ScrollPane to hold the artwork cards -->
-    <ScrollPane fx:id="scrollPane"
-                fitToWidth="true"
-                prefHeight="900.0"
-                prefWidth="800.0">
-        <content>
-            <FlowPane fx:id="cardsContainer"
-                      hgap="20"
-                      prefHeight="931.0"
-                      prefWidth="782.0"
-                      prefWrapLength="1000.0"
-                      styleClass="cards-container"
-                      vgap="20" />
-        </content>
-    </ScrollPane>
+        <!-- Search Field -->
+        <TextField fx:id="searchField"
+                   onKeyReleased="#onSearch"
+                   promptText="Search Artwork..."
+                   styleClass="search-field" />
 
-    <!-- Pagination Controls -->
-    <HBox alignment="CENTER" spacing="20">
-        <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
-        </padding>
-        <Button fx:id="prevPageButton"
-                text="Previous"
-                onAction="#onPreviousPage" />
-        <Button fx:id="nextPageButton"
-                text="Next"
-                onAction="#onNextPage" />
-    </HBox>
+        <!-- ScrollPane to hold the artwork cards -->
+        <ScrollPane fx:id="scrollPane"
+                    fitToWidth="true"
+                    prefHeight="982.0"
+                    prefWidth="800.0">
 
-    <!-- HBox to align add button to the right -->
-    <HBox alignment="CENTER_RIGHT">
-        <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
-        </padding>
-        <Button fx:id="addButton"
-                maxWidth="100"
-                onAction="#onAddClick"
-                styleClass="add-button"
-                text="+ Add Artwork"
-                textAlignment="RIGHT" />
-    </HBox>
+            <content>
 
-</VBox>
+                <FlowPane fx:id="cardsContainer"
+                          hgap="20"
+                          prefHeight="931.0"
+                          prefWidth="782.0"
+                          prefWrapLength="1000.0"
+                          styleClass="cards-container"
+                          vgap="20" />
+            </content>
+        </ScrollPane>
+
+        <!-- HBox to align button to the right -->
+        <HBox alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Button fx:id="addButton"
+                    maxWidth="100"
+                    onAction="#onAddClick"
+                    styleClass="add-button"
+                    text="+ Add Artwork"
+                    textAlignment="RIGHT" />
+        </HBox>
+
+    </VBox>

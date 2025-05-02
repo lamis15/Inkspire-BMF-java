@@ -1,47 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.layout.HBox?>
-<VBox fx:id="rootVBox" stylesheets="@display.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Artwork.homeController">
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.Artwork.EditArtworkDialog"
+      spacing="15" alignment="CENTER"
+      styleClass="dialog-card"
+      stylesheets="@style.css"
+      maxWidth="400" prefWidth="400">
 
-    <!-- Add Artwork Button -->
-    <TextField fx:id="searchField" onKeyReleased="#onSearch" promptText="Search Artwork..." style="-fx-font-size: 14px; -fx-padding: 8;" />
-
-    <CheckBox fx:id="filterByLikesCheckBox" onAction="#onFilterChange" text="Sort by Likes" />
-    <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="9000">
-
-        <!-- ScrollPane to hold the artwork cards -->
-
-        <content>
-            <!-- FlowPane for displaying the artwork cards dynamically -->
-            <FlowPane fx:id="cardsContainer" hgap="20" style="-fx-background-color: transparent;" vgap="20">
-                <padding>
-
-                </padding></FlowPane>
-        </content>
-        <padding>
-
-        </padding>
-    </ScrollPane>
-    <HBox alignment="CENTER" spacing="20">
-        <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
-        </padding>
-        <Button fx:id="prevPageButton"
-                text="Previous"
-                onAction="#onPreviousPage" />
-        <Button fx:id="nextPageButton"
-                text="Next"
-                onAction="#onNextPage" />
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    <HBox spacing="10">
+        <Button onAction="#chooseImage" styleClass="secondary-button" text="Choose an image" />
+        <Label fx:id="imagePathLabel" styleClass="body-text" text="No image chosen" />
     </HBox>
-    <Button fx:id="addButton" maxWidth="100" onAction="#onAddClick" style="-fx-background-radius: 50; -fx-border-radius: 50; -fx-background-color: #4D81F7; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 8 16; -fx-effect: dropshadow(gaussian, rgba(2, 7, 65, 0.2), 4, 0, 0, 2);" styleClass="add-button" />
 
+    <Label text="Edit Artwork" styleClass="dialog-title"/>
 
+    <TextField fx:id="nameField" promptText="Artwork Name" />
+    <Label text="Theme:"/>
+    <ComboBox fx:id="themeComboBox" promptText="Select theme">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Nature"/>
+                <String fx:value="Human Emotion"/>
+                <String fx:value="Identity"/>
+                <String fx:value="Society and Politics"/>
+                <String fx:value="Religion and Spirituality"/>
+                <String fx:value="Life and Death"/>
+                <String fx:value="Technology"/>
+                <String fx:value="Dreams and Fantasy"/>
+                <String fx:value="History and Memory"/>
+                <String fx:value="Beauty and Aesthetics"/>
+                <String fx:value="Urban Life"/>
+                <String fx:value="Conflict and Struggle"/>
+                <String fx:value="Freedom and Confinement"/>
+                <String fx:value="Culture and Heritage"/>
+                <String fx:value="Transformation"/>
+            </FXCollections>
+        </items>
+    </ComboBox>
+    <TextArea fx:id="descriptionArea" promptText="Description" wrapText="true" prefRowCount="4" />
+
+    <CheckBox fx:id="statusCheckbox" text="Place it on a bid" />
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Cancel" onAction="#onCancel" />
+        <Button text="Save Changes" onAction="#onSave" />
+    </HBox>
 </VBox>

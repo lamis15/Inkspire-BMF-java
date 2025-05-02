@@ -19,7 +19,6 @@
         <ImageView fx:id="imageView" fitHeight="300" fitWidth="702.0" preserveRatio="true" styleClass="artwork-image" />
 
         <Label fx:id="titleLabel" styleClass="artwork-title" />
-        <Label fx:id="ownerlabel" styleClass="artwork-title" />
         <Label fx:id="descriptionLabel" styleClass="artwork-description" wrapText="true" />
         <Label fx:id="goalLabel" styleClass="artwork-goal" />
         <Label fx:id="statusLabel" styleClass="artwork-status" />

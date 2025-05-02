@@ -7,7 +7,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
@@ -25,30 +24,115 @@ public class homeController {
     private final ArtworkService artworkService = new ArtworkService();
     private final ArtworklikeService artworklikeService = new ArtworklikeService();
 
-    @FXML private FlowPane cardsContainer;
-    @FXML private VBox rootVBox;
+
+
+    // Assume this service gets the artworks from DB
+    @FXML
+    private FlowPane cardsContainer;
+    @FXML
+    private VBox rootVBox; // Root VBox to handle the layout
     @FXML private TextField searchField;
-    @FXML private CheckBox filterByLikesCheckBox;
-
-
-    private List<Artwork> artworks;
-    private int currentPage = 0;
-    private static final int ITEMS_PER_PAGE = 6;
-
-    @FXML private Button prevPageButton;
-    @FXML private Button nextPageButton;
 
     @FXML
     public void initialize() {
         try {
+            User currentUser = Session.getCurrentUser();
+            if (currentUser == null) {
+                System.out.println("No user logged in");
+                return;
+            }
+
+            int userId = currentUser.getId();
+            System.out.println("Fetching artworks for user ID: " + userId);
+
+            List<Artwork> artworks = artworkService.getAllArtworks();
+
+            System.out.println("Found " + artworks.size() + " artworks");
+
+            if (artworks.isEmpty()) {
+                System.out.println("No artworks found for this user");
+            }
+
+            cardsContainer.getChildren().clear(); // Clear existing cards
+
+            for (Artwork artwork : artworks) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ArtworkCardLL.fxml"));
+                Node card = loader.load();
+
+                ArtworkCardController controller = loader.getController();
+                controller.setData(artwork, currentUser);
+
+
+
+                cardsContainer.getChildren().add(card);
+            }
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            // Consider showing an alert to the user
+
+        }
+    }
+
+    @FXML
+    void onAddClick(ActionEvent event) {
+        SceneSwitch.switchScene(rootVBox, "/AjouterArtwork.fxml");
+    }
+    @FXML
+    public void onSearch() {
+        try {
+            // Get the current user's ID
+            User currentUser = Session.getCurrentUser();
+            if (currentUser == null) {
+                System.out.println("No user logged in");
+                return;
+            }
+
+            String keyword = searchField.getText().trim().toLowerCase();
+
+            List<Artwork> artworks = artworkService.getAllArtworks();
+
+            if (!keyword.isEmpty()) {
+                artworks = artworks.stream()
+                        .filter(a ->
+                                (a.getName() != null && a.getName().toLowerCase().contains(keyword)) ||
+                                        (a.getTheme() != null && a.getTheme().toLowerCase().contains(keyword)))
+                        .toList();
+            }
+
+            cardsContainer.getChildren().clear();
+
+            for (Artwork artwork : artworks) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ArtworkCardLL.fxml"));
+                Node card = loader.load();
+
+                ArtworkCardController controller = loader.getController();
+                controller.setData(artwork,currentUser); // Assume currentUser is accessible here
+
+                // Pass the correct parent controller (make sure it's ArtworkDisplayController)
+                ArtworkDisplayController artworkDisplayController = new ArtworkDisplayController();  // You should get this from the actual context
+                controller.setParentController(artworkDisplayController);
+
+                cardsContainer.getChildren().add(card);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private CheckBox filterByLikesCheckBox;
+    @FXML
+    public void onFilterChange() {
+        try {
             loadArtworks();
-            displayArtworks();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Loads artworks based on search and filter
+    // This method loads and filters artworks based on the search field and checkbox
     private void loadArtworks() throws SQLException, IOException {
         User currentUser = Session.getCurrentUser();
         if (currentUser == null) {
@@ -61,13 +145,14 @@ public class homeController {
         boolean sortByLikes = filterByLikesCheckBox.isSelected();
 
         // Retrieve all artworks
-        artworks = artworkService.getAllArtworks();
+        List<Artwork> artworks = artworkService.getAllArtworks();
 
         // Filter artworks by the keyword (name or theme)
         if (!keyword.isEmpty()) {
             artworks = artworks.stream()
-                    .filter(a -> (a.getName() != null && a.getName().toLowerCase().contains(keyword)) ||
-                            (a.getTheme() != null && a.getTheme().toLowerCase().contains(keyword)))
+                    .filter(a ->
+                            (a.getName() != null && a.getName().toLowerCase().contains(keyword)) ||
+                                    (a.getTheme() != null && a.getTheme().toLowerCase().contains(keyword)))
                     .toList();
         }
 
@@ -86,76 +171,19 @@ public class homeController {
                     })
                     .toList();
         }
-    }
 
-    // Displays the artworks based on the current page
-    private void displayArtworks() {
+        // Clear the current display and reload filtered artworks
         cardsContainer.getChildren().clear();
+        for (Artwork artwork : artworks) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ArtworkCardLL.fxml"));
+            Node card = loader.load();
 
-        int start = currentPage * ITEMS_PER_PAGE;
-        int end = Math.min(start + ITEMS_PER_PAGE, artworks.size());
+            // Set the data for each artwork card
+            ArtworkCardController controller = loader.getController();
+            controller.setData(artwork, currentUser);
 
-        for (int i = start; i < end; i++) {
-            try {
-                Artwork artwork = artworks.get(i);
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ArtworkCardLL.fxml"));
-                Node card = loader.load();
+            // Add the card to the display container
+            cardsContainer.getChildren().add(card);
+        }}
 
-                ArtworkCardController controller = loader.getController();
-                controller.setData(artwork, Session.getCurrentUser());
-
-                cardsContainer.getChildren().add(card);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Disable the buttons if on the first or last page
-        prevPageButton.setDisable(currentPage == 0);
-        nextPageButton.setDisable((currentPage + 1) * ITEMS_PER_PAGE >= artworks.size());
-    }
-
-    @FXML
-    void onAddClick(ActionEvent event) {
-        SceneSwitch.switchScene(rootVBox, "/AjouterArtwork.fxml");
-    }
-
-    @FXML
-    public void onSearch() {
-        try {
-            loadArtworks();
-            currentPage = 0;  // Reset page on new search
-            displayArtworks();
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    public void onFilterChange() {
-        try {
-            loadArtworks();
-            currentPage = 0;  // Reset page on filter change
-            displayArtworks();
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Navigation Methods for Pagination
-    @FXML
-    void onPreviousPage(ActionEvent event) {
-        if (currentPage > 0) {
-            currentPage--;
-            displayArtworks();
-        }
-    }
-
-    @FXML
-    void onNextPage(ActionEvent event) {
-        if ((currentPage + 1) * ITEMS_PER_PAGE < artworks.size()) {
-            currentPage++;
-            displayArtworks();
-        }
-    }
 }

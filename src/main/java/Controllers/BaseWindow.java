@@ -1,7 +1,6 @@
 package Controllers;
 
 import Controllers.Chat.GeminiChatLauncher;
-import entities.Session;
 import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,10 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 import javafx.stage.Stage;
 import utils.SceneSwitch;
 
@@ -24,10 +19,6 @@ import java.io.IOException;
 
 public class BaseWindow {
 
-    @FXML private VBox sidebar;
-    @FXML
-    private Circle profilepicture ;
-
     @FXML
     private Button buttonhome1;
     @FXML
@@ -38,7 +29,7 @@ public class BaseWindow {
     
     @FXML
     private ImageView userIcon;
-
+    
     @FXML
     private ImageView messagesIcon;
 
@@ -74,30 +65,29 @@ public class BaseWindow {
         } else {
             SceneSwitch.switchScene(mainRouter, "/AuctionUtils/Auction/FrontOffice/AfficherAuction.fxml");
         }
-
     }
     
     @FXML
     void goUser(MouseEvent event) {
         SceneSwitch.switchScene(mainRouter, "/UserUtils/ModifierUser.fxml");
     }
-
+    
     @FXML
     void goMessages(MouseEvent event) {
         // Instead of directly switching to Messages.fxml, show the dropdown menu
         try {
             // Get the current stage from the event source
             Stage stage = (Stage) ((ImageView) event.getSource()).getScene().getWindow();
-
+            
             // Create a context menu at the position of the messages icon
             javafx.scene.control.ContextMenu contextMenu = new javafx.scene.control.ContextMenu();
-
+            
             // Create menu items
             javafx.scene.control.MenuItem messagesItem = new javafx.scene.control.MenuItem("Chat (Messages)");
             messagesItem.setOnAction(e -> {
                 SceneSwitch.switchScene(mainRouter, "/messages/Messages.fxml");
             });
-
+            
             javafx.scene.control.MenuItem chatbotItem = new javafx.scene.control.MenuItem("Art Assistant");
             chatbotItem.setOnAction(e -> {
                 try {
@@ -107,17 +97,17 @@ public class BaseWindow {
                     ex.printStackTrace();
                 }
             });
-
+            
             // Add items to context menu
             contextMenu.getItems().addAll(messagesItem, chatbotItem);
-
+            
             // Show the context menu below the messages icon
             contextMenu.show(messagesIcon, javafx.geometry.Side.BOTTOM, 0, 0);
-
+            
         } catch (Exception e) {
             System.err.println("Error showing chat options: " + e.getMessage());
             e.printStackTrace();
-
+            
             // Fallback to original behavior if there's an error
             SceneSwitch.switchScene(mainRouter, "/messages/Messages.fxml");
         }
@@ -144,44 +134,32 @@ public class BaseWindow {
 
     @FXML
     public void initialize() {
-        User currentUser = Session.getCurrentUser();
-        if(currentUser.getRole() == 1) {  // Check if admin
-            Button adminButton = new Button("Users");
-            adminButton.getStyleClass().add("nav-button");
-            adminButton.setMaxWidth(Double.MAX_VALUE);
-            adminButton.setOnAction(this::handleUserButtonClicked);
-            sidebar.getChildren().add(adminButton);
-        }
-        String imagePath;
+        User currentUser = entities.Session.getCurrentUser();
 
-        // Use default if user has no picture
-        if (currentUser.getPicture() == null || currentUser.getPicture().isEmpty()) {
-            imagePath = "C:/xampp/htdocs/images/profilePictures/user.png";
-        } else {
-            imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
-        }
+        if (currentUser != null && currentUser.getRole() == 0) {
+            buttonhome1.setVisible(true);
+            displayName.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
 
-        displayName.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            String imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
 
-        try {
-            File file = new File(imagePath);
-            if (file.exists()) {
-                Image image = new Image(file.toURI().toString());
-                profilepicture.setFill(new ImagePattern(image));
-            } else {
-                System.err.println("Image file does not exist: " + imagePath);
+            if (imagePath != null && !imagePath.isEmpty()) {
+                try {
+                    File file = new File(imagePath);
+                    if (file.exists()) {
+                        Image image = new Image(file.toURI().toString());
+                        userIcon.setImage(image);
+                    } else {
+                        System.out.println("Image file not found at: " + imagePath);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }else {
             buttonhome1.setVisible(false);
         }
+
+
     }
-
-
-    @FXML private void handleUserButtonClicked(ActionEvent event) {
-        SceneSwitch.switchScene(mainRouter, "/UserUtils/ShowUsers.fxml");
-    }
-
-
 
 }

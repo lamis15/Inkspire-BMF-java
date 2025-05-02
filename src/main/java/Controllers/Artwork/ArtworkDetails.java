@@ -59,14 +59,7 @@ public class ArtworkDetails {
         nameLabel.setText(artwork.getName());
         themeLabel.setText("Theme: " + artwork.getTheme());
         descriptionLabel.setText(artwork.getDescription());
-        if (artwork.getStatus() != null && artwork.getStatus()) {
-            statusLabel.setText("✅ on Bid");
-            statusLabel.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
-        } else {
-            statusLabel.setText(" ❌ off Bid");
-            statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
-        }
-
+        statusLabel.setText("Status: " + (artwork.getStatus() != null && artwork.getStatus() ? "Available for Bid" : "Not for Bid"));
 
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
             imageView.setImage(new Image(artwork.getPicture()));
@@ -80,7 +73,7 @@ public class ArtworkDetails {
 
     @FXML
     void onBackClick() {
-        // SceneSwitch.goBack(backButton);
+       // SceneSwitch.goBack(backButton);
     }
 
     @FXML
@@ -154,14 +147,14 @@ public class ArtworkDetails {
     @FXML
     public void goBack(ActionEvent event) {
 
-        // Find the mainRouter in the scene graph
-        Node node = backButton.getScene().getRoot().lookup("#mainRouter");
+            // Find the mainRouter in the scene graph
+            Node node = backButton.getScene().getRoot().lookup("#mainRouter");
 
-        if (node instanceof Pane) {
-            SceneSwitch.switchScene((Pane) node, "/ArtworkDisplay.fxml");
-            System.out.println("Successfully navigated back to Artwork");
-        } else {
-            System.out.println("Could not find mainRouter for navigation");
+            if (node instanceof Pane) {
+                SceneSwitch.switchScene((Pane) node, "/ArtworkDisplay.fxml");
+                System.out.println("Successfully navigated back to Artwork");
+            } else {
+                System.out.println("Could not find mainRouter for navigation");
 
         }
     }
@@ -298,9 +291,9 @@ public class ArtworkDetails {
         try {
             Map<Integer, Integer> likesMap = artworkService.getLikesPerArtwork();
             int count = likesMap.getOrDefault(artwork.getId(), 0);
-            likeCountLabel.setText("♥ "+count  );
+            likeCountLabel.setText(count + " Likes");
         } catch (SQLException e) {
-            likeCountLabel.setText("♥ 0 Likes");
+            likeCountLabel.setText("0 Likes");
             e.printStackTrace();
         }
     }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -11,14 +10,15 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="window" stylesheets="@user.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.user.UserSignup">
+<BorderPane prefHeight="700" prefWidth="800" styleClass="window" stylesheets="@user.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.user.UserSignup">
    <right>
         <ScrollPane hbarPolicy="NEVER" pannable="true" styleClass="main-scroll-pane" vbarPolicy="AS_NEEDED" BorderPane.alignment="CENTER">
             <content>
-                <VBox alignment="CENTER" fillWidth="false" prefHeight="799.0" prefWidth="600.0" spacing="8.0" style="-fx-padding: 40;" styleClass="card">
+                <VBox alignment="CENTER" fillWidth="false" prefHeight="698.0" prefWidth="403.0" spacing="8.0" style="-fx-padding: 40;" styleClass="card">
                     <padding>
                         <Insets bottom="20" left="20" right="20" top="20" />
                     </padding>
@@ -30,60 +30,54 @@
                   <VBox.margin>
                      <Insets bottom="15.0" />
                   </VBox.margin></Label>
-                    <Label prefHeight="17.0" prefWidth="327.0" styleClass="subtitle" text="Create a new account" />
-               <Label fx:id="firstnameError" prefHeight="17.0" prefWidth="328.0" styleClass="error-label" text="First name" />
+                    <Label styleClass="subtitle" text="Create a new account" />
+               <Label fx:id="firstnameError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="First name" />
 
-                    <TextField fx:id="firstNameField" prefHeight="39.0" prefWidth="330.0" promptText="First Name" styleClass="text-input">
+                    <TextField fx:id="firstNameField" prefHeight="33.0" prefWidth="270.0" promptText="First Name" styleClass="text-input">
                   <VBox.margin>
                      <Insets bottom="8.0" />
                   </VBox.margin></TextField>
-               <Label fx:id="LastnameError" prefHeight="17.0" prefWidth="328.0" styleClass="error-label" text="Last name " />
-                    <TextField fx:id="lastNameField" prefHeight="39.0" prefWidth="330.0" promptText="Last Name" styleClass="text-input">
+               <Label fx:id="LastnameError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="Last name " />
+                    <TextField fx:id="lastNameField" prefHeight="33.0" prefWidth="270.0" promptText="Last Name" styleClass="text-input">
                   <VBox.margin>
                      <Insets bottom="8.0" />
                   </VBox.margin></TextField>
-               <Label fx:id="emailError" prefHeight="17.0" prefWidth="331.0" styleClass="error-label" text="Email" />
+               <Label fx:id="emailError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="Email" />
 
-                    <TextField fx:id="emailField" prefHeight="39.0" prefWidth="330.0" promptText="Email" styleClass="text-input">
+                    <TextField fx:id="emailField" prefHeight="33.0" prefWidth="270.0" promptText="Email" styleClass="text-input">
                   <VBox.margin>
                      <Insets bottom="8.0" />
                   </VBox.margin></TextField>
-                    <Label fx:id="passwordError" prefHeight="17.0" prefWidth="329.0" styleClass="error-label" text="Password" />
+                    <Label fx:id="passwordError" prefHeight="17.0" prefWidth="264.0" styleClass="error-label" text="Password" />
 
-                    <PasswordField fx:id="passwordField" prefHeight="39.0" prefWidth="330.0" promptText="Password" styleClass="text-input">
+                    <PasswordField fx:id="passwordField" prefHeight="33.0" prefWidth="270.0" promptText="Password" styleClass="text-input">
                   <VBox.margin>
                      <Insets bottom="8.0" />
                   </VBox.margin></PasswordField>
-                    <Label fx:id="confirmError" prefHeight="17.0" prefWidth="330.0" styleClass="error-label" text="Confirm Password" />
+                    <Label fx:id="confirmError" prefHeight="17.0" prefWidth="267.0" styleClass="error-label" text="Confirm Password" />
 
-                    <PasswordField fx:id="confirmPasswordField" prefHeight="39.0" prefWidth="330.0" promptText="Confirm Password" styleClass="text-input" />
+                    <PasswordField fx:id="confirmPasswordField" prefHeight="33.0" prefWidth="270.0" promptText="Confirm Password" styleClass="text-input" />
                     <Label fx:id="confirmPasswordError" styleClass="error-label" />
 
-                    <Button fx:id="signUpButton" disable="false" onAction="#signUp" prefHeight="39.0" prefWidth="330.0" styleClass="Signup-button" text="Sign Up">
-                  <cursor>
-                     <Cursor fx:constant="HAND" />
-                  </cursor></Button>
+                    <Button fx:id="signUpButton" disable="false" onAction="#signUp" prefHeight="33.0" prefWidth="270.0" styleClass="Signup-button" text="Sign Up" />
 
                     <HBox alignment="CENTER" spacing="5">
                         <Label styleClass="body-text" text="Already have an account?" />
-                        <Button onAction="#switchToSignIn" styleClass="link-button" text="Sign In" underline="true">
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor></Button>
+                        <Button onAction="#switchToSignIn" styleClass="link-button" text="Sign In" />
                     </HBox>
                 </VBox>
             </content>
         </ScrollPane>
    </right>
    <left>
-      <VBox prefHeight="800.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <Pane prefHeight="700.0" prefWidth="397.0">
          <children>
-            <ImageView pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="760.0" fitWidth="398.0" layoutY="-1.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                   <Image url="@/assets/images/Signup.png" />
+                  <Image url="@../../../../../../../../../xampp/htdocs/images/Signup.png" />
                </image>
             </ImageView>
          </children>
-      </VBox>
+      </Pane>
    </left>
 </BorderPane>

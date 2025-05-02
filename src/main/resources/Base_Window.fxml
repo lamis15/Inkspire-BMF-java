@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
@@ -10,25 +9,26 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
 
-<StackPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.BaseWindow">
+<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.BaseWindow">
     <children>
         <!-- Sidebar -->
         <AnchorPane prefHeight="600.0" prefWidth="200.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <Label fx:id="displayName" layoutX="46.0" layoutY="13.0" prefHeight="40.0" prefWidth="94.0" styleClass="displayName" textFill="WHITE" />
+                <Label fx:id="displayName" layoutX="57.0" styleClass="displayName" layoutY="23.0" prefHeight="30.0" prefWidth="104.0" />
+                <!-- User icon in top left -->
+                <ImageView fx:id="userIcon" fitHeight="30.0" fitWidth="30.0" layoutX="20.0" layoutY="20.0" onMouseClicked="#goUser" preserveRatio="true" styleClass="clickable-icon">
+                    <image>
+                        <Image url="@assets/icons/user.png" />
+                    </image>
+                </ImageView>
                 <!-- Messages icon in top right -->
                 <ImageView fx:id="messagesIcon" fitHeight="30.0" fitWidth="30.0" layoutX="145.0" layoutY="20.0" onMouseClicked="#goMessages" preserveRatio="true" styleClass="clickable-icon">
                     <image>
                         <Image url="@assets/icons/conversation.png" />
                     </image>
                 </ImageView>
-            <Circle fx:id="profilepicture" fill="DODGERBLUE" layoutX="22.0" layoutY="35.0" onMouseClicked="#goUser" radius="20.0" stroke="BLACK" strokeType="INSIDE">
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor></Circle>
-                <VBox fx:id="sidebar" alignment="CENTER" layoutX="0.0" layoutY="100.0" prefHeight="424.0" prefWidth="181.0" spacing="10">
+                <VBox alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
                     <children>
                         <ImageView fitHeight="80.0" fitWidth="150.0" preserveRatio="true">
                             <image>
@@ -51,13 +51,13 @@
             </children>
         </AnchorPane>
         
-                                            <!-- Main Content Area - Positioned on top with margin to show sidebar -->
-        <BorderPane pickOnBounds="false" prefHeight="787.0" prefWidth="1128.0">
+                                      <!-- Main Content Area - Positioned on top with margin to show sidebar -->
+        <BorderPane pickOnBounds="false">
             <left>
                 <AnchorPane prefWidth="180.0" visible="false" />
             </left>
             <center>
-                <AnchorPane fx:id="mainRouter" prefHeight="800.0" prefWidth="1006.0" styleClass="main-content" />
+                <AnchorPane fx:id="mainRouter" prefHeight="600.0" prefWidth="800.0" styleClass="main-content" />
             </center>
         </BorderPane>
     </children>

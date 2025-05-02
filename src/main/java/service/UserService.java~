@@ -7,7 +7,7 @@ import utils.DataSource;
 import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
-import org.mindrot.jbcrypt.BCrypt;
+
 
 
 public class UserService implements IService<User> {
@@ -62,14 +62,13 @@ public class UserService implements IService<User> {
 
     @Override
     public boolean modifier(User user) {
-        String query = "UPDATE user SET first_name = ?, last_name = ?, email = ?, password = ?, picture = ? WHERE id = ?";
+        String query = "UPDATE user SET first_name = ?, last_name = ?, email = ?, password = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, user.getFirstName());
             statement.setString(2, user.getLastName());
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getPassword());
-            statement.setString(5, user.getPicture());
-            statement.setInt(6, user.getId());
+            statement.setInt(5, user.getId());
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
@@ -83,7 +82,6 @@ public class UserService implements IService<User> {
         }
         return false;
     }
-
 
 
     @Override

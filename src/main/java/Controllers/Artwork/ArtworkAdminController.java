@@ -31,7 +31,7 @@ public class ArtworkAdminController {
 
     @FXML
     private TextField searchField;
-    private ArtworklikeService artworklikeservices;
+private ArtworklikeService artworklikeservices;
     private ArtworkService artworkService;
     private UserService userService;
     private Artwork artwork;

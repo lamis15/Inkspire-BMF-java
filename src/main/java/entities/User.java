@@ -14,7 +14,7 @@ public class User {
     private String password = null;
     private String bio = null;
     private Integer tokens = 0;
-    private String picture ;
+    private String picture = null;
     private String googleAuthenticatorSecret = null;
     private Integer role = 0;
     private Integer status = 0;
@@ -27,14 +27,16 @@ public class User {
 
     public User() {}
 
-    public User(String firstName, String lastName, String email, String password, Integer role, Integer status , String picture) {
+    public User(String firstName, String lastName, String email, String password, Integer role, Integer status) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.role = role;
         this.status = status;
-        this.picture = picture ;
+    }
+
+    public User(String lastName, String email, String password) {
     }
 
 
@@ -82,18 +84,7 @@ public class User {
     // Relations Getters and Setters
     public List<Artwork> getArtworks() { return artworks; }
     public void setArtworks(List<Artwork> artworks) { this.artworks = artworks; }
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        User user = (User) obj;
-        return this.getId() == user.getId(); // or Objects.equals(this.id, user.id);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
     /*public List<Comment> getComments() { return comments; }
     public void setComments(List<Comment> comments) { this.comments = comments; }
 

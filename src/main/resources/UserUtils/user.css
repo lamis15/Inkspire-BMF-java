@@ -1,5 +1,5 @@
 .Signup-button {
-    -fx-background-color: #5A3EF3;
+    -fx-background-color: #515AB9;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
@@ -7,24 +7,21 @@
 }
 
 .Signup-button:hover {
-    -fx-background-color: #664eec;
+    -fx-background-color: #686fcc;
 }
 
 
 .Signin-button{
-    -fx-background-color: #5A3EF3;
+    -fx-background-color: #08267A;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 8px;
+    -fx-background-radius: 8;
 }
 
-.Signin-button:hover {
-    -fx-background-color: #664eec;
-}
 
 .link-button{
     -fx-background-color: transparent;
-    -fx-text-fill: #5A3EF3;
+    -fx-text-fill: #515AB9;
     -fx-font-weight: bold;
 }
 
@@ -72,78 +69,5 @@
     -fx-text-fill: grey;
 }
 
-.error-label{
-    -fx-font-weight: bold;
-}
-
-.VisibilityToggle{
-    -fx-background-color: transparent;
-}
-.visibleText {
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-}
-
-.goBack{
-    -fx-background-color: transparent;
-}
-
-.googleSignin-button {
-    -fx-background-color: #ececec;
-    -fx-border-color: #3300ff;
-    -fx-text-fill: #3300ff;
-    -fx-font-weight: bold;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-}
-
-.googleSignin-button:hover {
-    -fx-background-color: #dcdcdc;
-    -fx-border-color: #3300ff;
-    -fx-text-fill: #3300ff;
-    -fx-font-weight: bold;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-}
 
 
-.githubSignin-button {
-    -fx-background-color: #ececec;
-    -fx-border-color: #3300ff;
-    -fx-text-fill: #3300ff;
-    -fx-font-weight: bold;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-}
-
-.githubSignin-button:hover {
-    -fx-background-color: #dcdcdc; /* subtle darkening on hover */
-    -fx-border-color: #3300ff;
-    -fx-text-fill: #3300ff;
-    -fx-font-weight: bold;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-}
-
-.SearchBar {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 20px;
-    -fx-border-radius: 20px;
-    -fx-border-color: grey;
-    -fx-border-width: 1px;
-    -fx-padding: 0 10 0 10;
-    -fx-font-size: 14px;
-    -fx-prompt-text-fill: #a8a8a8;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);
-}
-
-.SearchBar:hover {
-    -fx-border-color: #c0c0c0;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
-}
-
-.SearchBar:focused {
-    -fx-border-color: #4a90e2;
-    -fx-border-width: 1.5px;
-    -fx-effect: dropshadow(three-pass-box, rgba(74,144,226,0.2), 8, 0, 0, 0);
-}
