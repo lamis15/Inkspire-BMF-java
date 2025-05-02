@@ -14,6 +14,9 @@ import utils.SceneSwitch;
 import entities.Session;
 import java.io.File;
 import java.sql.SQLException;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import service.ImageGenerationService;
 
 public class AjouterArtworkController {
     public CheckBox status;
@@ -24,7 +27,21 @@ public class AjouterArtworkController {
     @FXML
     private TextField nameField;
     @FXML
-    private TextField themeField;
+    private Label nameError;
+
+    @FXML
+    private Label descriptionError;
+    @FXML
+    private Label imageError;
+    @FXML
+    private Label themeError;
+    @FXML
+    private Label blockedError;
+
+
+
+    @FXML
+    private ComboBox<String> themeComboBox;
     @FXML
     private TextArea descriptionArea;
     @FXML
@@ -56,31 +73,59 @@ public class AjouterArtworkController {
 
     @FXML
     void addArtwork(ActionEvent event) {
+        // Reset error labels
+        nameError.setText("");
+        descriptionError.setText("");
+        imageError.setText("");
+        themeError.setText("");
+
+
         // Get user inputs
         String name = nameField.getText();
-        String theme = themeField.getText();
+        String theme = themeComboBox.getValue();
         String description = descriptionArea.getText();
         boolean isOnBid = status.isSelected();
 
+        boolean isValid = true;
 
-        if (name.isEmpty() || theme.isEmpty() || description.isEmpty() || imagePath == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Invalid Input");
-            alert.setContentText("Please fill all fields and choose an image.");
-            alert.showAndWait();
-            return;
+        // Name validation
+        if (name == null || name.trim().isEmpty()) {
+            nameError.setText("Name cannot be empty.");
+            isValid = false;
+        } else if (name.length() < 3 || name.length() > 15) {
+            nameError.setText("Name must be between 3 and 15 characters.");
+            isValid = false;
+        }
+
+        // Description validation
+        if (description == null || description.trim().isEmpty()) {
+            descriptionError.setText("Description cannot be empty.");
+            isValid = false;
+        } else if (description.length() > 50) {
+            descriptionError.setText("Description cannot exceed 50 characters.");
+            isValid = false;
+        }
+
+        // Image validation
+        if (imagePath == null) {
+            imageError.setText("Please select or generate an image.");
+            isValid = false;
+        }
+
+        // Theme validation
+        if (theme == null || theme.trim().isEmpty()) {
+            themeError.setText("Please choose a theme.");
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return; // stop processing if validation fails
         }
 
         try {
-
-
             User currentUser = Session.getCurrentUser();
-
             Artwork artwork = new Artwork(name, theme, description, imagePath, isOnBid, currentUser);
 
-
-            // Insert into DB
             artworkService.ajouter(artwork);
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -91,19 +136,9 @@ public class AjouterArtworkController {
 
             clearForm();
 
-        } catch (NumberFormatException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Invalid Price");
-            alert.setContentText("Price must be a valid number.");
-            alert.showAndWait();
         } catch (SQLException e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Database Error");
-            alert.setContentText("An error occurred while adding the artwork.");
-            alert.showAndWait();
+            blockedError.setText("An error occurred while adding the artwork. Please try again.");
         }
     }
 
@@ -111,9 +146,10 @@ public class AjouterArtworkController {
     private void clearForm() {
         // Clear the form fields
         nameField.clear();
-        themeField.clear();
+        themeComboBox.setValue(null);
         descriptionArea.clear();
         imagePathLabel.setText("No image chosen");
+
     }
 
     @FXML
@@ -130,4 +166,38 @@ public class AjouterArtworkController {
 
         }
     }
+
+    @FXML
+    private ImageView artworkImageView;
+
+    private String generatedImageUrl = null;
+    @FXML
+    private void onGenerateImage() {
+        String prompt = descriptionArea.getText();
+        if (prompt == null || prompt.isEmpty()) {
+            descriptionError.setText("prompt cannot be empty.");
+
+            return;
+        }
+
+        try {
+            generatedImageUrl = ImageGenerationService.generateImage(prompt);
+            Image image = new Image(generatedImageUrl);
+            artworkImageView.setImage(image);
+
+            // Set the imagePath to the newly generated image (optional but useful)
+            imagePath = generatedImageUrl;
+            imagePathLabel.setText("Generated Image");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Image Generation Failed");
+            alert.setContentText("An error occurred while generating the image.");
+            alert.showAndWait();
+        }
+    }
+
+
 }

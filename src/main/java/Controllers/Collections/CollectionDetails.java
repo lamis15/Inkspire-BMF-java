@@ -20,13 +20,18 @@ import javafx.scene.layout.VBox;
 import service.ArtworkService;
 import service.CollectionsService;
 import service.DonationService;
+import service.DonationPredictionService;
 import utils.SceneSwitch;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 
 public class CollectionDetails implements javafx.fxml.Initializable {
 
@@ -56,6 +61,9 @@ public class CollectionDetails implements javafx.fxml.Initializable {
 
     @FXML
     private Button backButton;
+    
+    @FXML
+    private Button predictButton;
 
     @FXML
     private FlowPane artworkContainer;
@@ -64,13 +72,25 @@ public class CollectionDetails implements javafx.fxml.Initializable {
     private Label ownerNameLabel;
 
     @FXML
+    private Label creationDateLabel;
+
+    @FXML
     private Label progressLabel;
+    
+    @FXML
+    private Label predictionLabel;
 
     @FXML
     private HBox progressBarContainer;
 
     @FXML
     private HBox progressBarFill;
+    
+    @FXML
+    private HBox predictionBarContainer;
+    
+    @FXML
+    private HBox predictionBarFill;
     
     @FXML
     private VBox donationsSection;
@@ -81,8 +101,11 @@ public class CollectionDetails implements javafx.fxml.Initializable {
     private final CollectionsService collectionsService = new CollectionsService();
     private final ArtworkService artworkService = new ArtworkService();
     private final DonationService donationService = new DonationService();
+    private final DonationPredictionService predictionService = new DonationPredictionService();
 
     private Collections collection;
+    private double currentAmount = 0.0;
+    private double goalAmount = 0.0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -104,7 +127,8 @@ public class CollectionDetails implements javafx.fxml.Initializable {
         descriptionLabel.setText(collection.getDescription());
 
         if (collection.getGoal() != null) {
-            goalLabel.setText("Goal: " + collection.getGoal() + " TND");
+            goalAmount = collection.getGoal();
+            goalLabel.setText("Goal: " + goalAmount + " TND");
         } else {
             goalLabel.setText("No goal set");
         }
@@ -133,38 +157,50 @@ public class CollectionDetails implements javafx.fxml.Initializable {
             ownerNameLabel.setText("Created by: Unknown");
         }
 
-        // Set up progress bar for current amount vs goal
-        if (collection.getGoal() != null && collection.getGoal() > 0) {
-            double currentAmount = collection.getCurrentAmount();
-            double goalAmount = collection.getGoal();
-            double progressPercentage = Math.min((currentAmount / goalAmount) * 100, 100);
-
-            // Update progress label
-            progressLabel.setText(String.format("%.2f TND of %.2f TND (%.1f%%)",
-                    currentAmount, goalAmount, progressPercentage));
-
-            // Update progress bar width based on percentage
-            progressBarFill.prefWidthProperty().bind(
-                    progressBarContainer.widthProperty().multiply(progressPercentage / 100));
-
-            // Change color based on progress
-            if (progressPercentage < 30) {
-                progressBarFill.setStyle("-fx-background-color: #e74c3c; -fx-background-radius: 10 0 0 10;");
-            } else if (progressPercentage < 70) {
-                progressBarFill.setStyle("-fx-background-color: #f39c12; -fx-background-radius: 10 0 0 10;");
-            } else {
-                progressBarFill.setStyle("-fx-background-color: #2ecc71; -fx-background-radius: 10 0 0 10;");
-            }
-
-            // Show the progress bar components
-            progressBarContainer.setVisible(true);
-            progressBarFill.setVisible(true);
-            progressLabel.setVisible(true);
+        // Set creation date if available
+        if (collection.getCreationDate() != null) {
+            String formattedDate = collection.getCreationDate().toLocalDate().toString() + " at " + 
+                                  collection.getCreationDate().toLocalTime().toString().substring(0, 5);
+            creationDateLabel.setText("Created on: " + formattedDate);
         } else {
-            // Hide progress bar if no goal is set
-            progressBarContainer.setVisible(false);
-            progressBarFill.setVisible(false);
-            progressLabel.setVisible(false);
+            creationDateLabel.setText("Created on: Unknown date");
+        }
+
+        // Check if the collection has a goal and update progress bar
+        if (collection.getGoal() != null && collection.getGoal() > 0) {
+            try {
+                // Get total donations for this collection
+                currentAmount = donationService.getTotalDonationsForCollection(collection.getId());
+                
+                // Calculate progress percentage
+                double progressPercentage = Math.min(1.0, currentAmount / collection.getGoal());
+                
+                // Update progress bar width based on percentage - use binding instead of direct setting
+                progressBarFill.prefWidthProperty().unbind(); // Unbind first in case it was bound before
+                progressBarFill.prefWidthProperty().bind(progressBarContainer.widthProperty().multiply(progressPercentage));
+                
+                // Update progress label
+                progressLabel.setText(String.format("%.2f TND of %.2f TND (%.1f%%)", 
+                        currentAmount, collection.getGoal(), progressPercentage * 100));
+                
+                // Initialize prediction label
+                predictionLabel.setText("Click 'Predict' to see projected final amount");
+                predictionBarFill.prefWidthProperty().unbind();
+                predictionBarFill.setPrefWidth(0);
+                
+            } catch (SQLException e) {
+                System.out.println("Error calculating progress: " + e.getMessage());
+                progressLabel.setText("Could not calculate progress");
+            }
+        } else {
+            // No goal set
+            progressLabel.setText("No goal set for this collection");
+            progressBarFill.prefWidthProperty().unbind();
+            progressBarFill.setPrefWidth(0);
+            predictionLabel.setText("Prediction not available (no goal set)");
+            predictionBarFill.prefWidthProperty().unbind();
+            predictionBarFill.setPrefWidth(0);
+            predictButton.setDisable(true);
         }
 
         // Load artworks that belong to this collection
@@ -344,6 +380,117 @@ public class CollectionDetails implements javafx.fxml.Initializable {
     /**
      * Handle donate button click to navigate to the donation form
      */
+    @FXML
+    private void onDonateClick() {
+        try {
+            // Load the donation form
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterDonation.fxml"));
+            Parent root = loader.load();
+
+            // Find the mainRouter and load the donation view
+            Node mainRouter = donateButton.getScene().getRoot().lookup("#mainRouter");
+            if (mainRouter instanceof Pane) {
+                ((Pane) mainRouter).getChildren().clear();
+                ((Pane) mainRouter).getChildren().add(root);
+
+                // Get the controller and pre-select the current collection
+                try {
+                    Controllers.Donations.AjouterDonation controller = loader.getController();
+                    if (controller != null && collection != null) {
+                        // Pass the collection to the donation controller
+                        controller.preSelectCollection(collection);
+                        System.out.println("Pre-selected collection: " + collection.getTitle());
+                    }
+                } catch (Exception ex) {
+                    // Just log the error but continue with navigation
+                    System.out.println("Could not pre-select collection: " + ex.getMessage());
+                }
+
+                System.out.println("Successfully loaded donation view");
+            } else {
+                System.out.println("Could not find mainRouter for navigation to donation view");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    @FXML
+    private void onPredictClick() {
+        if (collection == null || collection.getGoal() == null || collection.getGoal() <= 0) {
+            showAlert(Alert.AlertType.WARNING, "Prediction Error", "Cannot predict for a collection without a goal amount.");
+            return;
+        }
+        
+        // Disable the predict button during prediction
+        predictButton.setDisable(true);
+        predictionLabel.setText("Calculating prediction...");
+        
+        // Calculate days active (from creation date to now)
+        int daysActive = 0;
+        if (collection.getCreationDate() != null) {
+            daysActive = (int) ChronoUnit.DAYS.between(collection.getCreationDate().toLocalDate(), LocalDateTime.now().toLocalDate());
+            daysActive = Math.max(1, daysActive); // Ensure at least 1 day
+        }
+        
+        // Get donations for this collection
+        try {
+            List<Donation> donations = donationService.getDonationsByCollectionId(collection.getId());
+            
+            // Make the prediction asynchronously
+            predictionService.predictDonationAmount(
+                    collection.getId(), 
+                    goalAmount, 
+                    currentAmount, 
+                    daysActive, 
+                    donations)
+            .thenAccept(result -> {
+                Platform.runLater(() -> {
+                    // Update the prediction UI
+                    double predictedAmount = result.getPredictedAmount();
+                    double confidence = result.getConfidence();
+                    
+                    // Calculate prediction percentage (cap at 100%)
+                    double predictionPercentage = Math.min(1.0, predictedAmount / goalAmount);
+                    
+                    // Update prediction bar width based on percentage - use binding instead of direct setting
+                    predictionBarFill.prefWidthProperty().unbind(); // Unbind first in case it was bound before
+                    predictionBarFill.prefWidthProperty().bind(predictionBarContainer.widthProperty().multiply(predictionPercentage));
+                    
+                    // Update prediction label
+                    predictionLabel.setText(String.format("Predicted final amount: %.2f TND (%.1f%% of goal, %.0f%% confidence)", 
+                            predictedAmount, predictionPercentage * 100, confidence * 100));
+                    
+                    // Re-enable the predict button
+                    predictButton.setDisable(false);
+                });
+            })
+            .exceptionally(ex -> {
+                Platform.runLater(() -> {
+                    predictionLabel.setText("Prediction failed. Try again later.");
+                    predictButton.setDisable(false);
+                    showAlert(Alert.AlertType.ERROR, "Prediction Error", 
+                            "Failed to get prediction: " + ex.getMessage());
+                });
+                return null;
+            });
+            
+        } catch (SQLException e) {
+            predictionLabel.setText("Prediction failed. Try again later.");
+            predictButton.setDisable(false);
+            showAlert(Alert.AlertType.ERROR, "Database Error", 
+                    "Failed to retrieve donation data: " + e.getMessage());
+        }
+    }
+    
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     /**
      * Load donations for the current collection and display them
      */
@@ -443,41 +590,6 @@ public class CollectionDetails implements javafx.fxml.Initializable {
             errorLabel.getStyleClass().add("error-label");
             errorLabel.setStyle("-fx-text-fill: #D32F2F;");
             donationsContainer.getChildren().add(errorLabel);
-        }
-    }
-    
-    @FXML
-    private void onDonateClick() {
-        try {
-            // Load the donation form
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterDonation.fxml"));
-            Parent root = loader.load();
-
-            // Find the mainRouter and load the donation view
-            Node mainRouter = donateButton.getScene().getRoot().lookup("#mainRouter");
-            if (mainRouter instanceof Pane) {
-                ((Pane) mainRouter).getChildren().clear();
-                ((Pane) mainRouter).getChildren().add(root);
-
-                // Get the controller and pre-select the current collection
-                try {
-                    Controllers.Donations.AjouterDonation controller = loader.getController();
-                    if (controller != null && collection != null) {
-                        // Pass the collection to the donation controller
-                        controller.preSelectCollection(collection);
-                        System.out.println("Pre-selected collection: " + collection.getTitle());
-                    }
-                } catch (Exception ex) {
-                    // Just log the error but continue with navigation
-                    System.out.println("Could not pre-select collection: " + ex.getMessage());
-                }
-
-                System.out.println("Successfully loaded donation view");
-            } else {
-                System.out.println("Could not find mainRouter for navigation to donation view");
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
     }
 }

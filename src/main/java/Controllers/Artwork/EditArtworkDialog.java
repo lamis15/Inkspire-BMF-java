@@ -1,5 +1,6 @@
 package Controllers.Artwork;
 
+import com.mysql.cj.conf.AbstractRuntimeProperty;
 import entities.Artwork;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,6 +9,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import service.ArtworkService;
 
+import javax.swing.*;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.function.Consumer;
@@ -15,11 +17,13 @@ import java.util.function.Consumer;
 public class EditArtworkDialog {
 
     @FXML private TextField nameField;
-    @FXML private TextField themeField;
     @FXML private TextArea descriptionArea;
     @FXML private CheckBox statusCheckbox;
     @FXML
     private Label imagePathLabel;
+    @FXML
+    private ComboBox<String> themeComboBox;  // Ensure the ComboBox is annotated with @FXML
+
 
     private String imagePath = null;
 
@@ -30,7 +34,7 @@ public class EditArtworkDialog {
     public void setArtwork(Artwork a) {
         this.artwork = a;
         nameField.setText(a.getName());
-        themeField.setText(a.getTheme());
+        themeComboBox.setValue(a.getTheme());
         descriptionArea.setText(a.getDescription());
         statusCheckbox.setSelected(a.getStatus() != null && a.getStatus());
         imagePathLabel.setText(a.getPicture());
@@ -60,7 +64,7 @@ public class EditArtworkDialog {
     @FXML
     void onSave() {
         artwork.setName(nameField.getText());
-        artwork.setTheme(themeField.getText());
+        artwork.setTheme(themeComboBox.getValue());
         artwork.setDescription(descriptionArea.getText());
         artwork.setStatus(statusCheckbox.isSelected());
         artwork.setPicture(imagePath != null && !imagePath.isEmpty() ? imagePath : artwork.getPicture());

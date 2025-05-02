@@ -51,6 +51,17 @@
                             </HBox>
                         </VBox>
                         
+                        <!-- Progress bar for predicted amount vs goal -->
+                        <VBox spacing="5">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label fx:id="predictionLabel" styleClass="subtitle" style="-fx-font-size: 12; -fx-text-fill: #6A8E3A;"/>
+                                <Button fx:id="predictButton" text="Predict" styleClass="action-button" style="-fx-background-color: #6A8E3A; -fx-font-size: 10; -fx-padding: 3 8;" onAction="#onPredictClick"/>
+                            </HBox>
+                            <HBox fx:id="predictionBarContainer" prefHeight="20" style="-fx-background-color: #f0f0f0; -fx-background-radius: 10;">
+                                <HBox fx:id="predictionBarFill" prefHeight="20" style="-fx-background-color: #6A8E3A; -fx-background-radius: 10 0 0 10; -fx-opacity: 0.7;"/>
+                            </HBox>
+                        </VBox>
+                        
                         <Label fx:id="statusLabel" styleClass="subtitle"/>
                         
                         <!-- Owner information -->
@@ -61,6 +72,16 @@
                                 </image>
                             </ImageView>
                             <Label fx:id="ownerNameLabel" styleClass="subtitle" style="-fx-font-size: 14; -fx-text-fill: #555555;"/>
+                        </HBox>
+                        
+                        <!-- Creation date information -->
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <ImageView fitWidth="24" fitHeight="24" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 0, 0, 0, 0); -fx-opacity: 0.8;">
+                                <image>
+                                    <javafx.scene.image.Image url="@/assets/icons/calendrier.png"/>
+                                </image>
+                            </ImageView>
+                            <Label fx:id="creationDateLabel" styleClass="subtitle" style="-fx-font-size: 14; -fx-text-fill: #555555;"/>
                         </HBox>
                         
                         <HBox spacing="10" alignment="CENTER_LEFT">
