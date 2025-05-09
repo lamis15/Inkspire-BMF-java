@@ -4,6 +4,7 @@ import entities.Artwork;
 import entities.User;
 import utils.DataSource;
 
+import java.io.File;
 import java.sql.*;
 import java.util.*;
 
@@ -60,20 +61,51 @@ public class ArtworkService implements IService<Artwork> {
         return true;
     }
     public void deleteArtwork(int artworkId) throws SQLException {
-        // Step 1: Delete dependent records from artwork_like table
+        // Step 1: Retrieve the artwork information to get the file path
+        String selectSql = "SELECT picture FROM artwork WHERE id = ?";
+        String filePath = null;
+        try (PreparedStatement psSelect = connection.prepareStatement(selectSql)) {
+            psSelect.setInt(1, artworkId);
+            ResultSet rs = psSelect.executeQuery();
+            if (rs.next()) {
+                filePath = rs.getString("picture");
+            }
+        }
+
+        // Step 2: Delete dependent records from artwork_like table
         String deleteLikesSql = "DELETE FROM artwork_like WHERE artwork_id = ?";
         try (PreparedStatement psLikes = connection.prepareStatement(deleteLikesSql)) {
             psLikes.setInt(1, artworkId);
             psLikes.executeUpdate();
         }
 
-        // Step 2: Delete the artwork record from the artwork table
+        // Step 3: Delete the artwork record from the database
         String deleteArtworkSql = "DELETE FROM artwork WHERE id = ?";
         try (PreparedStatement psArtwork = connection.prepareStatement(deleteArtworkSql)) {
             psArtwork.setInt(1, artworkId);
             psArtwork.executeUpdate();
         }
+
+        // Step 4: Delete the file from the filesystem
+        if (filePath != null) {
+            // Resolve the full path from the relative path
+            String fullFilePath = "C:/xampp/htdocs/" + filePath;  // Adjust if needed
+            File file = new File(fullFilePath);
+
+            if (file.exists()) {
+                boolean deleted = file.delete();
+                if (deleted) {
+                    System.out.println("File successfully deleted: " + fullFilePath);
+                } else {
+                    System.out.println("Failed to delete file: " + fullFilePath);
+                }
+            } else {
+                System.out.println("File does not exist: " + fullFilePath);
+            }
+        }
     }
+
+
     @Override
     public boolean supprimer(int id) throws SQLException {
         String sql = "DELETE FROM artwork WHERE id=?";
@@ -168,7 +200,7 @@ public class ArtworkService implements IService<Artwork> {
         checkRs.next();
         int count = checkRs.getInt(1);
 
-        // Only insert if the relationship doesn't already exist
+
         if (count == 0) {
             String sql = "INSERT INTO collections_artwork (artwork_id, collections_id) VALUES (?, ?)";
 
@@ -204,10 +236,10 @@ public class ArtworkService implements IService<Artwork> {
      * @return List of artworks in the collection
      */
     public List<Artwork> getArtworksByCollectionId(int collectionId) throws SQLException {
-        // Debug log
+
         System.out.println("Fetching artworks for collection ID: " + collectionId);
 
-        // First, check if there are any entries in the collections_artwork table
+
         String checkSql = "SELECT COUNT(*) FROM collections_artwork WHERE collections_id = ?";
         PreparedStatement checkStmt = connection.prepareStatement(checkSql);
         checkStmt.setInt(1, collectionId);
@@ -216,7 +248,6 @@ public class ArtworkService implements IService<Artwork> {
         int count = checkRs.getInt(1);
         System.out.println("Found " + count + " entries in collections_artwork table for collection ID: " + collectionId);
 
-        // Main query to get artwork details
         String sql = "SELECT a.* FROM artwork a " +
                 "JOIN collections_artwork ca ON a.id = ca.artwork_id " +
                 "WHERE ca.collections_id = ?";
@@ -235,7 +266,7 @@ public class ArtworkService implements IService<Artwork> {
             a.setDescription(rs.getString("description"));
             a.setPicture(rs.getString("picture"));
 
-            // Handle status values
+
             int status = rs.getInt("status");
             if (rs.wasNull()) {
                 a.setStatus(null);
@@ -269,7 +300,7 @@ public class ArtworkService implements IService<Artwork> {
             a.setDescription(rs.getString("description"));
             a.setPicture(rs.getString("picture"));
 
-            // Handle status values
+
             int status = rs.getInt("status");
             if (rs.wasNull()) {
                 a.setStatus(null);
@@ -277,7 +308,7 @@ public class ArtworkService implements IService<Artwork> {
                 a.setStatus(status > 0);
             }
 
-            // Set user for each artwork (optional)
+
             User user = new User();
             user.setId(rs.getInt("user_id"));
             a.setUser(user);
@@ -323,7 +354,7 @@ public class ArtworkService implements IService<Artwork> {
                     artwork.setDescription(rs.getString("description"));
                     artwork.setPicture(rs.getString("picture"));
                     artwork.setStatus(rs.getBoolean("status"));
-                    // Set other fields if needed
+
                 }
             }
         }

@@ -18,14 +18,13 @@ public class Comment {
         this.artwork = artwork;
     }
 
-    // Constructor for creating a comment with all necessary fields except the ID
+
     public Comment(User user, Artwork artwork, String content) {
         this.user = user;
         this.artwork= artwork;
         this.content = content;
     }
 
-    // Constructor for creating a comment with all fields, including the ID (typically used for database retrieval)
     public Comment(int id, User user, Artwork artwork, String content) {
         this.id = id;
         this.user = user;
@@ -33,7 +32,6 @@ public class Comment {
         this.content = content;
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -47,7 +45,6 @@ public class Comment {
     }
 
     public void setUser(User user) {
-        // Optionally check if user is null before setting
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
@@ -62,7 +59,6 @@ public class Comment {
     }
 
     public void setContent(String content) {
-        // Optionally check if content is null or empty before setting
         if (content == null || content.trim().isEmpty()) {
             throw new IllegalArgumentException("Content cannot be null or empty");
         }

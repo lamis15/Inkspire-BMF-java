@@ -1,5 +1,6 @@
 package Controllers.Artwork;
 
+import com.sun.prism.Image;
 import entities.Artwork;
 import entities.Session;
 import entities.User;
@@ -48,7 +49,7 @@ public class homeController {
         }
     }
 
-    // Loads artworks based on search and filter
+
     private void loadArtworks() throws SQLException, IOException {
         User currentUser = Session.getCurrentUser();
         if (currentUser == null) {
@@ -56,14 +57,12 @@ public class homeController {
             return;
         }
 
-        // Get the keyword from the search field and the status of the checkbox
         String keyword = searchField.getText().trim().toLowerCase();
         boolean sortByLikes = filterByLikesCheckBox.isSelected();
 
-        // Retrieve all artworks
         artworks = artworkService.getAllArtworks();
 
-        // Filter artworks by the keyword (name or theme)
+
         if (!keyword.isEmpty()) {
             artworks = artworks.stream()
                     .filter(a -> (a.getName() != null && a.getName().toLowerCase().contains(keyword)) ||
@@ -71,7 +70,7 @@ public class homeController {
                     .toList();
         }
 
-        // Sort artworks by likes if the checkbox is selected
+
         if (sortByLikes) {
             artworks = artworks.stream()
                     .sorted((a1, a2) -> {
@@ -88,7 +87,6 @@ public class homeController {
         }
     }
 
-    // Displays the artworks based on the current page
     private void displayArtworks() {
         cardsContainer.getChildren().clear();
 
@@ -110,10 +108,13 @@ public class homeController {
             }
         }
 
-        // Disable the buttons if on the first or last page
+
         prevPageButton.setDisable(currentPage == 0);
         nextPageButton.setDisable((currentPage + 1) * ITEMS_PER_PAGE >= artworks.size());
     }
+
+
+
 
     @FXML
     void onAddClick(ActionEvent event) {
@@ -124,7 +125,7 @@ public class homeController {
     public void onSearch() {
         try {
             loadArtworks();
-            currentPage = 0;  // Reset page on new search
+            currentPage = 0;
             displayArtworks();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
@@ -135,14 +136,14 @@ public class homeController {
     public void onFilterChange() {
         try {
             loadArtworks();
-            currentPage = 0;  // Reset page on filter change
+            currentPage = 0;
             displayArtworks();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Navigation Methods for Pagination
+
     @FXML
     void onPreviousPage(ActionEvent event) {
         if (currentPage > 0) {

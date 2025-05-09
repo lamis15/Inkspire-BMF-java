@@ -17,7 +17,6 @@
         <TextField fx:id="searchField" onKeyReleased="#onSearch" prefHeight="25.0" prefWidth="663.0" promptText="Search by name or theme..." />
     </HBox>
 
-    <Button onAction="#refreshArtworks" text="Refresh Artworks" />
     <Button onAction="#showLikesStatsChart" text="Show Stats Chart" />
 
     <ScrollPane fitToWidth="true">

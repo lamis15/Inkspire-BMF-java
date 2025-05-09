@@ -56,32 +56,41 @@ public class ArtworkDetails {
         User currentUser = Session.getCurrentUser();
         boolean isOwner = currentUser != null && currentUser.equals(artwork.getUser());
         this.artwork = artwork;
+
         nameLabel.setText(artwork.getName());
         themeLabel.setText("Theme: " + artwork.getTheme());
         descriptionLabel.setText(artwork.getDescription());
+
         if (artwork.getStatus() != null && artwork.getStatus()) {
             statusLabel.setText("✅ on Bid");
             statusLabel.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
         } else {
-            statusLabel.setText(" ❌ off Bid");
+            statusLabel.setText("❌ off Bid");
             statusLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         }
 
-
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
-            imageView.setImage(new Image(artwork.getPicture()));
-        } else {
-            imageView.setImage(new Image("file:default.png")); // fallback image
+            try {
+                // Correct the file path handling
+                String imagePath = "C:/xampp/htdocs/"; // Ensure this is correct for your server
+                String imageUrl = imagePath + artwork.getPicture();  // Construct full image path
+                Image image = new Image("file:" + imageUrl);  // Use "file:" for local file path
+
+                // Try to load image
+                imageView.setImage(image);
+            } catch (Exception e) {
+                // Fallback if image loading fails
+                imageView.setImage(new Image(getClass().getResource("/images/artwork/upload_1746753714952_Capture d'écran 2025-02-11 032649.png").toExternalForm()));
+                e.printStackTrace();
+            }
         }
+
         editButton.setVisible(isOwner);
         deleteButton.setVisible(isOwner);
         showLikeCount();
     }
 
-    @FXML
-    void onBackClick() {
-        // SceneSwitch.goBack(backButton);
-    }
+
 
     @FXML
     void onEditClick() {
@@ -103,7 +112,7 @@ public class ArtworkDetails {
             EditArtworkDialog controller = loader.getController();
             controller.setArtwork(artwork);
             controller.setCallback(updatedArtwork -> {
-                setArtwork(updatedArtwork); // Update displayed artwork
+                setArtwork(updatedArtwork);
             });
 
             Stage dialogStage = new Stage();
@@ -138,9 +147,19 @@ public class ArtworkDetails {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
+                    // Delete the artwork (including its file and database records)
                     artworkService.deleteArtwork(artwork.getId());
-                    // Optionally go back or refresh UI
-                    // SceneSwitch.goBack(deleteButton);
+
+                    // Show a success message
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Artwork Deleted");
+                    successAlert.setHeaderText("The artwork was successfully deleted.");
+                    successAlert.setContentText("The artwork and its associated file were deleted.");
+                    successAlert.show();
+
+                    // Optionally, you could close or update the current view after deletion
+                    // For example, you can close the window or refresh the artwork list
+
                 } catch (SQLException e) {
                     e.printStackTrace();
                     Alert error = new Alert(Alert.AlertType.ERROR, "Failed to delete artwork.");
@@ -151,10 +170,11 @@ public class ArtworkDetails {
     }
 
 
+
     @FXML
     public void goBack(ActionEvent event) {
 
-        // Find the mainRouter in the scene graph
+
         Node node = backButton.getScene().getRoot().lookup("#mainRouter");
 
         if (node instanceof Pane) {
@@ -176,7 +196,7 @@ public class ArtworkDetails {
 
         String content = commentField.getText().trim();
 
-        // Check if the comment content is empty
+
         if (content.isEmpty()) {
             commentError.setText("Comment cannot be empty.");
             System.out.println("no comment");
@@ -190,16 +210,16 @@ public class ArtworkDetails {
             return;
         }
 
-        // Create a new comment object
+
         Comment newComment = new Comment(currentUser, artwork, content);
 
-        // Add the comment through the service
+
         boolean success = commentService.addComment(newComment);
 
-        // Handle the result of the add comment operation
+
         if (success) {
-            commentField.clear(); // Clear the comment field
-            loadComments(); // Refresh the comment list
+            commentField.clear();
+            loadComments();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to post comment.");
             alert.show();
@@ -220,36 +240,36 @@ public class ArtworkDetails {
                 commentsContainer.getChildren().add(noComments);
             } else {
                 for (Comment comment : comments) {
-                    // Label for comment content
+
                     Label commentLabel = new Label(comment.getUser().getFirstName() + ": " + comment.getContent());
                     commentLabel.getStyleClass().add("comment-text");
                     commentLabel.setStyle("-fx-text-fill: black;");
 
-                    // Get current user
+
                     User currentUser = Session.getCurrentUser();
 
-                    // Buttons for edit and delete (only if the user is the creator of the comment)
+
                     Button editBtn = null;
                     Button deleteBtn = null;
 
                     if (currentUser != null && currentUser.equals(comment.getUser())) {
-                        // Only show edit and delete buttons if the current user is the comment's author
+
                         editBtn = new Button("Edit");
                         editBtn.setOnAction(e -> onEditComment(comment));
 
                         deleteBtn = new Button("Delete");
                         deleteBtn.setOnAction(e -> onDeleteComment(comment));
 
-                        // Style buttons if needed
+
                         editBtn.getStyleClass().add("edit-button");
                         deleteBtn.getStyleClass().add("deletecomment");
                     }
 
-                    // Put everything into HBox
+
                     HBox commentBox = new HBox(10); // spacing
                     commentBox.getChildren().addAll(commentLabel);
 
-                    // Add edit and delete buttons if available
+
                     if (editBtn != null && deleteBtn != null) {
                         commentBox.getChildren().addAll(editBtn, deleteBtn);
                     }
@@ -306,7 +326,3 @@ public class ArtworkDetails {
     }
 
 }
-
-
-
-

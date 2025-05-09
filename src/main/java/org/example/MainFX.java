@@ -13,6 +13,7 @@ import java.io.IOException;
 public class MainFX extends Application {
 
     public static void main(String[] args) {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         launch(args);
     }
 
@@ -29,7 +30,7 @@ public class MainFX extends Application {
             stage.show();
         } catch (IOException e) {
             System.out.println("Error loading FXML: " + e.getMessage());
-            e.printStackTrace();  // print full stack trace to console
+            e.printStackTrace();
         }
     }
 }

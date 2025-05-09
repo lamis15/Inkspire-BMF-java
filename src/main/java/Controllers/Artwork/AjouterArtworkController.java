@@ -2,6 +2,7 @@ package Controllers.Artwork;
 
 import entities.Artwork;
 import entities.User;
+import io.jsonwebtoken.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -13,6 +14,8 @@ import service.ArtworkService;
 import utils.SceneSwitch;
 import entities.Session;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,7 +42,6 @@ public class AjouterArtworkController {
     private Label blockedError;
 
 
-
     @FXML
     private ComboBox<String> themeComboBox;
     @FXML
@@ -48,7 +50,8 @@ public class AjouterArtworkController {
     private Label imagePathLabel;
 
     private String imagePath = null;
-    @FXML private Button backButton;
+    @FXML
+    private Button backButton;
 
 
     private final ArtworkService artworkService = new ArtworkService();
@@ -60,16 +63,35 @@ public class AjouterArtworkController {
 
     @FXML
     void chooseImage(ActionEvent event) {
-        // Open a file chooser to select an image
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(null);
 
         if (file != null) {
-            imagePath = file.toURI().toString();
-            imagePathLabel.setText(file.getName());
+            // Define the destination path in the server's htdocs folder
+            String destinationFolder = "C:/xampp/htdocs/images/artwork/";  // Change this path as necessary
+            String destinationFilePath = destinationFolder + file.getName();
+
+            File destFile = new File(destinationFilePath);
+
+            try {
+                // Copy the file to the destination folder in htdocs
+                Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                // Store the relative path to the image
+                imagePath = "images/artwork/" + file.getName();  // Relative path for use in web server
+
+                // Update the label with the image name
+                imagePathLabel.setText(file.getName());
+            } catch (IOException e) {
+                e.printStackTrace();
+                imageError.setText("Error saving image to server.");
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
+
 
     @FXML
     void addArtwork(ActionEvent event) {
@@ -80,7 +102,6 @@ public class AjouterArtworkController {
         themeError.setText("");
 
 
-        // Get user inputs
         String name = nameField.getText();
         String theme = themeComboBox.getValue();
         String description = descriptionArea.getText();
@@ -119,7 +140,7 @@ public class AjouterArtworkController {
         }
 
         if (!isValid) {
-            return; // stop processing if validation fails
+            return;
         }
 
         try {
@@ -171,22 +192,33 @@ public class AjouterArtworkController {
     private ImageView artworkImageView;
 
     private String generatedImageUrl = null;
+
     @FXML
     private void onGenerateImage() {
         String prompt = descriptionArea.getText();
         if (prompt == null || prompt.isEmpty()) {
-            descriptionError.setText("prompt cannot be empty.");
-
+            descriptionError.setText("Prompt cannot be empty.");
             return;
         }
 
         try {
+            // Get the relative path of the image generated
             generatedImageUrl = ImageGenerationService.generateImage(prompt);
-            Image image = new Image(generatedImageUrl);
-            artworkImageView.setImage(image);
+            System.out.println("Generated Image URI (relative): " + generatedImageUrl);
 
-            // Set the imagePath to the newly generated image (optional but useful)
-            imagePath = generatedImageUrl;
+            // Construct the full file path
+            String fullPath = "file:C:/xampp/htdocs/" + generatedImageUrl;
+            System.out.println("Full Image Path: " + fullPath);
+
+            // Create the Image object using the full file path
+            Image image = new Image(fullPath);
+            if (image.isError()) {
+                System.out.println("⚠️ Failed to load image: " + image.getException().getMessage());
+            }
+
+            // Display the image in the ImageView
+            artworkImageView.setImage(image);
+            imagePath = generatedImageUrl;  // Store the relative path
             imagePathLabel.setText("Generated Image");
 
         } catch (Exception e) {
@@ -198,6 +230,4 @@ public class AjouterArtworkController {
             alert.showAndWait();
         }
     }
-
-
 }

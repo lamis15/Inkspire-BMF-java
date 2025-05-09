@@ -3,11 +3,10 @@ package service;
 import entities.User;
 import org.mindrot.jbcrypt.BCrypt;
 import utils.DataSource;
-
 import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
-import org.mindrot.jbcrypt.BCrypt;
+
 
 
 public class UserService implements IService<User> {
@@ -106,7 +105,7 @@ public class UserService implements IService<User> {
     @Override
     public List<User> recuperer() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT id, first_name, email, role FROM user";
+        String sql = "SELECT id, first_name, email, role ,  picture FROM user";
 
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery(sql);
@@ -117,6 +116,7 @@ public class UserService implements IService<User> {
                 user.setFirstName(rs.getString("first_name"));
                 user.setEmail(rs.getString("email"));
                 user.setRole(rs.getInt("role"));
+                user.setPicture(rs.getString("picture"));
 
                 users.add(user);
             }
@@ -134,8 +134,8 @@ public class UserService implements IService<User> {
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     String hashedPassword = resultSet.getString("password");
-
-                    if (BCrypt.checkpw(password, hashedPassword)) {
+                    hashedPassword = hashedPassword.replace("$2y$", "$2a$");
+                    if (BCrypt.checkpw(password, hashedPassword) && resultSet.getInt("status") == 1) {
                         User user = new User();
                         user.setId(resultSet.getInt("id"));
                         user.setFirstName(resultSet.getString("first_name"));
@@ -153,7 +153,6 @@ public class UserService implements IService<User> {
 
                         return user;
                     } else {
-                        // Password incorrect
                         return null;
                     }
                 }
@@ -167,8 +166,23 @@ public class UserService implements IService<User> {
     }
 
 
+    public Integer GetUserId(String email) {
+        String query = "SELECT id FROM user WHERE email = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
 
-    public boolean emailExists(String email) throws SQLException {
+
+        public boolean emailExists(String email) throws SQLException {
         String query = "SELECT COUNT(*) FROM user WHERE email = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -182,6 +196,58 @@ public class UserService implements IService<User> {
 
         return false;
     }
+
+
+    public void SaveToken(String email , String token) throws SQLException {
+        String query = "Update user SET  email = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+
+        }catch(SQLException e) {
+            throw new RuntimeException("Failed to save token");
+        }
+    }
+
+
+    public User getUserByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM user WHERE email = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, email);
+
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setFirstName(rs.getString("first_name"));
+                    user.setLastName(rs.getString("last_name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setPassword(rs.getString("password"));
+                    user.setRole(rs.getInt("role"));
+                    user.setStatus(rs.getInt("status"));
+                    user.setTokens(rs.getInt("tokens"));
+
+                    // Optional fields - handle potential null values
+                    try {
+                        user.setAddress(rs.getString("address"));
+                        user.setBio(rs.getString("bio"));
+                        user.setPicture(rs.getString("picture"));
+                        user.setPhoneNumber(rs.getInt("phone_number"));
+                        user.setGoogleAuthenticatorSecret(rs.getString("google_authenticator_secret"));
+                    } catch (SQLException e) {
+                        // Ignore if some columns don't exist
+                    }
+
+                    return user;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+
     /**
      * Get a user by ID
      * @param id The user ID
@@ -306,6 +372,81 @@ public class UserService implements IService<User> {
             connection.setAutoCommit(true);
         }
     }
+
+    public boolean banUser(String email) throws SQLException {
+        String query = "UPDATE user SET status = 0 WHERE email = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Successfully banned user with email: " + email);
+                return true;
+            } else {
+                System.out.println("No user found with email: " + email);
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error banning user: " + e.getMessage());
+            throw e;
+        }
+    }
+
+
+    public boolean unbanUser(String email) throws SQLException {
+        String query = "UPDATE user SET status = 1 WHERE email = ? AND status = 0";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Successfully unbanned user with email: " + email);
+                return true;
+            } else {
+                System.out.println("No banned user found with email: " + email);
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error unbanning user: " + e.getMessage());
+            throw e;
+        }
+    }
+
+
+    public List<User> searchUsers(String searchText) throws SQLException {
+        List<User> users = new ArrayList<>();
+
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return recuperer(); // Return all users if search is empty
+        }
+
+        String query = "SELECT id, first_name, email, role, picture, status FROM user " +
+                "WHERE LOWER(first_name) LIKE ? OR LOWER(email) LIKE ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            String searchPattern = "%" + searchText.toLowerCase() + "%";
+            statement.setString(1, searchPattern);
+            statement.setString(2, searchPattern);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setFirstName(rs.getString("first_name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getInt("role"));
+                    user.setPicture(rs.getString("picture"));
+                    user.setStatus(rs.getInt("status"));
+                    users.add(user);
+                }
+            }
+        }
+
+        return users;
+    }
+
 }
 
 

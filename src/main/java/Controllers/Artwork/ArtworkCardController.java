@@ -17,10 +17,14 @@ import javafx.scene.layout.AnchorPane;
 import service.ArtworklikeService;
 import service.UserService;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
 public class ArtworkCardController {
+
+
 
     @FXML
     private Label ownerlabel;
@@ -60,6 +64,9 @@ public class ArtworkCardController {
     public void setParentController(ArtworkDisplayController controller) {
         // Reserved for future use
     }
+    public void setArtworkImage(Image image) {
+        imageView.setImage(image);
+    }
 
     public void setData(Artwork artwork, User user) {
         this.artwork = artwork;
@@ -94,11 +101,27 @@ public class ArtworkCardController {
 
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
             try {
-                imageView.setImage(new Image(artwork.getPicture(), true));
+                // Local file path
+                String imagePath = "C:/xampp/htdocs/";
+
+                // Combine path with the artwork's image filename
+                String imageUrl = imagePath + artwork.getPicture();
+
+                // Convert local file path to file URL (file:// protocol)
+                File file = new File(imageUrl);
+                if (file.exists()) {
+                    Image image = new Image(file.toURI().toString()); // Convert to URI and then URL
+                    imageView.setImage(image);
+                } else {
+                    System.out.println("Image not found: " + imageUrl);
+                }
             } catch (Exception e) {
                 System.out.println("Could not load image: " + artwork.getPicture());
+                e.printStackTrace();
             }
         }
+
+
 
         updateLikeButtonLabel();
         updateLikeCountLabel();

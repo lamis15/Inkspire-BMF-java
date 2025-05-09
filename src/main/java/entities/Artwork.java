@@ -29,7 +29,7 @@ public class Artwork {
         this.user = user;
     }
 
-    // Getters and Setters
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -71,4 +71,6 @@ public class Artwork {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+
 }

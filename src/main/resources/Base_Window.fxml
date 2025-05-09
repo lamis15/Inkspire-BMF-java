@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
@@ -9,26 +10,28 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
-<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.BaseWindow">
+<StackPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.BaseWindow">
     <children>
         <!-- Sidebar -->
         <AnchorPane prefHeight="600.0" prefWidth="200.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <Label fx:id="displayName" layoutX="57.0" styleClass="displayName" layoutY="23.0" prefHeight="30.0" prefWidth="104.0" />
+                <Label fx:id="displayName" layoutX="57.0" layoutY="23.0" prefHeight="30.0" prefWidth="104.0" styleClass="displayName" />
                 <!-- User icon in top left -->
-                <ImageView fx:id="userIcon" fitHeight="30.0" fitWidth="30.0" layoutX="20.0" layoutY="20.0" onMouseClicked="#goUser" preserveRatio="true" styleClass="clickable-icon">
-                    <image>
-                        <Image url="@assets/icons/user.png" />
-                    </image>
-                </ImageView>
+
+                <Circle fx:id="profilepicture" fill="DODGERBLUE" layoutX="26.0" layoutY="39.0" onMouseClicked="#goUser" radius="20.0" stroke="BLACK" strokeType="INSIDE">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor></Circle>
+
                 <!-- Messages icon in top right -->
                 <ImageView fx:id="messagesIcon" fitHeight="30.0" fitWidth="30.0" layoutX="145.0" layoutY="20.0" onMouseClicked="#goMessages" preserveRatio="true" styleClass="clickable-icon">
                     <image>
                         <Image url="@assets/icons/conversation.png" />
                     </image>
                 </ImageView>
-                <VBox alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
+                <VBox fx:id="sidebar" alignment="CENTER" layoutX="0.0" layoutY="100.0" prefWidth="200.0" spacing="10">
                     <children>
                         <ImageView fitHeight="80.0" fitWidth="150.0" preserveRatio="true">
                             <image>
@@ -39,25 +42,24 @@
                             </VBox.margin>
                         </ImageView>
                         <Button fx:id="buttonhome1" maxWidth="Infinity" mnemonicParsing="false" onAction="#gohome" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Home" />
-
                         <Button fx:id="buttonCollections" maxWidth="Infinity" mnemonicParsing="false" onAction="#goCollections" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Collections" />
                         <Button fx:id="buttonDonations" maxWidth="Infinity" mnemonicParsing="false" onAction="#goDonations" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Donations" />
                         <Button fx:id="buttonEvents" maxWidth="Infinity" mnemonicParsing="false" onAction="#goEvents" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Events" />
 
                         <Button fx:id="buttonAuction" maxWidth="Infinity" mnemonicParsing="false" onAction="#goAuction" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Auction" />
-                  <Button fx:id="buttonAuction11" maxWidth="Infinity" mnemonicParsing="false" onAction="#goArtwork" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Artwork" />
+                        <Button fx:id="buttonAuction11" maxWidth="Infinity" mnemonicParsing="false" onAction="#goArtwork" prefHeight="30.0" prefWidth="150.0" styleClass="nav-button" text="Artwork" />
                     </children>
                 </VBox>
             </children>
         </AnchorPane>
-        
-                                      <!-- Main Content Area - Positioned on top with margin to show sidebar -->
-        <BorderPane pickOnBounds="false">
+
+        <!-- Main Content Area - Positioned on top with margin to show sidebar -->
+        <BorderPane pickOnBounds="false" prefHeight="787.0" prefWidth="1128.0">
             <left>
                 <AnchorPane prefWidth="180.0" visible="false" />
             </left>
             <center>
-                <AnchorPane fx:id="mainRouter" prefHeight="600.0" prefWidth="800.0" styleClass="main-content" />
+                <AnchorPane fx:id="mainRouter" prefHeight="800.0" prefWidth="1006.0" styleClass="main-content" />
             </center>
         </BorderPane>
     </children>

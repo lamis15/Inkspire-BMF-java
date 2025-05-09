@@ -81,7 +81,7 @@ public class ArtworkAdminController {
                             "-fx-padding: 15;"
             );
 
-            // Image
+
             ImageView imageView = new ImageView();
             imageView.setFitWidth(700);
             imageView.setFitHeight(250);
@@ -90,28 +90,35 @@ public class ArtworkAdminController {
             imageView.setCache(true);
 
             Image image = null;
+
             try {
-                String path = artwork.getPicture();
-                if (path != null && !path.trim().isEmpty()) {
-                    if (path.startsWith("http") || path.startsWith("file:/")) {
-                        image = new Image(path, true);
+                if (artwork.getPicture() != null && !artwork.getPicture().trim().isEmpty()) {
+                    String imagePath = "C:/xampp/htdocs/";
+
+                    String imageUrl = imagePath + artwork.getPicture();
+
+                    File file = new File(imageUrl);
+                    if (file.exists()) {
+                        image = new Image(file.toURI().toString());
+                        imageView.setImage(image);
                     } else {
-                        File file = new File(path);
-                        if (file.exists()) {
-                            image = new Image(file.toURI().toString());
-                        }
+                        System.out.println("Image not found: " + imageUrl);
                     }
                 }
-                if (image == null || image.isError()) {
-                    image = new Image(getClass().getResource("/images/default.jpg").toExternalForm());
-                }
             } catch (Exception e) {
-                image = new Image(getClass().getResource("/images/default.jpg").toExternalForm());
+                System.out.println("❌ Could not load image: " + artwork.getPicture());
+                e.printStackTrace();
+
+                // Provide a fallback image URL in case of error
+                String fallbackUrl = "http://localhost/images/artwork/default.jpg";
+                image = new Image(fallbackUrl);
+            }
+
+            if (image != null) {
+                imageView.setImage(image);
             }
 
             imageView.setImage(image);
-
-            // Labels
             Label idLabel = new Label("🆔 ID: " + artwork.getId());
             Label titleLabel = new Label("🎨 " + artwork.getName());
             Label descLabel = new Label("📝 " + artwork.getDescription());
@@ -122,7 +129,6 @@ public class ArtworkAdminController {
             titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
             descLabel.setWrapText(true);
 
-            // Delete button
             Button deleteBtn = new Button("Delete");
             deleteBtn.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white;");
             deleteBtn.setOnAction(e -> {
@@ -142,39 +148,31 @@ public class ArtworkAdminController {
     private VBox chartContainer;
 
     public void showLikesStatsChart(ActionEvent actionEvent) {
-        chartContainer.getChildren().clear(); // Clear previous chart
+        chartContainer.getChildren().clear();
 
-        // Define axes
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Artwork");
 
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Number of Likes");
 
-        // Create chart
         BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
         barChart.setTitle("Artwork Likes");
 
-        // Create data series
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Likes");
 
         try {
-            // Get the likes data
             Map<Integer, Integer> likesPerArtwork = artworkService.getLikesPerArtwork();
 
-            // Add data to series
             for (Map.Entry<Integer, Integer> entry : likesPerArtwork.entrySet()) {
-                // Fetch the Artwork object by its ID (entry.getKey())
+
                 Artwork artwork = artworkService.getArtworkById(entry.getKey());
 
                 if (artwork != null) {
-                    // Get the name of the artwork
                     String artworkName = artwork.getName();
-                    // Get the like count
                     int likeCount = entry.getValue();
 
-                    // Add the data to the series using the artwork name as the label
                     series.getData().add(new XYChart.Data<>(artworkName, likeCount));
                 }
             }
@@ -184,7 +182,6 @@ public class ArtworkAdminController {
 
         barChart.getData().add(series);
 
-        // Add chart to UI
         chartContainer.getChildren().add(barChart);
     }
 
