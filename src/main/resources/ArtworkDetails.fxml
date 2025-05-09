@@ -33,13 +33,13 @@
                 </VBox>
 
                 <ImageView fx:id="imageView" fitHeight="699.0" fitWidth="757.0" preserveRatio="true" />
-                 <Label fx:id="commentError" styleClass="error" />
+                <Label fx:id="commentError" styleClass="error" />
 
                 <Label fx:id="nameLabel" styleClass="title" />
                 <Label fx:id="themeLabel" styleClass="subtitle" />
                 <Label fx:id="descriptionLabel" styleClass="description" wrapText="true" />
                 <Label fx:id="likeCountLabel"
-                       />
+                />
 
                 <Label fx:id="statusLabel" styleClass="subtitle" />
 

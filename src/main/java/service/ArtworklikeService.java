@@ -18,7 +18,7 @@ public class ArtworklikeService {
 
     public boolean hasUserLiked(Artwork artwork, User user) throws SQLException {
         if (user == null || user.getId() == null) {
-            return false;  // If no user is logged in, return false
+            return false;
         }
         String query = "SELECT 1 FROM artwork_like WHERE artwork_id = ? AND user_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {

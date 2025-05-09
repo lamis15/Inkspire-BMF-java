@@ -2,6 +2,7 @@ package Controllers.Artwork;
 
 import entities.Artwork;
 import entities.User;
+import io.jsonwebtoken.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -60,16 +61,32 @@ public class AjouterArtworkController {
 
     @FXML
     void chooseImage(ActionEvent event) {
-        // Open a file chooser to select an image
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(null);
 
         if (file != null) {
-            imagePath = file.toURI().toString();
-            imagePathLabel.setText(file.getName());
+            // Define the destination path in the server's htdocs folder
+            String destinationFolder = "C:/xampp/htdocs/images/profilePictures/";  // Change this path as necessary
+            String destinationFilePath = destinationFolder + file.getName();
+
+            File destFile = new File(destinationFilePath);
+
+            try {
+                // Copy the file to the destination folder in htdocs
+
+                // Store the relative path to the image
+                imagePath = "images/profilePictures/" + file.getName();  // Relative path for use in web server
+
+                // Update the label with the image name
+                imagePathLabel.setText(file.getName());
+            } catch (IOException e) {
+                e.printStackTrace();
+                imageError.setText("Error saving image to server.");
+            }
         }
     }
+
 
     @FXML
     void addArtwork(ActionEvent event) {
@@ -80,7 +97,7 @@ public class AjouterArtworkController {
         themeError.setText("");
 
 
-        // Get user inputs
+
         String name = nameField.getText();
         String theme = themeComboBox.getValue();
         String description = descriptionArea.getText();
@@ -175,17 +192,20 @@ public class AjouterArtworkController {
     private void onGenerateImage() {
         String prompt = descriptionArea.getText();
         if (prompt == null || prompt.isEmpty()) {
-            descriptionError.setText("prompt cannot be empty.");
-
+            descriptionError.setText("Prompt cannot be empty.");
             return;
         }
 
         try {
             generatedImageUrl = ImageGenerationService.generateImage(prompt);
-            Image image = new Image(generatedImageUrl);
-            artworkImageView.setImage(image);
+            System.out.println("Image URI: " + generatedImageUrl);
 
-            // Set the imagePath to the newly generated image (optional but useful)
+            Image image = new Image(generatedImageUrl);
+            if (image.isError()) {
+                System.out.println("⚠️ Failed to load image: " + image.getException().getMessage());
+            }
+
+            artworkImageView.setImage(image);
             imagePath = generatedImageUrl;
             imagePathLabel.setText("Generated Image");
 
@@ -197,7 +217,4 @@ public class AjouterArtworkController {
             alert.setContentText("An error occurred while generating the image.");
             alert.showAndWait();
         }
-    }
-
-
-}
+    }}

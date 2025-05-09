@@ -22,7 +22,7 @@ public class EditArtworkDialog {
     @FXML
     private Label imagePathLabel;
     @FXML
-    private ComboBox<String> themeComboBox;  // Ensure the ComboBox is annotated with @FXML
+    private ComboBox<String> themeComboBox;
 
 
     private String imagePath = null;
@@ -50,7 +50,7 @@ public class EditArtworkDialog {
     }
     @FXML
     public void chooseImage(ActionEvent event) {
-        // Open a file chooser to select an image
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(null);

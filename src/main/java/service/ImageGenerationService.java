@@ -1,3 +1,5 @@
+
+
 package service;
 
 import java.io.File;
@@ -10,7 +12,7 @@ import java.net.http.HttpResponse;
 
 public class ImageGenerationService {
 
-    private static final String API_KEY = "sk-dJAVdRrlPPtWBi7rGMGck8YAUmADHZArwmjCokssPchA6ECw"; // TODO: Replace
+    private static final String API_KEY = "sk-X7vB6SP7vCBViSl69jUBpUmWbp5i3cGvKggONzKT3Q4rvWGe"; // TODO: Replace
     private static final String API_URL = "https://api.stability.ai/v2beta/stable-image/generate/core";
 
     public static String generateImage(String prompt) throws IOException, InterruptedException {
@@ -31,15 +33,20 @@ public class ImageGenerationService {
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
-        // Save binary image to a temporary file
-        File tempFile = File.createTempFile("generated-artwork-", ".png");
-        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+        // Set the path where to save the image
+        String filename = "generated_" + System.currentTimeMillis() + ".png";
+        File outputDir = new File("C:/xampp/htdocs/images/artwork"); // adjust if needed
+        if (!outputDir.exists()) outputDir.mkdirs();
+
+        File outputFile = new File(outputDir, filename);
+        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             fos.write(response.body());
         }
 
-        System.out.println("Image saved to: " + tempFile.getAbsolutePath());
+        System.out.println("✅ Image saved to: " + outputFile.getAbsolutePath());
 
-        // Return a proper "file:///" URL
-        return tempFile.toURI().toString();
+        // Return JavaFX-compatible file URI
+        return outputFile.toURI().toString();
     }
+
 }

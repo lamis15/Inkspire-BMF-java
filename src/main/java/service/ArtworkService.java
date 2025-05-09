@@ -67,7 +67,7 @@ public class ArtworkService implements IService<Artwork> {
             psLikes.executeUpdate();
         }
 
-        // Step 2: Delete the artwork record from the artwork table
+
         String deleteArtworkSql = "DELETE FROM artwork WHERE id = ?";
         try (PreparedStatement psArtwork = connection.prepareStatement(deleteArtworkSql)) {
             psArtwork.setInt(1, artworkId);
@@ -168,7 +168,7 @@ public class ArtworkService implements IService<Artwork> {
         checkRs.next();
         int count = checkRs.getInt(1);
 
-        // Only insert if the relationship doesn't already exist
+
         if (count == 0) {
             String sql = "INSERT INTO collections_artwork (artwork_id, collections_id) VALUES (?, ?)";
 
@@ -204,10 +204,10 @@ public class ArtworkService implements IService<Artwork> {
      * @return List of artworks in the collection
      */
     public List<Artwork> getArtworksByCollectionId(int collectionId) throws SQLException {
-        // Debug log
+
         System.out.println("Fetching artworks for collection ID: " + collectionId);
 
-        // First, check if there are any entries in the collections_artwork table
+
         String checkSql = "SELECT COUNT(*) FROM collections_artwork WHERE collections_id = ?";
         PreparedStatement checkStmt = connection.prepareStatement(checkSql);
         checkStmt.setInt(1, collectionId);
@@ -216,7 +216,6 @@ public class ArtworkService implements IService<Artwork> {
         int count = checkRs.getInt(1);
         System.out.println("Found " + count + " entries in collections_artwork table for collection ID: " + collectionId);
 
-        // Main query to get artwork details
         String sql = "SELECT a.* FROM artwork a " +
                 "JOIN collections_artwork ca ON a.id = ca.artwork_id " +
                 "WHERE ca.collections_id = ?";
@@ -235,7 +234,7 @@ public class ArtworkService implements IService<Artwork> {
             a.setDescription(rs.getString("description"));
             a.setPicture(rs.getString("picture"));
 
-            // Handle status values
+
             int status = rs.getInt("status");
             if (rs.wasNull()) {
                 a.setStatus(null);
@@ -269,7 +268,7 @@ public class ArtworkService implements IService<Artwork> {
             a.setDescription(rs.getString("description"));
             a.setPicture(rs.getString("picture"));
 
-            // Handle status values
+
             int status = rs.getInt("status");
             if (rs.wasNull()) {
                 a.setStatus(null);
@@ -277,7 +276,7 @@ public class ArtworkService implements IService<Artwork> {
                 a.setStatus(status > 0);
             }
 
-            // Set user for each artwork (optional)
+
             User user = new User();
             user.setId(rs.getInt("user_id"));
             a.setUser(user);
@@ -323,7 +322,7 @@ public class ArtworkService implements IService<Artwork> {
                     artwork.setDescription(rs.getString("description"));
                     artwork.setPicture(rs.getString("picture"));
                     artwork.setStatus(rs.getBoolean("status"));
-                    // Set other fields if needed
+
                 }
             }
         }

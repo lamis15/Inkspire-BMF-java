@@ -30,7 +30,6 @@ public class UserSignup {
     @FXML private Label confirmError;
     @FXML private Label confirmPasswordError;
 
-    @FXML private Button signUpButton;
 
     private final UserService service = new UserService();
 
@@ -162,7 +161,9 @@ public class UserSignup {
         newUser.setEmail(emailField.getText().trim());
 
         String rawPassword = passwordField.getText().trim();
+        System.out.println(rawPassword);
         String hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+        System.out.println(hashedPassword);
         newUser.setPassword(hashedPassword);
 
         newUser.setRole(0);
