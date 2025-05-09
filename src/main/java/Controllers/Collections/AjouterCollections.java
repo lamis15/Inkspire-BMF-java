@@ -12,10 +12,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import service.ArtworkService;
@@ -51,6 +54,9 @@ public class AjouterCollections implements Initializable {
 
     @FXML
     private FlowPane artworkContainer;
+    
+    // ScrollPane to wrap the FlowPane for scrolling
+    private ScrollPane artworkScrollPane;
 
     @FXML
     private VBox rootVBox;
@@ -121,8 +127,42 @@ public class AjouterCollections implements Initializable {
                 }
             }
         });
+        
+        // Create ScrollPane for the artwork container
+        setupScrollableArtworkContainer();
 
         loadUserArtworks();
+    }
+    
+    /**
+     * Set up scrollable container for artworks
+     */
+    private void setupScrollableArtworkContainer() {
+        // Create ScrollPane for artworks
+        if (artworkContainer != null) {
+            // Get the parent of the FlowPane
+            Parent parent = artworkContainer.getParent();
+            
+            // Create a new ScrollPane
+            artworkScrollPane = new ScrollPane(artworkContainer);
+            artworkScrollPane.setFitToWidth(true);
+            artworkScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Always show vertical scrollbar
+            artworkScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            artworkScrollPane.setPrefHeight(450); // Increased height
+            artworkScrollPane.setMinHeight(450); // Set minimum height
+            artworkScrollPane.setPrefViewportHeight(450); // Increased viewport height
+            artworkScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+            artworkScrollPane.setPannable(true); // Allow panning with mouse
+            
+            // Replace the FlowPane with the ScrollPane in the parent container
+            if (parent instanceof Pane) {
+                int index = ((Pane) parent).getChildren().indexOf(artworkContainer);
+                if (index >= 0) {
+                    ((Pane) parent).getChildren().remove(artworkContainer);
+                    ((Pane) parent).getChildren().add(index, artworkScrollPane);
+                }
+            }
+        }
     }
 
     /**
@@ -425,7 +465,11 @@ public class AjouterCollections implements Initializable {
             // Configure the FlowPane for proper scrolling and layout
             container.setPrefWidth(600);
             container.setMaxWidth(Double.MAX_VALUE);
-            container.setMinHeight(400);
+            container.setMinHeight(600); // Increased minimum height to accommodate all artworks
+            container.setPrefHeight(Region.USE_COMPUTED_SIZE); // Use computed size for height
+            container.setHgap(15); // Add horizontal gap between artwork cards
+            container.setVgap(15); // Add vertical gap between artwork cards
+            container.setPrefWrapLength(600); // Set preferred wrap length
 
             // Check if artworks list is null or empty
             if (artworks == null || artworks.isEmpty()) {

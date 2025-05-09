@@ -23,6 +23,7 @@ import service.DonationService;
 import service.DonationPredictionService;
 import utils.SceneSwitch;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -142,8 +143,20 @@ public class CollectionDetails implements javafx.fxml.Initializable {
         // Load collection image
         if (collection.getImage() != null && !collection.getImage().isEmpty()) {
             try {
-                Image image = new Image(collection.getImage());
-                imageView.setImage(image);
+                // Check if the image is already a file URI or a relative path
+                if (collection.getImage().startsWith("file:")) {
+                    Image image = new Image(collection.getImage());
+                    imageView.setImage(image);
+                } else {
+                    // Use the correct path format with xampp/htdocs
+                    File file = new File("C:/xampp/htdocs/" + collection.getImage());
+                    if (file.exists()) {
+                        Image image = new Image(file.toURI().toString());
+                        imageView.setImage(image);
+                    } else {
+                        throw new Exception("File not found: " + file.getAbsolutePath());
+                    }
+                }
             } catch (Exception e) {
                 System.out.println("Error loading image: " + e.getMessage());
             }
@@ -321,8 +334,14 @@ public class CollectionDetails implements javafx.fxml.Initializable {
                     // Set artwork data
                     if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
                         try {
-                            Image image = new Image(artwork.getPicture());
-                            artworkImage.setImage(image);
+                            // Try loading the image using the correct file path
+                            File file = new File("C:/xampp/htdocs/" + artwork.getPicture());
+                            if (file.exists()) {
+                                Image image = new Image(file.toURI().toString());
+                                artworkImage.setImage(image);
+                            } else {
+                                throw new Exception("File not found: " + file.getAbsolutePath());
+                            }
                         } catch (Exception e) {
                             System.out.println("Error loading artwork image: " + e.getMessage());
                             // Use placeholder image if artwork image can't be loaded

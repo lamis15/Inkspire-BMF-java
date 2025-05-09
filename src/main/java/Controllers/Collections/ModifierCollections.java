@@ -10,11 +10,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import service.ArtworkService;
@@ -58,6 +60,10 @@ public class ModifierCollections implements Initializable {
 
     @FXML
     private FlowPane collectionArtworksContainer;
+    
+    // ScrollPanes to wrap the FlowPanes for scrolling
+    private ScrollPane availableArtworksScrollPane;
+    private ScrollPane collectionArtworksScrollPane;
 
     @FXML
     private Label titleErrorLabel;
@@ -83,7 +89,6 @@ public class ModifierCollections implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Configure the scene after it's loaded
-        // Configure the scene after it's loaded
         if (rootVBox != null) {
             rootVBox.sceneProperty().addListener((observable, oldScene, newScene) -> {
                 if (newScene != null) {
@@ -102,6 +107,66 @@ public class ModifierCollections implements Initializable {
                     }
                 }
             });
+        }
+        
+        // Create ScrollPanes for the artwork containers
+        setupScrollableArtworkContainers();
+    }
+    
+    /**
+     * Set up scrollable containers for artworks
+     */
+    private void setupScrollableArtworkContainers() {
+        // Create ScrollPane for available artworks
+        if (availableArtworksContainer != null) {
+            // Get the parent of the FlowPane
+            Parent parent = availableArtworksContainer.getParent();
+            
+            // Create a new ScrollPane
+            availableArtworksScrollPane = new ScrollPane(availableArtworksContainer);
+            availableArtworksScrollPane.setFitToWidth(true);
+            availableArtworksScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Always show vertical scrollbar
+            availableArtworksScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            availableArtworksScrollPane.setPrefHeight(450); // Increased height
+            availableArtworksScrollPane.setMinHeight(450); // Set minimum height
+            availableArtworksScrollPane.setPrefViewportHeight(450); // Increased viewport height
+            availableArtworksScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+            availableArtworksScrollPane.setPannable(true); // Allow panning with mouse
+            
+            // Replace the FlowPane with the ScrollPane in the parent container
+            if (parent instanceof Pane) {
+                int index = ((Pane) parent).getChildren().indexOf(availableArtworksContainer);
+                if (index >= 0) {
+                    ((Pane) parent).getChildren().remove(availableArtworksContainer);
+                    ((Pane) parent).getChildren().add(index, availableArtworksScrollPane);
+                }
+            }
+        }
+        
+        // Create ScrollPane for collection artworks
+        if (collectionArtworksContainer != null) {
+            // Get the parent of the FlowPane
+            Parent parent = collectionArtworksContainer.getParent();
+            
+            // Create a new ScrollPane
+            collectionArtworksScrollPane = new ScrollPane(collectionArtworksContainer);
+            collectionArtworksScrollPane.setFitToWidth(true);
+            collectionArtworksScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Always show vertical scrollbar
+            collectionArtworksScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            collectionArtworksScrollPane.setPrefHeight(450); // Increased height
+            collectionArtworksScrollPane.setMinHeight(450); // Set minimum height
+            collectionArtworksScrollPane.setPrefViewportHeight(450); // Increased viewport height
+            collectionArtworksScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+            collectionArtworksScrollPane.setPannable(true); // Allow panning with mouse
+            
+            // Replace the FlowPane with the ScrollPane in the parent container
+            if (parent instanceof Pane) {
+                int index = ((Pane) parent).getChildren().indexOf(collectionArtworksContainer);
+                if (index >= 0) {
+                    ((Pane) parent).getChildren().remove(collectionArtworksContainer);
+                    ((Pane) parent).getChildren().add(index, collectionArtworksScrollPane);
+                }
+            }
         }
     }
 
@@ -521,10 +586,14 @@ public class ModifierCollections implements Initializable {
                 selectedArtworks.clear();
             }
 
-            // Configure the FlowPane for proper scrolling
+            // Configure the FlowPane for proper scrolling and layout
             container.setPrefWidth(600);
             container.setMaxWidth(Double.MAX_VALUE);
-            container.setMinHeight(400);
+            container.setMinHeight(600); // Increased minimum height to accommodate all artworks
+            container.setPrefHeight(Region.USE_COMPUTED_SIZE); // Use computed size for height
+            container.setHgap(15); // Add horizontal gap between artwork cards
+            container.setVgap(15); // Add vertical gap between artwork cards
+            container.setPrefWrapLength(600); // Set preferred wrap length
 
             // Create a card for each artwork
             for (Artwork artwork : artworks) {
@@ -546,8 +615,14 @@ public class ModifierCollections implements Initializable {
                     // Set artwork data
                     if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
                         try {
-                            Image image = new Image(artwork.getPicture());
-                            artworkImage.setImage(image);
+                            // Try loading the image using the correct file path
+                            File file = new File("C:/xampp/htdocs/" + artwork.getPicture());
+                            if (file.exists()) {
+                                Image image = new Image(file.toURI().toString());
+                                artworkImage.setImage(image);
+                            } else {
+                                throw new Exception("File not found: " + file.getAbsolutePath());
+                            }
                         } catch (Exception e) {
                             // Use placeholder image if artwork image can't be loaded
                             Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
