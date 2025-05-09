@@ -275,7 +275,7 @@ public class ModifierUser {
     @FXML
     public void deleteUser(ActionEvent actionEvent) {
         boolean success = service.supprimer(currentUser.getId());
-
+        Session.clearSession();
         if (success) {
             System.out.println("User deleted successfully.");
             Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();

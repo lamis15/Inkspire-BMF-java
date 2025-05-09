@@ -12,6 +12,7 @@ import javafx.scene.layout.*;
 import service.AuctionService;
 import utils.SceneSwitch;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -83,7 +84,9 @@ public class AfficherAuction {
             try {
                 String imageUrl = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
                 System.out.println("Image URL: " + imageUrl);
-                card = createCard(auction,auctionService.getArtworkById(auction.getArtworkId()).getPicture());
+                String imagePath =  "C:/xampp/htdocs/" + imageUrl;
+                System.out.println("Image Path: " + imagePath);
+                card = createCard(auction,imagePath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -118,8 +121,14 @@ public class AfficherAuction {
         imageWrapper.setPrefSize(200, 150);
         imageWrapper.setMaxSize(200, 150);
         imageWrapper.setMinSize(200, 150);
-
-        ImageView imageView = new ImageView(new Image(imageUrl));
+        File file = new File(imageUrl);
+        Image image = null;
+        if (file.exists()) {
+            image = new Image(file.toURI().toString());
+        } else {
+            System.out.println("Image not found: " + imageUrl);
+        }
+        ImageView imageView = new ImageView(image);
         imageView.setFitWidth(200);
         imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
@@ -134,13 +143,13 @@ public class AfficherAuction {
         HBox buttonsBox = new HBox(10);
         buttonsBox.setPrefWidth(200);
         buttonsBox.setStyle("-fx-alignment: center;");
-        
-        if(auctionService.isMine(auction)){
+
+        if (auctionService.isMine(auction)) {
             Button editBtn = new Button("Edit");
             editBtn.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #333; -fx-background-radius: 6; -fx-padding: 3 10;");
             editBtn.setOnAction(e -> {
-                    Session.setCurrentAuction(auction);
-                    SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/ModifierAuction.fxml");
+                Session.setCurrentAuction(auction);
+                SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/ModifierAuction.fxml");
             });
             Button deleteBtn = new Button("Delete");
             deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 3 10;");
@@ -158,9 +167,8 @@ public class AfficherAuction {
                 Session.setCurrentAuction(auction);
                 SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/AfficherAuctionDetail.fxml");
             });
-            buttonsBox.getChildren().addAll(editBtn, deleteBtn ,chartBtn);
-        }
-        else{
+            buttonsBox.getChildren().addAll(editBtn, deleteBtn, chartBtn);
+        } else {
             Button placeBidBtn = new Button("Place Bid");
             placeBidBtn.setStyle("-fx-background-color: #50c878; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 3 10;");
             placeBidBtn.setOnAction(e -> {
@@ -169,7 +177,7 @@ public class AfficherAuction {
             });
             buttonsBox.getChildren().addAll(placeBidBtn);
         }
-        card.getChildren().addAll(imageWrapper, nameLabel ,bidLabel, timeLeftLabel, buttonsBox);
+        card.getChildren().addAll(imageWrapper, nameLabel, bidLabel, timeLeftLabel, buttonsBox);
         return card;
     }
 }

@@ -12,7 +12,7 @@ import java.net.http.HttpResponse;
 
 public class ImageGenerationService {
 
-    private static final String API_KEY = "sk-9QOcIjLuoh9kk4R4fdi25ylxIjhORGOjzYJqWhGVBSFnnYW3"; // TODO: Replace
+    private static final String API_KEY = "sk-uPJAHtXzUQI94UBC1bdwsPfahlug97KRqlsDdlR73N6HRpXb"; // TODO: Replace
     private static final String API_URL = "https://api.stability.ai/v2beta/stable-image/generate/core";
 
     public static String generateImage(String prompt) throws IOException, InterruptedException {

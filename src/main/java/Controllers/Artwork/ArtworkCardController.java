@@ -101,16 +101,13 @@ public class ArtworkCardController {
 
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
             try {
-                // Local file path
                 String imagePath = "C:/xampp/htdocs/";
 
-                // Combine path with the artwork's image filename
                 String imageUrl = imagePath + artwork.getPicture();
 
-                // Convert local file path to file URL (file:// protocol)
                 File file = new File(imageUrl);
                 if (file.exists()) {
-                    Image image = new Image(file.toURI().toString()); // Convert to URI and then URL
+                    Image image = new Image(file.toURI().toString());
                     imageView.setImage(image);
                 } else {
                     System.out.println("Image not found: " + imageUrl);

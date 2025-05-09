@@ -11,6 +11,7 @@ import service.AuctionService;
 import utils.SceneSwitch;
 import entities.Session;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -48,7 +49,11 @@ public class AfficherAuction {
         }
 
         for (Auction auction : auctions) {
-            VBox card = createCard(auction, auctionService.getArtworkById(auction.getArtworkId()).getPicture());
+            String imageUrl = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
+            System.out.println("Image URL: " + imageUrl);
+            String imagePath =  "C:/xampp/htdocs/" + imageUrl;
+            System.out.println("Image Path: " + imagePath);
+            VBox card = createCard(auction, imagePath);
             cardsContainer.getChildren().add(card);
         }
     }
@@ -62,7 +67,14 @@ public class AfficherAuction {
         StackPane imageWrapper = new StackPane();
         imageWrapper.setPrefSize(200, 150);
 
-        ImageView imageView = new ImageView(new Image(imageUrl));
+        File file = new File(imageUrl);
+        Image image = null;
+        if (file.exists()) {
+            image = new Image(file.toURI().toString());
+        } else {
+            System.out.println("Image not found: " + imageUrl);
+        }
+        ImageView imageView = new ImageView(image);
         imageView.setFitWidth(200);
         imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
