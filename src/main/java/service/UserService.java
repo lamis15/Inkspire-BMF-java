@@ -129,12 +129,14 @@ public class UserService implements IService<User> {
         String query = "SELECT * FROM user WHERE email = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
+
             statement.setString(1, email);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     String hashedPassword = resultSet.getString("password");
                     hashedPassword = hashedPassword.replace("$2y$", "$2a$");
+
                     if (BCrypt.checkpw(password, hashedPassword) && resultSet.getInt("status") == 1) {
                         User user = new User();
                         user.setId(resultSet.getInt("id"));
