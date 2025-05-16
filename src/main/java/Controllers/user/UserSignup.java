@@ -163,6 +163,8 @@ public class UserSignup {
         String rawPassword = passwordField.getText().trim();
         System.out.println(rawPassword);
         String hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+        hashedPassword = hashedPassword.replace("$2a$", "$2y$");
+
         System.out.println(hashedPassword);
         newUser.setPassword(hashedPassword);
 

@@ -12,7 +12,7 @@ import java.net.http.HttpResponse;
 
 public class ImageGenerationService {
 
-    private static final String API_KEY = "sk-uPJAHtXzUQI94UBC1bdwsPfahlug97KRqlsDdlR73N6HRpXb"; // TODO: Replace
+    private static final String API_KEY = "sk-a1lETwGzxAZ5Pwh0AsUOPA75hp4RGbdrDiLrYkZrWOKRIMor"; // TODO: Replace
     private static final String API_URL = "https://api.stability.ai/v2beta/stable-image/generate/core";
 
     public static String generateImage(String prompt) throws IOException, InterruptedException {
@@ -35,7 +35,7 @@ public class ImageGenerationService {
 
         // Set the path where to save the image
         String filename = "generated_" + System.currentTimeMillis() + ".png";
-        File outputDir = new File("C:/xampp/htdocs/images/artwork"); // adjust if needed
+        File outputDir = new File("C:/xampp/htdocs/images/artwork/"); // adjust if needed
         if (!outputDir.exists()) outputDir.mkdirs();
 
         File outputFile = new File(outputDir, filename);
@@ -46,7 +46,7 @@ public class ImageGenerationService {
         System.out.println("✅ Image saved to: " + outputFile.getAbsolutePath());
 
         // Return JavaFX-compatible file URI
-        return "images/artwork/" + filename;  // Returning the relative path
+        return  filename;  // Returning the relative path
     }
 
 }

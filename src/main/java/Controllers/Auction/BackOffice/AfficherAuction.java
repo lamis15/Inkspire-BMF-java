@@ -25,6 +25,9 @@ public class AfficherAuction {
     private Button bidsBtn;
 
     private final AuctionService auctionService = new AuctionService();
+    
+    // Define image path constant
+    private static final String ARTWORK_IMAGE_PATH = "C:/xampp/htdocs/images/artwork/";
 
     @FXML
     public void initialize() {
@@ -49,16 +52,12 @@ public class AfficherAuction {
         }
 
         for (Auction auction : auctions) {
-            String imageUrl = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
-            System.out.println("Image URL: " + imageUrl);
-            String imagePath =  "C:/xampp/htdocs/" + imageUrl;
-            System.out.println("Image Path: " + imagePath);
-            VBox card = createCard(auction, imagePath);
+            VBox card = createCard(auction, auctionService.getArtworkById(auction.getArtworkId()).getPicture());
             cardsContainer.getChildren().add(card);
         }
     }
 
-    private VBox createCard(Auction auction, String imageUrl) throws IOException, SQLException {
+    private VBox createCard(Auction auction, String imageFilename) throws IOException, SQLException {
         VBox card = new VBox();
         card.setPrefSize(200, 300);
         card.setSpacing(10);
@@ -67,17 +66,48 @@ public class AfficherAuction {
         StackPane imageWrapper = new StackPane();
         imageWrapper.setPrefSize(200, 150);
 
-        File file = new File(imageUrl);
-        Image image = null;
-        if (file.exists()) {
-            image = new Image(file.toURI().toString());
-        } else {
-            System.out.println("Image not found: " + imageUrl);
-        }
-        ImageView imageView = new ImageView(image);
+        // Handle artwork image loading properly
+        ImageView imageView = new ImageView();
         imageView.setFitWidth(200);
         imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
+        
+        if (imageFilename != null && !imageFilename.isEmpty()) {
+            try {
+                // Create full path to the image
+                String imagePath = ARTWORK_IMAGE_PATH + imageFilename;
+                File imageFile = new File(imagePath);
+                
+                if (imageFile.exists()) {
+                    // Load image from file system
+                    Image image = new Image(imageFile.toURI().toString());
+                    imageView.setImage(image);
+                } else {
+                    System.out.println("Artwork image not found: " + imagePath);
+                    // Use a placeholder image
+                    Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(placeholder);
+                }
+            } catch (Exception e) {
+                System.out.println("Error loading image: " + e.getMessage());
+                // Use a placeholder on error
+                try {
+                    Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(placeholder);
+                } catch (Exception ex) {
+                    System.out.println("Could not load placeholder image: " + ex.getMessage());
+                }
+            }
+        } else {
+            // Use placeholder for null/empty image path
+            try {
+                Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                imageView.setImage(placeholder);
+            } catch (Exception e) {
+                System.out.println("Could not load placeholder image: " + e.getMessage());
+            }
+        }
+        
         imageWrapper.getChildren().add(imageView);
 
         Label label = new Label("Label: " + auction.getLabel());

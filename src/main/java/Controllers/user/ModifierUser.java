@@ -85,9 +85,9 @@ public class ModifierUser {
             String imagePath;
 
             if (currentUser.getPicture() == null || currentUser.getPicture().isEmpty() || currentUser.getPicture().equals("null")) {
-                imagePath = "C:/xampp/htdocs/images/profilePictures/user.png";
+                imagePath = "C:/xampp/htdocs/images/ProfilePictures/user.png";
             } else {
-                imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
+                imagePath = "C:/xampp/htdocs/images/ProfilePictures/" + currentUser.getPicture();
             }
 
             try {
@@ -275,7 +275,7 @@ public class ModifierUser {
     @FXML
     public void deleteUser(ActionEvent actionEvent) {
         boolean success = service.supprimer(currentUser.getId());
-        Session.clearSession();
+
         if (success) {
             System.out.println("User deleted successfully.");
             Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();

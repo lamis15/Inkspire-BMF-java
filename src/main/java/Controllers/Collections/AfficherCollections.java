@@ -46,6 +46,9 @@ public class AfficherCollections {
     private List<Collections> allCollections = new ArrayList<>();
     private List<Collections> userCollections = new ArrayList<>();
     
+    // Collection image path
+    public static final String COLLECTIONS_IMAGE_PATH = "C:/xampp/htdocs/collections/";
+    
     // Sort options
     private static final String SORT_TITLE_ASC = "A-Z";
     private static final String SORT_TITLE_DESC = "Z-A";

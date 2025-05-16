@@ -143,22 +143,36 @@ public class CollectionDetails implements javafx.fxml.Initializable {
         // Load collection image
         if (collection.getImage() != null && !collection.getImage().isEmpty()) {
             try {
-                // Check if the image is already a file URI or a relative path
-                if (collection.getImage().startsWith("file:")) {
-                    Image image = new Image(collection.getImage());
+                // Create a File object with the full path
+                File imageFile = new File(AfficherCollections.COLLECTIONS_IMAGE_PATH + collection.getImage());
+                
+                // Check if the file exists
+                if (imageFile.exists()) {
+                    Image image = new Image(imageFile.toURI().toString());
                     imageView.setImage(image);
                 } else {
-                    // Use the correct path format with xampp/htdocs
-                    File file = new File("C:/xampp/htdocs/" + collection.getImage());
-                    if (file.exists()) {
-                        Image image = new Image(file.toURI().toString());
-                        imageView.setImage(image);
-                    } else {
-                        throw new Exception("File not found: " + file.getAbsolutePath());
-                    }
+                    // Use default image if file doesn't exist
+                    Image defaultImage = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(defaultImage);
+                    System.out.println("Image file not found: " + imageFile.getAbsolutePath());
                 }
             } catch (Exception e) {
                 System.out.println("Error loading image: " + e.getMessage());
+                // Use default image on error
+                try {
+                    Image defaultImage = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(defaultImage);
+                } catch (Exception ex) {
+                    System.out.println("Default image loading failed: " + ex.getMessage());
+                }
+            }
+        } else {
+            // Use default image if no image is set
+            try {
+                Image defaultImage = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                imageView.setImage(defaultImage);
+            } catch (Exception e) {
+                System.out.println("Default image loading failed: " + e.getMessage());
             }
         }
 
@@ -334,16 +348,26 @@ public class CollectionDetails implements javafx.fxml.Initializable {
                     // Set artwork data
                     if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
                         try {
-                            // Try loading the image using the correct file path
-                            File file = new File("C:/xampp/htdocs/" + artwork.getPicture());
+                            // Local file path for artwork images
+                            String imagePath = "C:/xampp/htdocs/images/artwork/";
+
+                            // Combine path with the artwork's image filename
+                            String imageUrl = imagePath + artwork.getPicture();
+
+                            // Convert local file path to file URL
+                            File file = new File(imageUrl);
                             if (file.exists()) {
                                 Image image = new Image(file.toURI().toString());
                                 artworkImage.setImage(image);
                             } else {
-                                throw new Exception("File not found: " + file.getAbsolutePath());
+                                System.out.println("Artwork image not found: " + imageUrl);
+                                // Use placeholder image if artwork image can't be found
+                                Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                                artworkImage.setImage(placeholder);
                             }
                         } catch (Exception e) {
                             System.out.println("Error loading artwork image: " + e.getMessage());
+                            e.printStackTrace();
                             // Use placeholder image if artwork image can't be loaded
                             Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
                             artworkImage.setImage(placeholder);

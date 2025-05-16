@@ -163,9 +163,9 @@ public class BaseWindow {
 
 
         if (currentUser.getPicture() == null || currentUser.getPicture().isEmpty()) {
-            imagePath = "C:/xampp/htdocs/images/profilePictures/user.png";
+            imagePath = "C:/xampp/htdocs/images/ProfilePictures/user.png";
         } else {
-            imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
+            imagePath = "C:/xampp/htdocs/images/ProfilePictures/" + currentUser.getPicture();
         }
 
         displayName.setText(currentUser.getFirstName() + " " + currentUser.getLastName());

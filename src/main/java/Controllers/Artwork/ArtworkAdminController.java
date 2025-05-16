@@ -93,7 +93,7 @@ public class ArtworkAdminController {
 
             try {
                 if (artwork.getPicture() != null && !artwork.getPicture().trim().isEmpty()) {
-                    String imagePath = "C:/xampp/htdocs/";
+                    String imagePath = "C:/xampp/htdocs/images/artwork/";
 
                     String imageUrl = imagePath + artwork.getPicture();
 

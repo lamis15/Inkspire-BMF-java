@@ -72,7 +72,7 @@ public class ArtworkDetails {
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
             try {
                 // Correct the file path handling
-                String imagePath = "C:/xampp/htdocs/"; // Ensure this is correct for your server
+                String imagePath = "C:/xampp/htdocs/images/artwork/"; // Ensure this is correct for your server
                 String imageUrl = imagePath + artwork.getPicture();  // Construct full image path
                 Image image = new Image("file:" + imageUrl);  // Use "file:" for local file path
 

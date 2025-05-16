@@ -86,10 +86,8 @@ public class ArtworkService implements IService<Artwork> {
             psArtwork.executeUpdate();
         }
 
-        // Step 4: Delete the file from the filesystem
         if (filePath != null) {
-            // Resolve the full path from the relative path
-            String fullFilePath = "C:/xampp/htdocs/" + filePath;  // Adjust if needed
+            String fullFilePath = "C:/xampp/htdocs/" + filePath;
             File file = new File(fullFilePath);
 
             if (file.exists()) {

@@ -354,7 +354,39 @@ public class AjouterCollections implements Initializable {
             collection.setCurrentAmount(0.0);
 
             if (selectedImageFile != null) {
-                collection.setImage(selectedImageFile.toURI().toString()); // Save as URI
+                // Generate a unique filename to avoid conflicts
+                String originalFileName = selectedImageFile.getName();
+                String fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+                String uniqueFileName = System.currentTimeMillis() + fileExtension;
+                
+                // Set the path to save the file
+                File destinationDir = new File("C:/xampp/htdocs/collections");
+                if (!destinationDir.exists()) {
+                    destinationDir.mkdirs();
+                }
+                
+                // Copy the file to the destination directory
+                File destinationFile = new File(destinationDir, uniqueFileName);
+                
+                try {
+                    java.nio.file.Files.copy(
+                        selectedImageFile.toPath(),
+                        destinationFile.toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                    );
+                    
+                    // Store only the filename in the collection
+                    collection.setImage(uniqueFileName);
+                    
+                } catch (IOException e) {
+                    System.out.println("Error copying image file: " + e.getMessage());
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Image Error");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Failed to save the image file: " + e.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
             } else {
                 // Image is optional, set to null or a default image path
                 collection.setImage(null);
@@ -499,15 +531,26 @@ public class AjouterCollections implements Initializable {
                     // Set artwork image
                     if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
                         try {
-                            // Try loading the image using the file path
-                            File file = new File("C:/xampp/htdocs/" + artwork.getPicture());
+                            // Local file path for artwork images
+                            String imagePath = "C:/xampp/htdocs/images/artwork/";
+
+                            // Combine path with the artwork's image filename
+                            String imageUrl = imagePath + artwork.getPicture();
+
+                            // Convert local file path to file URL
+                            File file = new File(imageUrl);
                             if (file.exists()) {
                                 Image image = new Image(file.toURI().toString());
                                 artworkImage.setImage(image);
                             } else {
-                                throw new Exception("File not found");
+                                System.out.println("Artwork image not found: " + imageUrl);
+                                // Use placeholder image if the artwork image can't be found
+                                Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                                artworkImage.setImage(placeholder);
                             }
                         } catch (Exception e) {
+                            System.out.println("Could not load artwork image: " + artwork.getPicture());
+                            e.printStackTrace();
                             // Use placeholder image if the artwork image can't be loaded
                             Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
                             artworkImage.setImage(placeholder);

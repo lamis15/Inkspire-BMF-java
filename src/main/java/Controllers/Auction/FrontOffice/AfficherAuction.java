@@ -31,7 +31,10 @@ public class AfficherAuction {
 
     private final AuctionService auctionService = new AuctionService();
 
-    private List<Auction> allAuctions ;
+    private List<Auction> allAuctions;
+    
+    // Define image path constant
+    private static final String ARTWORK_IMAGE_PATH = "C:/xampp/htdocs/images/artwork/";
 
     @FXML
     public void initialize() throws SQLException {
@@ -82,11 +85,9 @@ public class AfficherAuction {
         for (Auction auction : auctions) {
             VBox card = null;
             try {
-                String imageUrl = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
-                System.out.println("Image URL: " + imageUrl);
-                String imagePath =  "C:/xampp/htdocs/" + imageUrl;
-                System.out.println("Image Path: " + imagePath);
-                card = createCard(auction,imagePath);
+                String imageFilename = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
+                System.out.println("Image filename: " + imageFilename);
+                card = createCard(auction, imageFilename);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -105,34 +106,64 @@ public class AfficherAuction {
         }
 
         for (Auction auction : auctions) {
-            String imageUrl = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
-            VBox card = createCard(auction, imageUrl);
+            String imageFilename = auctionService.getArtworkById(auction.getArtworkId()).getPicture();
+            VBox card = createCard(auction, imageFilename);
             cardsContainer.getChildren().add(card);
         }
     }
-    private VBox createCard(Auction auction, String imageUrl) throws IOException, SQLException {
+    private VBox createCard(Auction auction, String imageFilename) throws IOException, SQLException {
         VBox card = new VBox();
         card.setPrefSize(200, 300);
         card.setSpacing(10);
         card.setStyle("-fx-background-color: #fdfdfd; -fx-background-radius: 12; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3);");
 
-
         StackPane imageWrapper = new StackPane();
         imageWrapper.setPrefSize(200, 150);
         imageWrapper.setMaxSize(200, 150);
         imageWrapper.setMinSize(200, 150);
-        File file = new File(imageUrl);
-        Image image = null;
-        if (file.exists()) {
-            image = new Image(file.toURI().toString());
-        } else {
-            System.out.println("Image not found: " + imageUrl);
-        }
-        ImageView imageView = new ImageView(image);
+
+        // Handle artwork image loading properly
+        ImageView imageView = new ImageView();
         imageView.setFitWidth(200);
         imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
         imageView.setSmooth(true);
+        
+        if (imageFilename != null && !imageFilename.isEmpty()) {
+            try {
+                // Create full path to the image
+                String imagePath = ARTWORK_IMAGE_PATH + imageFilename;
+                File imageFile = new File(imagePath);
+                
+                if (imageFile.exists()) {
+                    // Load image from file system
+                    Image image = new Image(imageFile.toURI().toString());
+                    imageView.setImage(image);
+                } else {
+                    System.out.println("Artwork image not found: " + imagePath);
+                    // Use a placeholder image
+                    Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(placeholder);
+                }
+            } catch (Exception e) {
+                System.out.println("Error loading image: " + e.getMessage());
+                // Use a placeholder on error
+                try {
+                    Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(placeholder);
+                } catch (Exception ex) {
+                    System.out.println("Could not load placeholder image: " + ex.getMessage());
+                }
+            }
+        } else {
+            // Use placeholder for null/empty image path
+            try {
+                Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                imageView.setImage(placeholder);
+            } catch (Exception e) {
+                System.out.println("Could not load placeholder image: " + e.getMessage());
+            }
+        }
 
         imageWrapper.getChildren().add(imageView);
 
@@ -143,13 +174,13 @@ public class AfficherAuction {
         HBox buttonsBox = new HBox(10);
         buttonsBox.setPrefWidth(200);
         buttonsBox.setStyle("-fx-alignment: center;");
-
-        if (auctionService.isMine(auction)) {
+        
+        if(auctionService.isMine(auction)){
             Button editBtn = new Button("Edit");
             editBtn.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #333; -fx-background-radius: 6; -fx-padding: 3 10;");
             editBtn.setOnAction(e -> {
-                Session.setCurrentAuction(auction);
-                SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/ModifierAuction.fxml");
+                    Session.setCurrentAuction(auction);
+                    SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/ModifierAuction.fxml");
             });
             Button deleteBtn = new Button("Delete");
             deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 3 10;");
@@ -167,8 +198,9 @@ public class AfficherAuction {
                 Session.setCurrentAuction(auction);
                 SceneSwitch.switchScene(cardsContainer, "/AuctionUtils/Auction/FrontOffice/AfficherAuctionDetail.fxml");
             });
-            buttonsBox.getChildren().addAll(editBtn, deleteBtn, chartBtn);
-        } else {
+            buttonsBox.getChildren().addAll(editBtn, deleteBtn ,chartBtn);
+        }
+        else{
             Button placeBidBtn = new Button("Place Bid");
             placeBidBtn.setStyle("-fx-background-color: #50c878; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 3 10;");
             placeBidBtn.setOnAction(e -> {
@@ -177,7 +209,7 @@ public class AfficherAuction {
             });
             buttonsBox.getChildren().addAll(placeBidBtn);
         }
-        card.getChildren().addAll(imageWrapper, nameLabel, bidLabel, timeLeftLabel, buttonsBox);
+        card.getChildren().addAll(imageWrapper, nameLabel ,bidLabel, timeLeftLabel, buttonsBox);
         return card;
     }
 }

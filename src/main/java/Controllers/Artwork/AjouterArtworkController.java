@@ -68,29 +68,22 @@ public class AjouterArtworkController {
         File file = fileChooser.showOpenDialog(null);
 
         if (file != null) {
-            // Define the destination path in the server's htdocs folder
-            String destinationFolder = "C:/xampp/htdocs/images/artwork/";  // Change this path as necessary
-            String destinationFilePath = destinationFolder + file.getName();
-
-            File destFile = new File(destinationFilePath);
+            String destinationFolder = "C:/xampp/htdocs/images/artwork/";
+            File destFile = new File(destinationFolder + file.getName());
 
             try {
-                // Copy the file to the destination folder in htdocs
                 Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-                // Store the relative path to the image
-                imagePath = "images/artwork/" + file.getName();  // Relative path for use in web server
+                imagePath = file.getName();
 
-                // Update the label with the image name
                 imagePathLabel.setText(file.getName());
-            } catch (IOException e) {
+            } catch (IOException | java.io.IOException e) {
                 e.printStackTrace();
                 imageError.setText("Error saving image to server.");
-            } catch (java.io.IOException e) {
-                throw new RuntimeException(e);
             }
         }
     }
+
 
 
     @FXML
@@ -202,15 +195,12 @@ public class AjouterArtworkController {
         }
 
         try {
-            // Get the relative path of the image generated
             generatedImageUrl = ImageGenerationService.generateImage(prompt);
             System.out.println("Generated Image URI (relative): " + generatedImageUrl);
 
-            // Construct the full file path
-            String fullPath = "file:C:/xampp/htdocs/" + generatedImageUrl;
+            String fullPath = "file:C:/xampp/htdocs/images/artwork/" + generatedImageUrl;
             System.out.println("Full Image Path: " + fullPath);
 
-            // Create the Image object using the full file path
             Image image = new Image(fullPath);
             if (image.isError()) {
                 System.out.println("⚠️ Failed to load image: " + image.getException().getMessage());

@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import utils.SceneSwitch;
 import service.CollectionsService;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -59,10 +60,36 @@ public class CollectionCard {
 
         if (collection.getImage() != null && !collection.getImage().isEmpty()) {
             try {
-                Image image = new Image(collection.getImage());
-                imageView.setImage(image);
+                // Create a File object with the full path
+                File imageFile = new File(AfficherCollections.COLLECTIONS_IMAGE_PATH + collection.getImage());
+                
+                // Check if the file exists
+                if (imageFile.exists()) {
+                    Image image = new Image(imageFile.toURI().toString());
+                    imageView.setImage(image);
+                } else {
+                    // Use default image if file doesn't exist
+                    Image defaultImage = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(defaultImage);
+                    System.out.println("Image file not found: " + imageFile.getAbsolutePath());
+                }
             } catch (Exception e) {
                 System.out.println("Image loading failed: " + e.getMessage());
+                // Use default image on error
+                try {
+                    Image defaultImage = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                    imageView.setImage(defaultImage);
+                } catch (Exception ex) {
+                    System.out.println("Default image loading failed: " + ex.getMessage());
+                }
+            }
+        } else {
+            // Use default image if no image is set
+            try {
+                Image defaultImage = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
+                imageView.setImage(defaultImage);
+            } catch (Exception e) {
+                System.out.println("Default image loading failed: " + e.getMessage());
             }
         }
     }
