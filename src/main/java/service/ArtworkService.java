@@ -4,6 +4,7 @@ import entities.Artwork;
 import entities.User;
 import utils.DataSource;
 
+import java.io.File;
 import java.sql.*;
 import java.util.*;
 
@@ -60,20 +61,49 @@ public class ArtworkService implements IService<Artwork> {
         return true;
     }
     public void deleteArtwork(int artworkId) throws SQLException {
-        // Step 1: Delete dependent records from artwork_like table
+        // Step 1: Retrieve the artwork information to get the file path
+        String selectSql = "SELECT picture FROM artwork WHERE id = ?";
+        String filePath = null;
+        try (PreparedStatement psSelect = connection.prepareStatement(selectSql)) {
+            psSelect.setInt(1, artworkId);
+            ResultSet rs = psSelect.executeQuery();
+            if (rs.next()) {
+                filePath = rs.getString("picture");
+            }
+        }
+
+        // Step 2: Delete dependent records from artwork_like table
         String deleteLikesSql = "DELETE FROM artwork_like WHERE artwork_id = ?";
         try (PreparedStatement psLikes = connection.prepareStatement(deleteLikesSql)) {
             psLikes.setInt(1, artworkId);
             psLikes.executeUpdate();
         }
 
-
+        // Step 3: Delete the artwork record from the database
         String deleteArtworkSql = "DELETE FROM artwork WHERE id = ?";
         try (PreparedStatement psArtwork = connection.prepareStatement(deleteArtworkSql)) {
             psArtwork.setInt(1, artworkId);
             psArtwork.executeUpdate();
         }
+
+        if (filePath != null) {
+            String fullFilePath = "C:/xampp/htdocs/" + filePath;
+            File file = new File(fullFilePath);
+
+            if (file.exists()) {
+                boolean deleted = file.delete();
+                if (deleted) {
+                    System.out.println("File successfully deleted: " + fullFilePath);
+                } else {
+                    System.out.println("Failed to delete file: " + fullFilePath);
+                }
+            } else {
+                System.out.println("File does not exist: " + fullFilePath);
+            }
+        }
     }
+
+
     @Override
     public boolean supprimer(int id) throws SQLException {
         String sql = "DELETE FROM artwork WHERE id=?";

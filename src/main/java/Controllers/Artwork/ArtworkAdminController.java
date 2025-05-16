@@ -89,27 +89,33 @@ public class ArtworkAdminController {
             imageView.setSmooth(true);
             imageView.setCache(true);
 
-            Image image;
+            Image image = null;
 
             try {
                 if (artwork.getPicture() != null && !artwork.getPicture().trim().isEmpty()) {
-                    String baseUrl = "http://localhost/"; // adjust if needed
-                    String imageUrl = baseUrl + artwork.getPicture().replace("\\", "/");
+                    String imagePath = "C:/xampp/htdocs/images/artwork/";
 
-                    image = new Image(imageUrl, true);
+                    String imageUrl = imagePath + artwork.getPicture();
 
-                    if (image.isError()) {
-                        throw new Exception("Image failed to load: " + imageUrl);
+                    File file = new File(imageUrl);
+                    if (file.exists()) {
+                        image = new Image(file.toURI().toString());
+                        imageView.setImage(image);
+                    } else {
+                        System.out.println("Image not found: " + imageUrl);
                     }
-                } else {
-                    throw new Exception("Empty or null picture path");
                 }
             } catch (Exception e) {
                 System.out.println("❌ Could not load image: " + artwork.getPicture());
                 e.printStackTrace();
 
+                // Provide a fallback image URL in case of error
                 String fallbackUrl = "http://localhost/images/artwork/default.jpg";
-                image = new Image(fallbackUrl, true);
+                image = new Image(fallbackUrl);
+            }
+
+            if (image != null) {
+                imageView.setImage(image);
             }
 
             imageView.setImage(image);

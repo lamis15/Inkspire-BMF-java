@@ -57,8 +57,8 @@ public class ShowUsers {
 
         for (User user : users) {
             String imagepath = user.getPicture() != null
-                    ? "C:/xampp/htdocs/images/profilePictures/" + user.getPicture()
-                    : "C:/xampp/htdocs/images/profilePictures/user.png";
+                    ? "C:/xampp/htdocs/images/ProfilePicture/" + user.getPicture()
+                    : "C:/xampp/htdocs/images/ProfilePicture/user.png";
 
             VBox userCard = createUserCard(
                     user.getFirstName(),

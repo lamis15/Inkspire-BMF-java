@@ -71,23 +71,18 @@ public class ArtworkDetails {
 
         if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
             try {
-                String baseUrl = "http://localhost/";
-                String imageUrl = baseUrl + artwork.getPicture();
-                Image image = new Image(imageUrl, true);
+                // Correct the file path handling
+                String imagePath = "C:/xampp/htdocs/images/artwork/"; // Ensure this is correct for your server
+                String imageUrl = imagePath + artwork.getPicture();  // Construct full image path
+                Image image = new Image("file:" + imageUrl);  // Use "file:" for local file path
 
-                image.errorProperty().addListener((obs, oldVal, hasError) -> {
-                    if (hasError) {
-                        imageView.setImage(new Image(getClass().getResource("/images/placeholder.png").toExternalForm()));
-                    }
-                });
-
+                // Try to load image
                 imageView.setImage(image);
             } catch (Exception e) {
-                imageView.setImage(new Image(getClass().getResource("/images/placeholder.png").toExternalForm()));
+                // Fallback if image loading fails
+                imageView.setImage(new Image(getClass().getResource("/images/artwork/upload_1746753714952_Capture d'écran 2025-02-11 032649.png").toExternalForm()));
                 e.printStackTrace();
             }
-        } else {
-            imageView.setImage(new Image(getClass().getResource("/images/placeholder.png").toExternalForm()));
         }
 
         editButton.setVisible(isOwner);
@@ -152,7 +147,18 @@ public class ArtworkDetails {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
+                    // Delete the artwork (including its file and database records)
                     artworkService.deleteArtwork(artwork.getId());
+
+                    // Show a success message
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Artwork Deleted");
+                    successAlert.setHeaderText("The artwork was successfully deleted.");
+                    successAlert.setContentText("The artwork and its associated file were deleted.");
+                    successAlert.show();
+
+                    // Optionally, you could close or update the current view after deletion
+                    // For example, you can close the window or refresh the artwork list
 
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -162,6 +168,7 @@ public class ArtworkDetails {
             }
         });
     }
+
 
 
     @FXML

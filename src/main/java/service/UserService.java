@@ -110,16 +110,16 @@ public class UserService implements IService<User> {
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery(sql);
 
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setEmail(rs.getString("email"));
-                user.setRole(rs.getInt("role"));
-                user.setPicture(rs.getString("picture"));
+        while (rs.next()) {
+            User user = new User();
+            user.setId(rs.getInt("id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setEmail(rs.getString("email"));
+            user.setRole(rs.getInt("role"));
+            user.setPicture(rs.getString("picture"));
 
-                users.add(user);
-            }
+            users.add(user);
+        }
         return users;
     }
 
@@ -129,12 +129,14 @@ public class UserService implements IService<User> {
         String query = "SELECT * FROM user WHERE email = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
+
             statement.setString(1, email);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     String hashedPassword = resultSet.getString("password");
                     hashedPassword = hashedPassword.replace("$2y$", "$2a$");
+
                     if (BCrypt.checkpw(password, hashedPassword) && resultSet.getInt("status") == 1) {
                         User user = new User();
                         user.setId(resultSet.getInt("id"));
@@ -182,7 +184,7 @@ public class UserService implements IService<User> {
     }
 
 
-        public boolean emailExists(String email) throws SQLException {
+    public boolean emailExists(String email) throws SQLException {
         String query = "SELECT COUNT(*) FROM user WHERE email = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -448,7 +450,3 @@ public class UserService implements IService<User> {
     }
 
 }
-
-
-
-

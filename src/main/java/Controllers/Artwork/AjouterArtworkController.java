@@ -14,6 +14,8 @@ import service.ArtworkService;
 import utils.SceneSwitch;
 import entities.Session;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,7 +42,6 @@ public class AjouterArtworkController {
     private Label blockedError;
 
 
-
     @FXML
     private ComboBox<String> themeComboBox;
     @FXML
@@ -49,7 +50,8 @@ public class AjouterArtworkController {
     private Label imagePathLabel;
 
     private String imagePath = null;
-    @FXML private Button backButton;
+    @FXML
+    private Button backButton;
 
 
     private final ArtworkService artworkService = new ArtworkService();
@@ -66,26 +68,22 @@ public class AjouterArtworkController {
         File file = fileChooser.showOpenDialog(null);
 
         if (file != null) {
-            // Define the destination path in the server's htdocs folder
-            String destinationFolder = "C:/xampp/htdocs/images/profilePictures/";  // Change this path as necessary
-            String destinationFilePath = destinationFolder + file.getName();
-
-            File destFile = new File(destinationFilePath);
+            String destinationFolder = "C:/xampp/htdocs/images/artwork/";
+            File destFile = new File(destinationFolder + file.getName());
 
             try {
-                // Copy the file to the destination folder in htdocs
+                Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-                // Store the relative path to the image
-                imagePath = "images/profilePictures/" + file.getName();  // Relative path for use in web server
+                imagePath = file.getName();
 
-                // Update the label with the image name
                 imagePathLabel.setText(file.getName());
-            } catch (IOException e) {
+            } catch (IOException | java.io.IOException e) {
                 e.printStackTrace();
                 imageError.setText("Error saving image to server.");
             }
         }
     }
+
 
 
     @FXML
@@ -95,7 +93,6 @@ public class AjouterArtworkController {
         descriptionError.setText("");
         imageError.setText("");
         themeError.setText("");
-
 
 
         String name = nameField.getText();
@@ -136,7 +133,7 @@ public class AjouterArtworkController {
         }
 
         if (!isValid) {
-            return; // stop processing if validation fails
+            return;
         }
 
         try {
@@ -188,6 +185,7 @@ public class AjouterArtworkController {
     private ImageView artworkImageView;
 
     private String generatedImageUrl = null;
+
     @FXML
     private void onGenerateImage() {
         String prompt = descriptionArea.getText();
@@ -198,15 +196,19 @@ public class AjouterArtworkController {
 
         try {
             generatedImageUrl = ImageGenerationService.generateImage(prompt);
-            System.out.println("Image URI: " + generatedImageUrl);
+            System.out.println("Generated Image URI (relative): " + generatedImageUrl);
 
-            Image image = new Image(generatedImageUrl);
+            String fullPath = "file:C:/xampp/htdocs/images/artwork/" + generatedImageUrl;
+            System.out.println("Full Image Path: " + fullPath);
+
+            Image image = new Image(fullPath);
             if (image.isError()) {
                 System.out.println("⚠️ Failed to load image: " + image.getException().getMessage());
             }
 
+            // Display the image in the ImageView
             artworkImageView.setImage(image);
-            imagePath = generatedImageUrl;
+            imagePath = generatedImageUrl;  // Store the relative path
             imagePathLabel.setText("Generated Image");
 
         } catch (Exception e) {
@@ -217,4 +219,5 @@ public class AjouterArtworkController {
             alert.setContentText("An error occurred while generating the image.");
             alert.showAndWait();
         }
-    }}
+    }
+}

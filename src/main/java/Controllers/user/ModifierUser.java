@@ -85,9 +85,9 @@ public class ModifierUser {
             String imagePath;
 
             if (currentUser.getPicture() == null || currentUser.getPicture().isEmpty() || currentUser.getPicture().equals("null")) {
-                imagePath = "C:/xampp/htdocs/images/profilePictures/user.png";
+                imagePath = "C:/xampp/htdocs/images/ProfilePicture/user.png";
             } else {
-                imagePath = "C:/xampp/htdocs/images/profilePictures/" + currentUser.getPicture();
+                imagePath = "C:/xampp/htdocs/images/ProfilePicture/" + currentUser.getPicture();
             }
 
             try {
@@ -306,7 +306,7 @@ public class ModifierUser {
         if (selectedFile != null) {
             try {
                 // Define a location to save the profile picture
-                File dir = new File("C:/xampp/htdocs/images/profilePictures/");
+                File dir = new File("C:/xampp/htdocs/images/ProfilePicture/");
 
                 String fileName = "profile_" + System.currentTimeMillis() + "_" + selectedFile.getName();
                 File dest = new File(dir, fileName);

@@ -92,7 +92,6 @@ public class AjouterCollections implements Initializable {
                 selectedImageFile = file;
                 imagePathLabel.setText(file.getName());
             } catch (Exception e) {
-                // Not a valid image file
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Invalid Image");
                 alert.setHeaderText(null);
@@ -123,7 +122,6 @@ public class AjouterCollections implements Initializable {
             }
         });
 
-        // Load user's artworks
         loadUserArtworks();
     }
 
@@ -135,14 +133,13 @@ public class AjouterCollections implements Initializable {
             // Get current user from session
             User currentUser = Session.getCurrentUser();
             if (currentUser == null) {
-                // Handle case where user is not logged in
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Authentication Error");
                 alert.setHeaderText(null);
                 alert.setContentText("You must be logged in to perform this action.");
                 alert.showAndWait();
                 return;
-            } // Updated to use ID 2 to match other parts of the application
+            }
 
             // Get all artworks for the current user
             availableArtworks = artworkService.getArtworksByUserId(currentUser.getId());
@@ -425,10 +422,18 @@ public class AjouterCollections implements Initializable {
                 selectedArtworks.clear();
             }
 
-            // Configure the FlowPane for proper scrolling
+            // Configure the FlowPane for proper scrolling and layout
             container.setPrefWidth(600);
             container.setMaxWidth(Double.MAX_VALUE);
             container.setMinHeight(400);
+
+            // Check if artworks list is null or empty
+            if (artworks == null || artworks.isEmpty()) {
+                Label noArtworksLabel = new Label("You don't have any artworks yet. Create some artworks first!");
+                noArtworksLabel.getStyleClass().add("no-artworks-label");
+                container.getChildren().add(noArtworksLabel);
+                return;
+            }
 
             // Create a card for each artwork
             for (Artwork artwork : artworks) {
@@ -447,22 +452,29 @@ public class AjouterCollections implements Initializable {
                     Label artworkDescription = (Label) ((VBox) artworkCard).lookup("#artworkDescription");
                     CheckBox artworkSelect = (CheckBox) ((VBox) artworkCard).lookup("#artworkSelect");
 
-                    // Set artwork data
+                    // Set artwork image
                     if (artwork.getPicture() != null && !artwork.getPicture().isEmpty()) {
                         try {
-                            Image image = new Image(artwork.getPicture());
-                            artworkImage.setImage(image);
+                            // Try loading the image using the file path
+                            File file = new File("C:/xampp/htdocs/" + artwork.getPicture());
+                            if (file.exists()) {
+                                Image image = new Image(file.toURI().toString());
+                                artworkImage.setImage(image);
+                            } else {
+                                throw new Exception("File not found");
+                            }
                         } catch (Exception e) {
-                            // Use placeholder image if artwork image can't be loaded
+                            // Use placeholder image if the artwork image can't be loaded
                             Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
                             artworkImage.setImage(placeholder);
                         }
                     } else {
-                        // Use placeholder image if no artwork image
+                        // Use placeholder image if no artwork image is provided
                         Image placeholder = new Image(getClass().getResourceAsStream("/assets/images/placeholder.png"));
                         artworkImage.setImage(placeholder);
                     }
 
+                    // Set artwork title, theme, and description
                     artworkTitle.setText(artwork.getName());
                     artworkTheme.setText(artwork.getTheme());
                     artworkDescription.setText(artwork.getDescription());
@@ -475,14 +487,12 @@ public class AjouterCollections implements Initializable {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error Loading Artwork Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Failed to load artwork card template: " + e.getMessage());
+                    alert.showAndWait();
                 }
-            }
-
-            // Show a message if no artworks are available
-            if (artworks.isEmpty()) {
-                Label noArtworksLabel = new Label("You don't have any artworks yet. Create some artworks first!");
-                noArtworksLabel.getStyleClass().add("no-artworks-label");
-                container.getChildren().add(noArtworksLabel);
             }
 
         } catch (Exception e) {
@@ -494,4 +504,5 @@ public class AjouterCollections implements Initializable {
             alert.showAndWait();
         }
     }
+
 }

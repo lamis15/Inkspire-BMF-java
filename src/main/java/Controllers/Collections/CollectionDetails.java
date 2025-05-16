@@ -340,7 +340,6 @@ public class CollectionDetails implements javafx.fxml.Initializable {
                     artworkTheme.setText(artwork.getTheme());
                     artworkDescription.setText(artwork.getDescription());
 
-                    // Add the card to the container
                     artworkContainer.getChildren().add(artworkCard);
                     System.out.println("Added artwork card to container");
 
@@ -350,7 +349,6 @@ public class CollectionDetails implements javafx.fxml.Initializable {
                 }
             }
 
-            // Show a message if no artworks are in this collection
             if (collectionArtworks.isEmpty()) {
                 Label noArtworksLabel = new Label("No artworks in this collection");
                 noArtworksLabel.getStyleClass().add("no-artworks-label");
